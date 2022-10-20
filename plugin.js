@@ -87,7 +87,7 @@ function makeGlobalRunHooks() {
           logger.trace('config.testRunName: ' + config.testRunName);
 
           if (process.env.VT_API_HOST) {
-            logger.warn('Found process.env.VT_API_HOST')
+            logger.debug('Found process.env.VT_API_HOST')
             config.url = process.env.VT_API_HOST
             logger.warn('overwritten URL is: ' + config.url);
           } else{
@@ -108,10 +108,8 @@ function makeGlobalRunHooks() {
             logger.debug('config.testRunId: ' + config.testRunId);
           } catch (error) {
             config.fail = true;
-            logger.fatal('There was an issue with creating a testRunId');
-            console.log('Error: ', error.postResponse.data);
-            console.log('Error: ', error.message);
-            logger.fatal(error.message)
+            logger.fatal(`Error with creating testRun: %o`, error.message);
+            logger.trace(`Full error with creating testRun: %o`, error);
             return config;
           }
           config.fail = false; //no errors in generating testRunId
@@ -135,7 +133,7 @@ function makeGlobalRunHooks() {
     },
     'after:run':
         async () => {
-          if (config.fail === false){
+          if (config.fail === false) {
             try {//this just GETs test results using the testRunId
               const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
               logger.info(`API image URL: ${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`); // this is useless right now, needs to be 'logger.fatal' to be seen TODO add the ability to check environment variables for default logger level maybe?
@@ -143,8 +141,10 @@ function makeGlobalRunHooks() {
             } catch (error) {
               console.error(error.response.data);
             }
+          } else if (config.fail === true) {
+            logger.fatal('There were issues with VisualTest. Check above logs.');
           } else {
-            logger.fatal('There were issues with sbvtCapture()');
+            console.log('There were no VisualTest captures taken.');
           }
         },
   };
