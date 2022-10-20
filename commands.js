@@ -91,7 +91,6 @@ let sendImageApiJSON = () => {
             "dom": dom
         },
     }).then( (res) => {
-        if (vtConfFile.env === 'dev') apiRes.imagePOST = res
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
@@ -130,7 +129,6 @@ let uploadToS3 = async (res) => {
             } else {
                 cy.task('logger', {type: 'error', message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`});
             }
-            if (vtConfFile.env === 'dev') apiRes.imagePUT = res
             getImageById(); //only necessary for ~debugging, and only works in interactive mode
         })
     }
@@ -154,15 +152,12 @@ let domCapture = () => {
         });
 };
 let getImageById = () => {
-    if (vtConfFile.env === 'dev' && imageName === 'apiCheck') cy.wait(5000) //add a delay to the console GET for the apiCheck.cy.js file to return the imageUrl
     cy.request({
         method: 'GET',
         headers: {"Authorization": `Bearer ${vtConfFile.projectToken}`},
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`
     })
         .then((res) => {
-            //delay for giving the image time to upload for apiCheck.cy.js apiRes.imageGET
-            if (vtConfFile.env === 'dev') apiRes.imageGET = res
             let responseObj = {};
             responseObj.testRunId = vtConfFile.testRunId,  responseObj.imageId = res.body.items[0].imageId, responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
             console.log('Successfully uploaded:',res.body.items[0].imageName, responseObj);

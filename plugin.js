@@ -86,16 +86,13 @@ function makeGlobalRunHooks() {
           }
           logger.trace('config.testRunName: ' + config.testRunName);
 
-          if (!config.env && !process.env.VT_API_HOST) {
-            config.url = 'https://api.int.visualtest.io';
-          } else if (config.env === 'dev') {
-            config.url = 'https://api.dev.visualtest.io';
-            console.log('Using host: ', config.url)
-          } else if (process.env.VT_API_HOST) {
+          if (process.env.VT_API_HOST) {
             config.url = process.env.VT_API_HOST
-            console.log('Using host: ', config.url)
+            logger.warn('overwritten URL is: ' + config.url);
+          } else{
+            config.url = 'https://api.visualtest.io';
+            logger.trace('URL is: ' + config.url);
           }
-          logger.info('config.url: ' + config.url);
           config.websiteUrl = config.url.replace('api', 'app');
           logger.trace('config.websiteUrl: ' + config.websiteUrl);
 
