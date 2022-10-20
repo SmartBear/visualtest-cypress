@@ -51,6 +51,8 @@ function makeGlobalRunHooks() {
 
           if (config.PINO_LOG_LEVEL) {
             logger.level = config.PINO_LOG_LEVEL //overwrite if the user includes a pino flag in VTconf
+          } else if (config.log) {
+            logger.level = config.log
           }
 
           if (!config.projectToken) { //check to make sure user added a projectToken

@@ -39,7 +39,7 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
 let takeScreenshot = (element, name, modifiedOptions) => {
     if (vtConfFile.fail) {
         console.log('The sbvtScreenshot() has failed');
-        cy.task('logger', {type: 'warn', message: `sbvtCapture() has failed`});
+        cy.task('logger', {type: 'trace', message: `sbvtCapture() has failed`}); //I dont think this should be printed out each screenshot
     } else if (element) {
         cy.task('logger', {type: 'trace', message: `Before element cy.screenshot('${name}')`});
         cy.get(element).screenshot(
