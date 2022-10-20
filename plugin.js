@@ -87,6 +87,7 @@ function makeGlobalRunHooks() {
           logger.trace('config.testRunName: ' + config.testRunName);
 
           if (process.env.VT_API_HOST) {
+            logger.warn('Found process.env.VT_API_HOST')
             config.url = process.env.VT_API_HOST
             logger.warn('overwritten URL is: ' + config.url);
           } else{
