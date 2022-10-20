@@ -1,0 +1,40 @@
+{
+  "name": "@smartbear/sbvt-cypress",
+  "version": "1.0.0-alpha.19",
+  "description": "This is for testing only",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trevor Nelms",
+  "license": "ISC",
+  "dependencies": {
+    "@smartbear/sbvt-browser-toolkit": "^1.0.0-alpha.3",
+    "axios": "^0.27.2",
+    "chalk": "^4.1.2",
+    "dotenv": "^16.0.2",
+    "pino": "^8.4.2",
+    "pino-pretty": "^9.1.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "cypress": "^10.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SmartBear/visualtest-cypress.git"
+  },
+  "homepage": "https://github.com/SmartBear/visualtest-cypress.git",
+  "bin": {
+    "sbvt-setup": "./bin/setup.js"
+  },
+  "files": [
+    "README.md",
+    "bin/setup.js",
+    "index.js",
+    "package.json",
+    "plugin.js",
+    "commands.js",
+    "LICENSE"
+  ]
+}
