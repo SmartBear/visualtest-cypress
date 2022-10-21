@@ -10,7 +10,8 @@ const commandsImport = `\nimport '@smartbear/sbvt-cypress/commands'`;
 const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n\ttestRunName: 'My first test',\n}`;
 const jsonData = `"chromeWebSecurity": false`
 //TODO add try catch
-const usersCypress = JSON.parse(fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json')),);
+const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'))
+const usersCypress = JSON.parse(packageFile.toString());
 let checkForOlderVersion = () => {
     if (usersCypress.version.split('.')[0] < 7 || (usersCypress.version.split('.')[0] <= 7 && usersCypress.version.split('.')[1] < 4)) {
         const filePath = path.resolve(process.cwd(), 'cypress.json');

@@ -3,7 +3,6 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require("fs");
 const toolkitScripts = require('@smartbear/sbvt-browser-toolkit');
 const package_json = require('./package.json');
-require('dotenv').config()
 const cwd = process.cwd();
 const path = require("path");
 
@@ -20,7 +19,8 @@ let config = {};
 
 let usersCypress;
 try {
-  usersCypress = JSON.parse(fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json')),);
+  const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'))
+  usersCypress = JSON.parse(packageFile.toString());
   if (!usersCypress.version) {
     usersCypress.version = "10.0.0.failure" // #TODO improve this if cypress folder isnt found (when the folder isnt a devDependency)
     logger.warn('failed to find cypress assuming it is v10+')
@@ -88,9 +88,9 @@ function makeGlobalRunHooks() {
           }
           logger.trace('config.testRunName: ' + config.testRunName);
 
-          if (process.env.VT_API_HOST) {
-            logger.debug('Found process.env.VT_API_HOST')
-            config.url = process.env.VT_API_HOST
+          if (config.apiHost) {
+            logger.debug('Found config.apiHost')
+            config.url = config.apiHost
             logger.warn('overwritten URL is: ' + config.url);
           } else{
             config.url = 'https://api.visualtest.io';
