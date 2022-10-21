@@ -1,0 +1,37 @@
+{
+  "name": "@smartbear/sbvt-browser-toolkit",
+  "version": "1.0.0-alpha.3",
+  "description": "All the scripts minified that run in the browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --timeout 600000",
+    "build": "node src/minify-code.js"
+  },
+  "author": "Trevor Nelms <trevor.nelms@smartbear.com>",
+  "devDependencies": {
+    "axios": "^0.27.2",
+    "chai": "^4.3.6",
+    "chromedriver": "^102.0.0",
+    "dotenv": "^16.0.1",
+    "geckodriver": "^3.0.1",
+    "mocha": "^10.0.0",
+    "path": "^0.12.7",
+    "selenium-webdriver": "^4.2.0",
+    "terser": "^5.14.2"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SmartBear/visual-testing-browser-toolkit.git"
+  },
+  "keywords": [
+    ""
+  ],
+  "bugs": {
+    "url": "https://github.com/SmartBear/visual-testing-browser-toolkit/issues"
+  },
+  "homepage": "https://github.com/SmartBear/visual-testing-browser-toolkit#readme",
+  "files": ["dist", "index.js"]
+}
