@@ -5,8 +5,8 @@ const path = require('path');
 const chalk = require('chalk')
 const cwd = process.cwd();
 
-const pluginRequire = `\nrequire('@smartbear/sbvt-cypress')(module)`;
-const commandsImport = `\nimport '@smartbear/sbvt-cypress/commands'`;
+const pluginRequire = `\nrequire('@smartbear/visualtest-cypress')(module)`;
+const commandsImport = `\nimport '@smartbear/visualtest-cypress/commands'`;
 const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n\ttestRunName: 'My first test',\n}`;
 const jsonData = `"chromeWebSecurity": false`
 //TODO add try catch

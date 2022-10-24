@@ -1,7 +1,7 @@
 {
   "name": "@smartbear/visualtest-cypress",
   "version": "1.0.0-beta.1",
-  "description": "This is for testing only",
+  "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,6 @@
   "author": "Trevor Nelms",
   "license": "ISC",
   "dependencies": {
-    "@smartbear/sbvt-browser-toolkit": "file:sbvt-browser-toolkit",
     "axios": "^0.27.2",
     "chalk": "^4.1.2",
     "pino": "^8.4.2",
@@ -25,7 +24,7 @@
   },
   "homepage": "https://github.com/SmartBear/visualtest-cypress.git",
   "bin": {
-    "sbvt-setup": "./bin/setup.js"
+    "visualtest-setup": "./bin/setup.js"
   },
   "files": [
     "README.md",
