@@ -1,6 +1,6 @@
 {
   "name": "@smartbear/sbvt-cypress",
-  "version": "1.0.0-alpha.19",
+  "version": "1.0.0-beta.1",
   "description": "This is for testing only",
   "main": "index.js",
   "scripts": {
