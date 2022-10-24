@@ -1,5 +1,5 @@
 {
-  "name": "@smartbear/sbvt-cypress",
+  "name": "@smartbear/visualtest-cypress",
   "version": "1.0.0-beta.1",
   "description": "This is for testing only",
   "main": "index.js",
