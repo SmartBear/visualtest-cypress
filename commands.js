@@ -20,7 +20,6 @@ let toolkitScripts;
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('loadScripts').then((scripts) => toolkitScripts = scripts) //load the scripts from the toolkit
     imageName = (name) ? name : (function(){throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')")})(); //check for file name and then assign to global let
-    if (imageName.includes(".")) (function(){throw new Error(`sbvtCapture name cannot contain "."`)})();
     imageType = (options && options.capture) ? options.capture : imageType;  //pass through options.capture if provided
 
     if (options && options.onAfterScreenshot || options && options.onBeforeScreenshot) cy.task('logger', {type: 'warn', message: `'${imageName}': Callback functions are not supported.`});
