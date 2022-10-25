@@ -2,7 +2,7 @@
 # Cypress VistualTest Plugin
 
 ## Requirements
- - Cypress v6.7.0+
+ - Cypress v6.7.0+ (Recommend v10.10.0)
 
 ## Setup
 Run ```npm install @smartbear/visualtest-cypress```
