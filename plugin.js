@@ -1,7 +1,7 @@
 const axios = require('axios').default;
 const { v4: uuidv4 } = require('uuid');
 const fs = require("fs");
-const toolkitScripts = require('@smartbear/sbvt-browser-toolkit');
+const toolkitScripts = require('./sbvt-browser-toolkit/index');
 const package_json = require('./package.json');
 const cwd = process.cwd();
 const path = require("path");
