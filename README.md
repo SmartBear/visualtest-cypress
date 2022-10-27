@@ -1,11 +1,12 @@
 
 # Cypress VistualTest Plugin
 
-## Requirements
- - Cypress v6.7.0+ (Recommend v10.10.0)
+### Requirements
+ - Cypress v6.7.0+ (Recommend v10.10.0+)
 
 ## Setup
 Run ```npm install @smartbear/visualtest-cypress```
+
 Run ```npx visualtest-setup``` , **this will**:
  - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of **cypress.config.js**
  - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**e2e.js**
@@ -21,7 +22,7 @@ For example, this will run regression tests agaist **Fullpage Home Capture** in 
 cy.sbvtCapture('Fullpage Home Capture')
 ```
 
-You can also run tests agaist just certain elements, this will run regression tests agaist the header.
+You can also run tests against just certain elements, this will run regression tests against the header.
 ```
 cy.get('.container').eq(0).sbvtCapture('Capture of the homepage header')
 ```
@@ -35,7 +36,7 @@ cy.sbvtCapture('Clipping the homepage viewport', {
 })
 ```
 
-**Callback argumenets are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterScreenshot```**
+**Callback arguments are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterScreenshot```**
 ## Running
  - ```npx cypress run``` is the recommended way to run our plugin.
  - Going into 'interactive mode' (```npx cypress open```) works, but each test can only be ran once without closing and relauching the Cypress application.

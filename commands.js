@@ -51,8 +51,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             domCapture();
             picFileFormat();
         });
-    } else {
-        cy.task('logger', {type: 'trace', message: `Before fullpage or viewport cy.screenshot('${name}')`});
+    } else if (modifiedOptions.capture === 'viewport') {
+        cy.task('logger', {type: 'trace', message: `Before viewport cy.screenshot('${name}')`});
         cy.screenshot(
             name,
             modifiedOptions,
@@ -61,6 +61,38 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             domCapture();
             picFileFormat();
         });
+    } else {
+        cy.task('logger', {type: 'trace', message: `Before fullpage cy.screenshot('${name}')`});
+        let initialPageState;
+        cy.window()
+            .then((win) => {
+                initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
+                win.eval(`document.body.style.transform="translateY(0)"`)
+            });
+        cy.screenshot(
+            name,
+            modifiedOptions,
+        ).then(() => {
+            userAgent();
+            domCapture();
+            picFileFormat();
+            returnPageState();
+        })
+        let returnPageState = () => {
+            cy.task('logger', {type: 'trace', message: `Before fullpage cy.screenshot('${name}')`});
+            cy.window()
+                .then((win) => {
+                    cy.task('logger', {type: 'trace', message: `document.body.style.transform='${initialPageState.transform}'`});
+                    cy.task('logger', {type: 'trace', message: `window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`});
+                    cy.task('logger', {type: 'trace', message: `document.body.style.overflow='${initialPageState.overflow}'`});
+
+                    win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                    win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+
+                    cy.task('logger', {type: 'trace', message: `After returnPageState()`});
+                });
+        };
     }
 };
 let sendImageApiJSON = () => {
