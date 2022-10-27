@@ -29,12 +29,16 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
     cy.task('logger', {type: 'trace', message: `Beginning sbvtCapture('${name}')`});
     if (element) cy.task('logger', {type: 'trace', message: 'This is chained and there is an "element" value'});
 
-    return cy.task('postTestRunId').then((taskData) => {
-        vtConfFile = taskData; //grab visualTest.config.js data
-        takeScreenshot(element, name, modifiedOptions);
-    }).then(() => {
-        return apiRes
-    });
+    cy.window()
+        .then((win) => {
+            userAgentData = win.eval(toolkitScripts.userAgentScript)
+            return cy.task('postTestRunId', userAgentData).then((taskData) => {
+                vtConfFile = taskData; //grab visualTest.config.js data
+                takeScreenshot(element, name, modifiedOptions);
+            }).then(() => {
+                return apiRes;
+            });
+        });
 });
 let takeScreenshot = (element, name, modifiedOptions) => {
     if (vtConfFile.fail) {
@@ -47,7 +51,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             modifiedOptions,
             imageType = 'element'
         ).then(() => {
-            userAgent();
             domCapture();
             picFileFormat();
         });
@@ -57,7 +60,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             name,
             modifiedOptions,
         ).then(() => {
-            userAgent();
             domCapture();
             picFileFormat();
         });
@@ -75,7 +77,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     name,
                     modifiedOptions,
                 ).then(() => {
-                    userAgent();
                     domCapture();
                     picFileFormat();
 
@@ -92,7 +93,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             })
     }
 };
-
 let sendImageApiJSON = () => {
     cy.request({
         method: "POST",
@@ -129,7 +129,6 @@ let sendImageApiJSON = () => {
         }
     })
 };
-
 let uploadToS3 = async (res) => {
     if (vtConfFile.cypressVersion.split('.')[0] < 7 || (vtConfFile.cypressVersion.split('.')[0] <= 7 && vtConfFile.cypressVersion.split('.')[1] < 4)) {
         //cypress version LESS THAN 7.4.0
@@ -168,12 +167,6 @@ let picFileFormat = () => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
         sendImageApiJSON();
     });
-};
-let userAgent = () => {
-    cy.window()
-        .then((win) => {
-            userAgentData = win.eval(toolkitScripts.userAgentScript)
-        });
 };
 let domCapture = () => {
     cy.window()
