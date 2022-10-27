@@ -7,7 +7,7 @@ const cwd = process.cwd();
 
 const pluginRequire = `\nrequire('@smartbear/visualtest-cypress')(module)`;
 const commandsImport = `\nimport '@smartbear/visualtest-cypress/commands'`;
-const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n\ttestRunName: 'My first test',\n}`;
+const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n}`;
 const jsonData = `"chromeWebSecurity": false`
 //TODO add try catch
 const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'))

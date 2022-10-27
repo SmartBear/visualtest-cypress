@@ -1,5 +1,5 @@
 
-# Cypress VistualTest Plugin
+# Cypress VisualTest Plugin
 
 ### Requirements
  - Cypress v6.7.0+ (Recommend v10.10.0+)
@@ -12,7 +12,7 @@ Run ```npx visualtest-setup``` , **this will**:
  - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**e2e.js**
  - Create **visualTest.config.js** in the main test folder
    -  that file will contain:
-   ```module.exports = { projectToken: 'PROJECT_TOKEN', testRunName: 'My first test' }```
+   ```module.exports = { projectToken: 'PROJECT_TOKEN' }```
  
 ## Implementation
  Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
