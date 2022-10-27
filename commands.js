@@ -78,18 +78,16 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     userAgent();
                     domCapture();
                     picFileFormat();
-                    cy.window()
-                        .then((win) => {
-                            cy.task('logger', {type: 'trace', message: `document.body.style.transform='${initialPageState.transform}'`});
-                            cy.task('logger', {type: 'trace',message: `window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`});
-                            cy.task('logger', {type: 'trace',message: `document.body.style.overflow='${initialPageState.overflow}'`});
 
-                            win.eval(`document.body.style.transform='${initialPageState.transform}'`)
-                            win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
-                            win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+                    cy.task('logger', {type: 'trace', message: `document.body.style.transform='${initialPageState.transform}'`});
+                    cy.task('logger', {type: 'trace',message: `window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`});
+                    cy.task('logger', {type: 'trace',message: `document.body.style.overflow='${initialPageState.overflow}'`});
 
-                            cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
-                        })
+                    win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                    win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+
+                    cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
                 });
             })
     }
