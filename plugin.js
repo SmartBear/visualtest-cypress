@@ -35,7 +35,7 @@ try {
 function makeGlobalRunHooks() {
   return {
     'task': {
-      async postTestRunId () { //cy.task('postTestRunId') to run this code
+      async postTestRunId (userAgent) { //cy.task('postTestRunId') to run this code
         if (!config.testRunId && !config.fail) {//all this only needs to run once
           const fileName = 'visualTest.config.js';
           const sessionId = uuidv4();
@@ -84,7 +84,18 @@ function makeGlobalRunHooks() {
           logger.trace('config.sessionId: ' + config.sessionId);
 
           if (!config.testRunName) {  //if testRunName not defined---testRunName will be the sessionId
-            config.testRunName = sessionId;
+            let osPrettyName;
+            if (userAgent.osName === 'macos') {
+              osPrettyName = 'macOS';
+            } else {
+              const str = userAgent.osName;
+              osPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
+            }
+            const str = userAgent.browserName;
+            const browserPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
+
+            const browserMajorVersion = userAgent.browserVersion.split('.');
+            config.testRunName = `${osPrettyName} ${userAgent.osVersion} / ${browserPrettyName} ${browserMajorVersion[0]}`;
           }
           logger.trace('config.testRunName: ' + config.testRunName);
 
