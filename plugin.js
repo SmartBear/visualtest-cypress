@@ -5,6 +5,8 @@ const toolkitScripts = require('./sbvt-browser-toolkit/index');
 const package_json = require('./package.json');
 const cwd = process.cwd();
 const path = require("path");
+const chalk = require('chalk')
+
 
 const pino = require('pino')
 const logger = pino({transport: {target: 'pino-pretty'}});
@@ -146,11 +148,43 @@ function makeGlobalRunHooks() {
     },
     'after:run':
         async () => {
-          if (config.fail === false) {
+          if (config.fail === false) { //TODO this can most likely be just one api call
             try {//this just GETs test results using the testRunId
               const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
               logger.info(`API image URL: ${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`); // this is useless right now, needs to be 'logger.fatal' to be seen TODO add the ability to check environment variables for default logger level maybe?
-              console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
+              if (response.data.page.totalItems == 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
+              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
+
+              let passNum;
+              let failNum;
+              let newNum;
+              async function getResults() {
+                passNum = 0; //reset if ran
+                failNum = 0;
+                newNum = 0;
+                const comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`);
+                comparison.data.items.forEach(myFunction);
+                function myFunction(item, index) {
+                  if (item.state.toLowerCase() === 'pending') { //if the engine still loading, run it again
+                    getResults();
+                  } else {
+                    if (item.status === 'passed') {
+                      passNum++;
+                    } else if (item.status === 'new-image') {
+                      newNum++;
+                    } else {
+                      failNum++;
+                    }
+                  }
+                }
+              }
+              await getResults();
+
+              if (newNum == 1) console.log(chalk.yellow(` You have ${newNum} new base image.`));
+              if (newNum > 1) console.log(chalk.yellow(` You have ${newNum} new base images.`));
+              if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
+              if (failNum) console.log(chalk.bgRedBright(` ${failNum} of your image comparisons failed.`));
+
             } catch (error) {
               console.error(error.response.data);
             }
