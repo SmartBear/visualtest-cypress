@@ -150,36 +150,48 @@ function makeGlobalRunHooks() {
         async () => {
           if (config.fail === false) { //TODO this can most likely be just one api call
             try {//this just GETs test results using the testRunId
-              const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
-              logger.info(`API image URL: ${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`); // this is useless right now, needs to be 'logger.fatal' to be seen TODO add the ability to check environment variables for default logger level maybe?
-              if (response.data.page.totalItems === 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
-              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`)
 
-              let passNum, failNum, newNum;
-              async function getResults() {
-                passNum = 0; //reset if ran
-                failNum = 0;
-                newNum = 0;
-                const comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`);
-                if (response.data.page.totalItems !== comparison.data.page.totalItems) {
-                  await getResults();
-                }
-                comparison.data.items.forEach(myFunction);
-                async function myFunction(item, index) {
-                  if (item.state.toLowerCase() === 'pending') { //if the engine is still loading, run it again
-                    await getResults();
+              let passNum = 0
+              let failNum = 0;
+              let newNum = 0;
+              let pageNum = 1;
+              let comparison;
+
+              async function getComparison(page) {
+                console.log(axios.defaults.headers.common['Authorization'])
+                console.log(`calling: ${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=50&page=${page}`);
+                comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=2&page=${page}`);
+                console.log(`comparison is currently: ${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=2&page=${page}`);
+                comparison.data.items.forEach(await loopThroughItems);
+              }
+
+              async function loopThroughItems(item, index) {
+                if (item.state.toLowerCase() === 'pending') { //if the engine is still loading, run it again
+                  console.log('inside pending');
+                  await getComparison(pageNum);
+                } else {
+                  if (item.status === 'passed') {
+                    passNum++;
+                  } else if (item.status === 'new-image') {
+                    newNum++;
                   } else {
-                    if (item.status === 'passed') {
-                      passNum++;
-                    } else if (item.status === 'new-image') {
-                      newNum++;
-                    } else {
-                      failNum++;
-                    }
+                    failNum++;
                   }
                 }
+                if (index === (comparison.data.items.length - 1) && comparison.data.links.next) {
+                  pageNum++;
+                  await getComparison(pageNum);
+                }
               }
-              await getResults();
+
+              await getComparison(pageNum);
+
+
+
+
+              const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
+              if (response.data.page.totalItems === 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
+              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`)
 
               if (newNum === 1) console.log(chalk.yellow(` You have ${newNum} new base image.`));
               if (newNum > 1) console.log(chalk.yellow(` You have ${newNum} new base images.`));
