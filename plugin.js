@@ -158,7 +158,6 @@ function makeGlobalRunHooks() {
               let comparison;
 
               async function getComparison(page) {
-                console.log(`calling: ${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=50&page=${page}`);
                 comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=50&page=${page}`);
                 comparison.data.items.forEach(await loopThroughItems);
               }
