@@ -150,12 +150,16 @@ function makeGlobalRunHooks() {
         async () => {
           if (config.fail === false) { //TODO this can most likely be just one api call
             try {//this just GETs test results using the testRunId
+              const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
+              if (response.data.page.totalItems === 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
+              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
 
               let passNum = 0
               let failNum = 0;
               let newNum = 0;
               let pageNum = 1;
               let comparison;
+              let failures = [];
 
               async function getComparison(page) {
                 comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=50&page=${page}`);
@@ -173,6 +177,7 @@ function makeGlobalRunHooks() {
                     newNum++;
                   } else {
                     failNum++;
+                    failures.push(` Review "${item.baseImage.imageName}" here: ${item.appUrl}`);
                   }
                 }
                 if (index === (comparison.data.items.length - 1) && comparison.data.links.next) {
@@ -183,17 +188,16 @@ function makeGlobalRunHooks() {
 
               await getComparison(pageNum);
 
-
-
-
-              const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
-              if (response.data.page.totalItems === 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
-              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`)
-
               if (newNum === 1) console.log(chalk.yellow(` You have ${newNum} new base image.`));
               if (newNum > 1) console.log(chalk.yellow(` You have ${newNum} new base images.`));
-              if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
+
+              if (failNum) {
+                failures.forEach(function(entry) {
+                  console.log(chalk.dim.yellow(entry));
+                });
+              }
               if (failNum) console.log(chalk.bgRedBright(` ${failNum} of your image comparisons failed.`));
+              if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
 
             } catch (error) {
               console.error(error.response.data);
