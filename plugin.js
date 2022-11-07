@@ -168,8 +168,12 @@ function makeGlobalRunHooks() {
 
               async function loopThroughItems(item, index) {
                 if (item.state.toLowerCase() === 'pending') { //if the engine is still loading, run it again
-                  console.log('inside pending');
-                  await getComparison(pageNum);
+                  console.log(`Comparison wasn't finished loading - running again`);
+                  passNum = 0
+                  failNum = 0;
+                  newNum = 0;
+                  failures = [];
+                  await getComparison(1); //force the page to start over at the beginning
                 } else {
                   if (item.status === 'passed') {
                     passNum++;
