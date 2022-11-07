@@ -167,7 +167,7 @@ function makeGlobalRunHooks() {
               }
 
               async function loopThroughItems(item, index) {
-                if (item.state.toLowerCase() === 'pending') { //if the engine is still loading, run it again
+                if (item.state === 'pending') { //if the engine is still loading, run it again
                   console.log(`Comparison wasn't finished loading - running again`);
                   passNum = 0
                   failNum = 0;
