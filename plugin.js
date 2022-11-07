@@ -191,12 +191,12 @@ function makeGlobalRunHooks() {
               if (newNum === 1) console.log(chalk.yellow(` You have ${newNum} new base image.`));
               if (newNum > 1) console.log(chalk.yellow(` You have ${newNum} new base images.`));
 
+              if (failNum) console.log(chalk.bgRedBright(` ${failNum} of your image comparisons failed.`));
               if (failNum) {
                 failures.forEach(function(entry) {
                   console.log(chalk.dim.yellow(entry));
                 });
               }
-              if (failNum) console.log(chalk.bgRedBright(` ${failNum} of your image comparisons failed.`));
               if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
 
             } catch (error) {
