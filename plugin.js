@@ -151,9 +151,8 @@ function makeGlobalRunHooks() {
           if (config.fail === false) { //TODO this can most likely be just one api call
             try {//this just GETs test results using the testRunId
               const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
-              if (response.data.page.totalItems === 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
-              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
-
+              process.stdout.write(`View your ${response.data.page.totalItems} ${(response.data.page.totalItems === 1 ? 'capture' : 'captures')} here: `)
+              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`))
               let passNum = 0
               let failNum = 0;
               let newNum = 0;
@@ -162,7 +161,7 @@ function makeGlobalRunHooks() {
               let failures = [];
 
               async function getComparison(page) {
-                comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=50&page=${page}`);
+                comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=100&page=${page}`);
                 comparison.data.items.forEach(await loopThroughItems);
               }
 
@@ -181,26 +180,19 @@ function makeGlobalRunHooks() {
                     newNum++;
                   } else {
                     failNum++;
-                    failures.push(` Review "${item.baseImage.imageName}" here: ${item.appUrl}`);
+                    failures.push(` ${item.baseImage.imageName}`);
                   }
                 }
                 if (index === (comparison.data.items.length - 1) && comparison.data.links.next) {
-                  pageNum++;
+                  pageNum++;  // TODO grabbing data from the 'next page' seems to be not work 100%
                   await getComparison(pageNum);
                 }
               }
 
               await getComparison(pageNum);
-
-              if (newNum === 1) console.log(chalk.yellow(` You have ${newNum} new base image.`));
-              if (newNum > 1) console.log(chalk.yellow(` You have ${newNum} new base images.`));
-
-              if (failNum) console.log(chalk.bgRedBright(` ${failNum} of your image comparisons failed.`));
-              if (failNum) {
-                failures.forEach(function(entry) {
-                  console.log(chalk.dim.yellow(entry));
-                });
-              }
+              if (newNum) console.log(chalk.yellow(` You have ${newNum} new base ${newNum === 1 ? 'image' : 'images'}.`));
+              if (failNum) console.log(chalk.red(` Please review your ${failNum} image comparison ${failNum === 1 ? 'failure' : 'failures'}${failNum <= 10 ? ':' : '.'}`));
+              if (failNum <= 10) console.log(chalk.dim.yellow(`  ${failures}`));
               if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
 
             } catch (error) {
