@@ -165,9 +165,9 @@ function makeGlobalRunHooks() {
 
               process.stdout.write(`View your ${imageResponse.data.page.totalItems} ${(imageResponse.data.page.totalItems === 1 ? 'capture' : 'captures')} here: `)
               console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`))
-              if (results.new_image) console.log(chalk.yellow(`   ${results.new_image} new base ${results.new_image === 1 ? 'image' : 'images'}.`));
-              if (results.failed) console.log(chalk.red(`   ${results.failed} image comparison ${results.failed === 1 ? 'failure' : 'failures'} to review`));
-              if (results.passed) console.log(chalk.green(`   ${results.passed} image comparisons passed.`));
+              if (results.new_image) console.log(chalk.yellow(`\t${results.new_image} new base ${results.new_image === 1 ? 'image' : 'images'}.`));
+              if (results.failed) console.log(chalk.red(`\t${results.failed} image comparison ${results.failed === 1 ? 'failure' : 'failures'} to review`));
+              if (results.passed) console.log(chalk.green(`\t${results.passed} image comparisons passed.`));
 
             } catch (error) {
               console.error(error);
