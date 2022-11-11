@@ -148,55 +148,29 @@ function makeGlobalRunHooks() {
     },
     'after:run':
         async () => {
-          if (config.fail === false) { //TODO this can most likely be just one api call
-            try {//this just GETs test results using the testRunId
-              const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
-              process.stdout.write(`View your ${response.data.page.totalItems} ${(response.data.page.totalItems === 1 ? 'capture' : 'captures')} here: `)
-              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`))
-              let passNum = 0
-              let failNum = 0;
-              let newNum = 0;
-              let pageNum = 1;
-              let comparison;
-              let failures = [];
+          if (config.fail === false) {
+            try {
+              const imageResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
 
-              async function getComparison(page) {
-                comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=100&page=${page}`);
-                comparison.data.items.forEach(await loopThroughItems);
-              }
-
-              async function loopThroughItems(item, index) {
-                if (item.state === 'pending') { //if the engine is still loading, run it again
-                  console.log(`Comparison wasn't finished loading - running again`);
-                  passNum = 0
-                  failNum = 0;
-                  newNum = 0;
-                  failures = [];
-                  await getComparison(1); //force the page to start over at the beginning
+              async function getComparison() {
+                let response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
+                if (response.data.comparisons.total !== imageResponse.data.page.totalItems) {
+                  await getComparison();
                 } else {
-                  if (item.status === 'passed') {
-                    passNum++;
-                  } else if (item.status === 'new-image') {
-                    newNum++;
-                  } else {
-                    failNum++;
-                    failures.push(` ${item.baseImage.imageName}`);
-                  }
-                }
-                if (index === (comparison.data.items.length - 1) && comparison.data.links.next) {
-                  pageNum++;  // TODO grabbing data from the 'next page' seems to be not work 100%
-                  await getComparison(pageNum);
+                  return response.data.comparisons
                 }
               }
 
-              await getComparison(pageNum);
-              if (newNum) console.log(chalk.yellow(` You have ${newNum} new base ${newNum === 1 ? 'image' : 'images'}.`));
-              if (failNum) console.log(chalk.red(` Please review your ${failNum} image comparison ${failNum === 1 ? 'failure' : 'failures'}${failNum <= 10 ? ':' : '.'}`));
-              if (failNum <= 10) console.log(chalk.dim.yellow(`  ${failures}`));
-              if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
+              const results = await getComparison()
+
+              process.stdout.write(`View your ${imageResponse.data.page.totalItems} ${(imageResponse.data.page.totalItems === 1 ? 'capture' : 'captures')} here: `)
+              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`))
+              if (results.new_image) console.log(chalk.yellow(`   ${results.new_image} new base ${results.new_image === 1 ? 'image' : 'images'}.`));
+              if (results.failed) console.log(chalk.red(`   ${results.failed} image comparison ${results.failed === 1 ? 'failure' : 'failures'} to review`));
+              if (results.passed) console.log(chalk.green(`   ${results.passed} image comparisons passed.`));
 
             } catch (error) {
-              console.error(error.response.data);
+              console.error(error);
             }
           } else if (config.fail === true) {
             logger.fatal('There were issues with VisualTest. Check above logs.');
