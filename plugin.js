@@ -161,7 +161,7 @@ function makeGlobalRunHooks() {
               let count = 0;
               let response;
               let responseTotal = 0;
-              while ((responseTotal+1 !== imageResponse.data.page.totalItems) && count !== 15) {
+              while ((responseTotal !== imageResponse.data.page.totalItems) && count !== 15) {
                 response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
                 responseTotal = response.data.comparisons.total;
                 if (count !== 0) await sleep(250);
