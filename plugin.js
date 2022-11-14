@@ -151,23 +151,32 @@ function makeGlobalRunHooks() {
           if (config.fail === false) {
             try {
               const imageResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
+              process.stdout.write(`View your ${imageResponse.data.page.totalItems} ${(imageResponse.data.page.totalItems === 1 ? 'capture' : 'captures')} here: `)
+              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`))
 
+              function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+              }
+
+              let count = 0;
+              let response;
               async function getComparison() {
-                let response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
-                if (response.data.comparisons.total !== imageResponse.data.page.totalItems) {
+                count++;
+                response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
+                if ((response.data.comparisons.total !== imageResponse.data.page.totalItems) && count !== 15) {
+                  await sleep(250)
                   await getComparison();
-                } else {
-                  return response.data.comparisons
+                } else if (count === 15){
+                  console.log('\n\tTimed out getting comparisons results.')
                 }
               }
 
-              const results = await getComparison()
+              await getComparison()
+              let comparisonResult = response.data.comparisons
 
-              process.stdout.write(`View your ${imageResponse.data.page.totalItems} ${(imageResponse.data.page.totalItems === 1 ? 'capture' : 'captures')} here: `)
-              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`))
-              if (results.new_image) console.log(chalk.yellow(`\t${results.new_image} new base ${results.new_image === 1 ? 'image' : 'images'}`));
-              if (results.failed) console.log(chalk.red(`\t${results.failed} image comparison ${results.failed === 1 ? 'failure' : 'failures'} to review`));
-              if (results.passed) console.log(chalk.green(`\t${results.passed} image comparisons passed`));
+              if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
+              if (comparisonResult.failed) console.log(chalk.red(`\t${comparisonResult.failed} image comparison ${comparisonResult.failed === 1 ? 'failure' : 'failures'} to review`));
+              if (comparisonResult.passed) console.log(chalk.green(`\t${comparisonResult.passed} image comparisons passed`));
 
             } catch (error) {
               console.error(error);
