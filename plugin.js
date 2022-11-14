@@ -148,63 +148,34 @@ function makeGlobalRunHooks() {
     },
     'after:run':
         async () => {
-          if (config.fail === false) { //TODO this can most likely be just one api call
-            try {//this just GETs test results using the testRunId
-              const response = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
-              if (response.data.page.totalItems === 1) console.log(`Your ${response.data.page.totalItems} capture can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
-              if (response.data.page.totalItems > 1) console.log(`Your ${response.data.page.totalItems} captures can be found at: ${config.websiteUrl}/projects/${config.projectId}/testruns`);
+          if (config.fail === false) {
+            try {
+              const imageResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
+              const imageCount = imageResponse.data.page.totalItems;
 
-              let passNum = 0
-              let failNum = 0;
-              let newNum = 0;
-              let pageNum = 1;
-              let comparison;
-              let failures = [];
+              process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
+              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`));
 
-              async function getComparison(page) {
-                comparison = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/comparisons?size=50&page=${page}`);
-                comparison.data.items.forEach(await loopThroughItems);
+              function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
               }
 
-              async function loopThroughItems(item, index) {
-                if (item.state === 'pending') { //if the engine is still loading, run it again
-                  console.log(`Comparison wasn't finished loading - running again`);
-                  passNum = 0
-                  failNum = 0;
-                  newNum = 0;
-                  failures = [];
-                  await getComparison(1); //force the page to start over at the beginning
-                } else {
-                  if (item.status === 'passed') {
-                    passNum++;
-                  } else if (item.status === 'new-image') {
-                    newNum++;
-                  } else {
-                    failNum++;
-                    failures.push(` Review "${item.baseImage.imageName}" here: ${item.appUrl}`);
-                  }
-                }
-                if (index === (comparison.data.items.length - 1) && comparison.data.links.next) {
-                  pageNum++;
-                  await getComparison(pageNum);
-                }
+              let comparisonResponse;
+              let comparisonTotal = 0;
+              for (let i = 0; comparisonTotal+1 !== imageCount && i < 15; i++) {
+                if (i > 0) await sleep(250); //don't wait the first iteration
+                comparisonResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
+                comparisonTotal = comparisonResponse.data.comparisons.total;
               }
+              let comparisonResult = comparisonResponse.data.comparisons;
 
-              await getComparison(pageNum);
-
-              if (newNum === 1) console.log(chalk.yellow(` You have ${newNum} new base image.`));
-              if (newNum > 1) console.log(chalk.yellow(` You have ${newNum} new base images.`));
-
-              if (failNum) console.log(chalk.bgRedBright(` ${failNum} of your image comparisons failed.`));
-              if (failNum) {
-                failures.forEach(function(entry) {
-                  console.log(chalk.dim.yellow(entry));
-                });
-              }
-              if (passNum) console.log(chalk.green(` ${passNum} of your image comparisons passed.`));
+              if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
+              if (comparisonResult.failed) console.log(chalk.red(`\t${comparisonResult.failed} image comparison ${comparisonResult.failed === 1 ? 'failure' : 'failures'} to review`));
+              if (comparisonResult.passed) console.log(chalk.green(`\t${comparisonResult.passed} image comparisons passed`));
+              if (comparisonTotal+1 !== imageCount) console.log(chalk.magenta('\tTimed out getting comparisons results'));
 
             } catch (error) {
-              console.error(error.response.data);
+              console.error(error);
             }
           } else if (config.fail === true) {
             logger.fatal('There were issues with VisualTest. Check above logs.');
