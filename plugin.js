@@ -162,7 +162,7 @@ function makeGlobalRunHooks() {
 
               let comparisonResponse;
               let comparisonTotal = 0;
-              for (let i = 0; comparisonTotal+1 !== imageCount && i < 15; i++) {
+              for (let i = 0; comparisonTotal !== imageCount && i < 15; i++) {
                 if (i > 0) await sleep(250); //don't wait the first iteration
                 comparisonResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
                 comparisonTotal = comparisonResponse.data.comparisons.total;
@@ -172,7 +172,7 @@ function makeGlobalRunHooks() {
               if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
               if (comparisonResult.failed) console.log(chalk.red(`\t${comparisonResult.failed} image comparison ${comparisonResult.failed === 1 ? 'failure' : 'failures'} to review`));
               if (comparisonResult.passed) console.log(chalk.green(`\t${comparisonResult.passed} image comparisons passed`));
-              if (comparisonTotal+1 !== imageCount) console.log(chalk.magenta('\tTimed out getting comparisons results'));
+              if (comparisonTotal !== imageCount) console.log(chalk.magenta('\tTimed out getting comparisons results'));
 
             } catch (error) {
               console.error(error);
