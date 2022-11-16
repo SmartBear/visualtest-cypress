@@ -16,6 +16,7 @@ let imageName;
 let vtConfFile;
 let dom;
 let toolkitScripts;
+let deviceInfoResponse;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('loadScripts').then((scripts) => toolkitScripts = scripts) //load the scripts from the toolkit
@@ -34,6 +35,16 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
             userAgentData = win.eval(toolkitScripts.userAgentScript)
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
+                cy.request({
+                method: "POST",
+                    url: `${vtConfFile.url}/api/v1/device-info`,
+                    failOnStatusCode: false,
+                    body: {
+                    "userAgentInfo": userAgentData,
+                        'driverCapabilities': {}
+                }}).then((res) => {
+                deviceInfoResponse = res.body
+            })
                 takeScreenshot(element, name, modifiedOptions);
             }).then(() => {
                 return apiRes;
@@ -94,32 +105,27 @@ let takeScreenshot = (element, name, modifiedOptions) => {
     }
 };
 let sendImageApiJSON = () => {
+    let imagePostData = {
+        imageHeight: picProps.dimensions.height,
+        imageWidth: picProps.dimensions.width,
+        viewportHeight: picElements[0].clientHeight,
+        viewportWidth: picElements[0].clientWidth,
+        sessionId: vtConfFile.sessionId,
+        imageType: imageType.toLowerCase(),
+        imageName: imageName,
+        devicePixelRatio: picProps.pixelRatio,
+        imageExt: "png",
+        testUrl: picElements[0].baseURI,
+        dom,
+        userAgentInfo: JSON.stringify(userAgentData)
+    }
+    Object.assign(imagePostData, deviceInfoResponse);
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         headers: {"Authorization": `Bearer ${vtConfFile.projectToken}`},
         failOnStatusCode: false,
-        body: {
-            "imageHeight": picProps.dimensions.height,
-            "imageWidth": picProps.dimensions.width,
-            "screenHeight": userAgentData.screenHeight,
-            "screenWidth": userAgentData.screenWidth,
-            "viewportHeight": picElements[0].clientHeight,
-            "viewportWidth": picElements[0].clientWidth,
-            "sessionId": vtConfFile.sessionId,
-            "imageType": imageType.toLowerCase(),
-            "imageName": imageName,
-            "deviceType": userAgentData.deviceType,
-            "browserName": userAgentData.browserName,
-            "browserVersion": Cypress.browser.majorVersion,
-            "browserFullVersion": userAgentData.browserVersion,
-            "osName": userAgentData.osName,
-            "osVersion": userAgentData.osVersion,
-            "devicePixelRatio": picProps.pixelRatio,
-            "imageExt": "png",
-            "testUrl": picElements[0].baseURI,
-            "dom": dom
-        },
+        body: imagePostData,
     }).then( (res) => {
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
