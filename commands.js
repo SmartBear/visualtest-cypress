@@ -41,7 +41,6 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                     "userAgentInfo": userAgentData,
                     'driverCapabilities': {}
                 }}).then((res) => {
-                console.log("res.body: ", res.body)
                 deviceInfoResponse = res.body
             })
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
