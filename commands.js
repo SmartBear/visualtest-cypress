@@ -16,6 +16,7 @@ let imageName;
 let vtConfFile;
 let dom;
 let toolkitScripts;
+let deviceInfoResponse;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('loadScripts').then((scripts) => toolkitScripts = scripts) //load the scripts from the toolkit
@@ -32,6 +33,16 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
     cy.window()
         .then((win) => {
             userAgentData = win.eval(toolkitScripts.userAgentScript)
+            cy.request({
+                method: "POST",
+                url: `https://api.visualtest.io/api/v1/device-info`,
+                failOnStatusCode: false,
+                body: {
+                    "userAgentInfo": userAgentData,
+                    'driverCapabilities': {}
+                }}).then((res) => {
+                deviceInfoResponse = res.body
+            })
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
                 takeScreenshot(element, name, modifiedOptions);
@@ -118,7 +129,8 @@ let sendImageApiJSON = () => {
             "devicePixelRatio": picProps.pixelRatio,
             "imageExt": "png",
             "testUrl": picElements[0].baseURI,
-            "dom": dom
+            "dom": dom,
+            "userAgentInfo": JSON.stringify(deviceInfoResponse)
         },
     }).then( (res) => {
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
