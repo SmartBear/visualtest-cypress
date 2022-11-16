@@ -41,6 +41,7 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                     "userAgentInfo": userAgentData,
                     'driverCapabilities': {}
                 }}).then((res) => {
+                console.log("res.body: ", res.body)
                 deviceInfoResponse = res.body
             })
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
@@ -113,20 +114,20 @@ let sendImageApiJSON = () => {
         body: {
             "imageHeight": picProps.dimensions.height,
             "imageWidth": picProps.dimensions.width,
-            "screenHeight": userAgentData.screenHeight,
-            "screenWidth": userAgentData.screenWidth,
+            "screenHeight": deviceInfoResponse.screenHeight,
+            "screenWidth": deviceInfoResponse.screenWidth,
             "viewportHeight": picElements[0].clientHeight,
             "viewportWidth": picElements[0].clientWidth,
             "sessionId": vtConfFile.sessionId,
             "imageType": imageType.toLowerCase(),
             "imageName": imageName,
-            "deviceType": userAgentData.deviceType,
-            "browserName": userAgentData.browserName,
-            "browserVersion": Cypress.browser.majorVersion,
-            "browserFullVersion": userAgentData.browserVersion,
-            "osName": userAgentData.osName,
-            "osVersion": userAgentData.osVersion,
-            "devicePixelRatio": picProps.pixelRatio,
+            "deviceType": deviceInfoResponse.deviceType,
+            "browserName": deviceInfoResponse.browserName,
+            "browserVersion": deviceInfoResponse.browserVersion,
+            "browserFullVersion": deviceInfoResponse.browserVersion,
+            "osName": deviceInfoResponse.osName,
+            "osVersion": deviceInfoResponse.osVersion,
+            "devicePixelRatio": deviceInfoResponse.devicePixelRatio,
             "imageExt": "png",
             "testUrl": picElements[0].baseURI,
             "dom": dom,
