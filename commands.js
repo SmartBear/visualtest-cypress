@@ -105,33 +105,27 @@ let takeScreenshot = (element, name, modifiedOptions) => {
     }
 };
 let sendImageApiJSON = () => {
+    let imagePostData = {
+        imageHeight: picProps.dimensions.height,
+        imageWidth: picProps.dimensions.width,
+        viewportHeight: picElements[0].clientHeight,
+        viewportWidth: picElements[0].clientWidth,
+        sessionId: vtConfFile.sessionId,
+        imageType: imageType.toLowerCase(),
+        imageName: imageName,
+        devicePixelRatio: picProps.pixelRatio,
+        imageExt: "png",
+        testUrl: picElements[0].baseURI,
+        dom,
+        userAgentInfo: JSON.stringify(userAgentData)
+    }
+    Object.assign(imagePostData, deviceInfoResponse);
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         headers: {"Authorization": `Bearer ${vtConfFile.projectToken}`},
         failOnStatusCode: false,
-        body: {
-            "imageHeight": picProps.dimensions.height,
-            "imageWidth": picProps.dimensions.width,
-            "screenHeight": deviceInfoResponse.screenHeight,
-            "screenWidth": deviceInfoResponse.screenWidth,
-            "viewportHeight": picElements[0].clientHeight,
-            "viewportWidth": picElements[0].clientWidth,
-            "sessionId": vtConfFile.sessionId,
-            "imageType": imageType.toLowerCase(),
-            "imageName": imageName,
-            "deviceType": deviceInfoResponse.deviceType,
-            "browserName": deviceInfoResponse.browserName,
-            "browserVersion": deviceInfoResponse.browserVersion,
-            "browserFullVersion": deviceInfoResponse.browserVersion,
-            "osName": deviceInfoResponse.osName,
-            "osVersion": deviceInfoResponse.osVersion,
-            "devicePixelRatio": deviceInfoResponse.devicePixelRatio,
-            "imageExt": "png",
-            "testUrl": picElements[0].baseURI,
-            "dom": dom,
-            "userAgentInfo": JSON.stringify(deviceInfoResponse)
-        },
+        body: imagePostData,
     }).then( (res) => {
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
