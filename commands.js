@@ -33,18 +33,18 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
     cy.window()
         .then((win) => {
             userAgentData = win.eval(toolkitScripts.userAgentScript)
-            cy.request({
+            return cy.task('postTestRunId', userAgentData).then((taskData) => {
+                vtConfFile = taskData; //grab visualTest.config.js data
+                cy.request({
                 method: "POST",
-                url: `https://api.visualtest.io/api/v1/device-info`,
-                failOnStatusCode: false,
-                body: {
+                    url: `${vtConfFile.url}/api/v1/device-info`,
+                    failOnStatusCode: false,
+                    body: {
                     "userAgentInfo": userAgentData,
-                    'driverCapabilities': {}
+                        'driverCapabilities': {}
                 }}).then((res) => {
                 deviceInfoResponse = res.body
             })
-            return cy.task('postTestRunId', userAgentData).then((taskData) => {
-                vtConfFile = taskData; //grab visualTest.config.js data
                 takeScreenshot(element, name, modifiedOptions);
             }).then(() => {
                 return apiRes;
