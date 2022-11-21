@@ -41,5 +41,21 @@ cy.sbvtCapture('Clipping the homepage viewport', {
  - ```npx cypress run``` is the recommended way to run our plugin.
  - Going into 'interactive mode' (```npx cypress open```) works, but each test can only be ran once without closing and relauching the Cypress application.
  
+---
 
+## Changelog
+#### [1.0.0-beta.10](https://www.npmjs.com/package/@smartbear/visualtest-cypress/v/1.0.0-beta.10)
+Device info is now returned via API call.
+
+#### [1.0.0-beta.8](https://www.npmjs.com/package/@smartbear/visualtest-cypress/v/1.0.0-beta.8)
+Update the reporting syntax to check a different api so longer needing to loop through comparison results.
+
+#### [1.0.0-beta.6](https://www.npmjs.com/package/@smartbear/visualtest-cypress/v/1.0.0-beta.6)
+After test report loops through pages, if bigger than 100 results.
+
+#### [1.0.0-beta.5](https://www.npmjs.com/package/@smartbear/visualtest-cypress/v/1.0.0-beta.5)
+Small bug squashes to the after test report.
+
+#### [1.0.0-beta.4](https://www.npmjs.com/package/@smartbear/visualtest-cypress/v/1.0.0-beta.4)
+Introducing after test reports.
 
