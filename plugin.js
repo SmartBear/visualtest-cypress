@@ -29,7 +29,7 @@ try {
   logger.warn(err.message)
 }
 
-let config = (() => {
+let configFile = (() => {
   try {
     let config = {}
     const fileName = 'visualTest.config.js';
@@ -56,20 +56,20 @@ let config = (() => {
 
 let getDomCapture = (async () => {
   try {
-    const domCapture = await axios.get(`${config.cdnUrl}/dom-capture.min.js`)
+    const domCapture = await axios.get(`${configFile.cdnUrl}/dom-capture.min.js`)
     return domCapture.data
   } catch (error) {
-    config.fail = true;
+    configFile.fail = true;
     logger.fatal(`Error with grabbing getDomCapture: %o`, error.message);
   }
 })();
 
 let getUserAgent = (async () => {
   try {
-    const domCapture = await axios.get(`${config.cdnUrl}/user-agent.min.js`)
+    const domCapture = await axios.get(`${configFile.cdnUrl}/user-agent.min.js`)
     return domCapture.data
   } catch (error) {
-    config.fail = true;
+    configFile.fail = true;
     logger.fatal(`Error with grabbing getUserAgent: %o`, error.message);
   }
 })();
@@ -86,54 +86,54 @@ function makeGlobalRunHooks() {
   return {
     'task': {
       async postTestRunId (userAgent) { //cy.task('postTestRunId') to run this code
-        if (!config.testRunId && !config.fail) {//all this only needs to run once
+        if (!configFile.testRunId && !configFile.fail) {//all this only needs to run once
           const fileName = 'visualTest.config.js';
           const sessionId = uuidv4();
           const fullPath = `${process.cwd()}/${fileName}`;
           if (fs.existsSync(fullPath)) {
             logger.trace(fileName + ' has been found');
-            config = {...require(fullPath)}; //write the VT config file into config object
+            configFile = {...require(fullPath)}; //write the VT config file into config object
           } else {
-            config.fail = true;
+            configFile.fail = true;
             logger.fatal('The path ' + fullPath + ' was not found');
-            return config;
+            return configFile;
           }
 
-          if (config.PINO_LOG_LEVEL) {
-            logger.level = config.PINO_LOG_LEVEL //overwrite if the user includes a pino flag in VTconf
-          } else if (config.log) {
-            logger.level = config.log
+          if (configFile.PINO_LOG_LEVEL) {
+            logger.level = configFile.PINO_LOG_LEVEL //overwrite if the user includes a pino flag in VTconf
+          } else if (configFile.log) {
+            logger.level = configFile.log
           }
 
-          if (!config.projectToken) { //check to make sure user added a projectToken
-            config.fail = true;
+          if (!configFile.projectToken) { //check to make sure user added a projectToken
+            configFile.fail = true;
             logger.fatal(`Please add **module.exports = { projectToken: 'PROJECT_TOKEN' }** to your visualTest.config.js file`);
-            return config;
+            return configFile;
           }
 
-          if (config.projectToken.includes("_")) { //check to make sure the user changed it from the default
-            config.fail = true;
+          if (configFile.projectToken.includes("_")) { //check to make sure the user changed it from the default
+            configFile.fail = true;
             logger.fatal(`Please insert your actual projectToken`);
-            return config;
+            return configFile;
           }
 
-          if (!config.projectToken.split('/')[1]) { //check to make sure user added the auth part(~second-half) of projectToken
-            config.fail = true;
+          if (!configFile.projectToken.split('/')[1]) { //check to make sure user added the auth part(~second-half) of projectToken
+            configFile.fail = true;
             logger.fatal(`Please add your full projectToken for example -> ** projectToken: 'xxxxxxxx/xxxxxxxxxxxx' **`);
-            return config;
+            return configFile;
           }
 
-          logger.trace('config.projectToken: ' + config.projectToken);
-          config.projectId = config.projectToken.split('/')[0]; //take the first ~half to get the projectId
-          logger.trace('config.projectId: ' + config.projectId);
+          logger.trace('config.projectToken: ' + configFile.projectToken);
+          configFile.projectId = configFile.projectToken.split('/')[0]; //take the first ~half to get the projectId
+          logger.trace('config.projectId: ' + configFile.projectId);
 
-          axios.defaults.headers.common['Authorization'] = `Bearer ${config.projectToken}`;
+          axios.defaults.headers.common['Authorization'] = `Bearer ${configFile.projectToken}`;
           logger.trace(`axios.defaults.headers.common['Authorization']: ` + axios.defaults.headers.common['Authorization']);
 
-          config.sessionId = sessionId;
-          logger.trace('config.sessionId: ' + config.sessionId);
+          configFile.sessionId = sessionId;
+          logger.trace('config.sessionId: ' + configFile.sessionId);
 
-          if (!config.testRunName) {  //if testRunName not defined---use device / browser
+          if (!configFile.testRunName) {  //if testRunName not defined---use device / browser
             let osPrettyName;
             if (userAgent.osName === 'macos') {
               osPrettyName = 'macOS';
@@ -145,40 +145,40 @@ function makeGlobalRunHooks() {
             const browserPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
 
             const browserMajorVersion = userAgent.browserVersion.split('.');
-            config.testRunName = `${osPrettyName} ${userAgent.osVersion} / ${browserPrettyName} ${browserMajorVersion[0]}`;
+            configFile.testRunName = `${osPrettyName} ${userAgent.osVersion} / ${browserPrettyName} ${browserMajorVersion[0]}`;
           }
-          logger.trace('config.testRunName: ' + config.testRunName);
+          logger.trace('config.testRunName: ' + configFile.testRunName);
 
-          if (config.apiHost) {
+          if (configFile.apiHost) {
             logger.debug('Found config.apiHost')
-            config.url = config.apiHost
-            logger.warn('overwritten URL is: ' + config.url);
+            configFile.url = configFile.apiHost
+            logger.warn('overwritten URL is: ' + configFile.url);
           } else {
-            config.url = 'https://api.visualtest.io';
-            logger.trace('URL is: ' + config.url);
+            configFile.url = 'https://api.visualtest.io';
+            logger.trace('URL is: ' + configFile.url);
           }
-          config.websiteUrl = config.url.replace('api', 'app');
-          logger.trace('config.websiteUrl: ' + config.websiteUrl);
+          configFile.websiteUrl = configFile.url.replace('api', 'app');
+          logger.trace('config.websiteUrl: ' + configFile.websiteUrl);
 
-          config.cypressVersion = usersCypress.version
+          configFile.cypressVersion = usersCypress.version
           try {
-            const postResponse = await axios.post(`${config.url}/api/v1/projects/${config.projectId}/testruns`, {
-              testRunName: config.testRunName,
+            const postResponse = await axios.post(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
+              testRunName: configFile.testRunName,
               sdk: 'cypress',
               sdkVersion: `${package_json.version}/c${usersCypress.version}`
             })
-            config.testRunId = postResponse.data.testRunId;
-            logger.debug('config.testRunId: ' + config.testRunId);
+            configFile.testRunId = postResponse.data.testRunId;
+            logger.debug('config.testRunId: ' + configFile.testRunId);
           } catch (error) {
-            config.fail = true;
+            configFile.fail = true;
             logger.fatal(`Error with creating testRun: %o`, error.message);
             logger.trace(`Full error with creating testRun: %o`, error);
-            return config;
+            return configFile;
           }
-          config.fail = false; //no errors in generating testRunId
+          configFile.fail = false; //no errors in generating testRunId
           logger.trace('—————————————————Successfully created a testRunId—————————————————');
         }
-        return config;
+        return configFile;
       },
       async logger ({type, message}) { //this task is for printing logs to node console from the custom command
         type === 'fatal'  ? logger.fatal(message) :
@@ -196,13 +196,13 @@ function makeGlobalRunHooks() {
     },
     'after:run':
         async () => {
-          if (config.fail === false) {
+          if (configFile.fail === false) {
             try {
-              const imageResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}/images`);
+              const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
               const imageCount = imageResponse.data.page.totalItems;
 
               process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
-              console.log(chalk.blue(`${config.websiteUrl}/projects/${config.projectId}/testruns/${config.testRunId}/comparisons`));
+              console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
 
               function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
@@ -212,7 +212,7 @@ function makeGlobalRunHooks() {
               let comparisonTotal = 0;
               for (let i = 0; comparisonTotal !== imageCount && i < 15; i++) {
                 if (i > 0) await sleep(250); //don't wait the first iteration
-                comparisonResponse = await axios.get(`${config.url}/api/v1/projects/${config.projectId}/testruns/${config.testRunId}?expand=comparison-totals`);
+                comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
                 comparisonTotal = comparisonResponse.data.comparisons.total;
               }
               let comparisonResult = comparisonResponse.data.comparisons;
@@ -225,7 +225,7 @@ function makeGlobalRunHooks() {
             } catch (error) {
               console.error(error);
             }
-          } else if (config.fail === true) {
+          } else if (configFile.fail === true) {
             logger.fatal('There were issues with VisualTest. Check above logs.');
           } else {
             console.log('There were no VisualTest captures taken.');
