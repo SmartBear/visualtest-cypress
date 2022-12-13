@@ -1,7 +1,6 @@
 const axios = require('axios').default;
 const { v4: uuidv4 } = require('uuid');
 const fs = require("fs");
-const toolkitScripts = require('./sbvt-browser-toolkit/index');
 const package_json = require('./package.json');
 const cwd = process.cwd();
 const path = require("path");
@@ -80,7 +79,6 @@ Promise.all([getDomCapture, getUserAgent]).then((values) => {
   const data = {}
   data.domCapture = values[0]
   data.userAgent = values[1]
-  console.log('log', data)
   domToolKit = data
 });
 
