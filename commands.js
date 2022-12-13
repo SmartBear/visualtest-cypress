@@ -19,7 +19,7 @@ let toolkitScripts;
 let deviceInfoResponse;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
-    if (!toolkitScripts) cy.task('loadScripts').then((scripts) => toolkitScripts = scripts) //load the scripts from the toolkit
+    if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
     imageName = (name) ? name : (function(){throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')")})(); //check for file name and then assign to global let
     imageType = (options && options.capture) ? options.capture : imageType;  //pass through options.capture if provided
 
@@ -29,10 +29,9 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
 
     cy.task('logger', {type: 'trace', message: `Beginning sbvtCapture('${name}')`});
     if (element) cy.task('logger', {type: 'trace', message: 'This is chained and there is an "element" value'});
-
     cy.window()
         .then((win) => {
-            userAgentData = win.eval(toolkitScripts.userAgentScript)
+            userAgentData = win.eval(toolkitScripts.userAgent)
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
                 cy.request({
@@ -177,7 +176,7 @@ let picFileFormat = () => {
 let domCapture = () => {
     cy.window()
         .then((win) => {
-            dom = win.eval(toolkitScripts.captureDomScript)
+            dom = win.eval(toolkitScripts.domCapture)
         });
 };
 let getImageById = () => {

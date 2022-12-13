@@ -14,25 +14,75 @@ logger.level = 'warn' ;// warn will be the default level for debug logs
 //set debug flag on visualTest.config.js file by including: PINO_LOG_LEVEL: 'trace'
 //options are [trace, debug, info, warn, error, fatal] in that order
 
-let config = {};
-
-//TODO work on this file if cypress is not a devDependency, and a regular it throws errors...
-
 
 let usersCypress;
 try {
   const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'))
   usersCypress = JSON.parse(packageFile.toString());
   if (!usersCypress.version) {
-    usersCypress.version = "10.0.0.failure" // #TODO improve this if cypress folder isnt found (when the folder isnt a devDependency)
+    usersCypress.version = "10.0.0.failure"
     logger.warn('failed to find cypress assuming it is v10+')
   }
 } catch (err) {
   logger.warn("catch")
-  usersCypress.version = "10.0.0" // #TODO improve this if cypress folder isnt found
+  usersCypress.version = "10.0.0"
   console.log(err)
   logger.warn(err.message)
 }
+
+let config = (() => {
+  try {
+    let config = {}
+    const fileName = 'visualTest.config.js';
+    const fullPath = `${process.cwd()}/${fileName}`;
+    if (fs.existsSync(fullPath)) {
+      logger.trace(fileName + ' has been found');
+      config = {...require(fullPath)}; //write the VT config file into config object
+
+      function getCdnUrl() {
+        return config.apiHost === 'https://api.dev.visualtest.io' ? "https://cdn.dev.visualtest.io/browser-toolkit"
+            : config.apiHost === 'https://api.int.visualtest.io' ? "https://cdn.int.visualtest.io/browser-toolkit"
+                    : "https://cdn.visualtest.io/browser-toolkit";
+      }
+      config.cdnUrl = getCdnUrl();
+      return config;
+    } else {
+      config.fail = true;
+      logger.fatal('The path ' + fullPath + ' was not found');
+      return config;
+    }
+  } catch (e) {
+    console.log(e)
+  }})();
+
+let getDomCapture = (async () => {
+  try {
+    const domCapture = await axios.get(`${config.cdnUrl}/dom-capture.min.js`)
+    return domCapture.data
+  } catch (error) {
+    config.fail = true;
+    logger.fatal(`Error with grabbing getDomCapture: %o`, error.message);
+  }
+})();
+
+let getUserAgent = (async () => {
+  try {
+    const domCapture = await axios.get(`${config.cdnUrl}/user-agent.min.js`)
+    return domCapture.data
+  } catch (error) {
+    config.fail = true;
+    logger.fatal(`Error with grabbing getUserAgent: %o`, error.message);
+  }
+})();
+
+let domToolKit = null
+Promise.all([getDomCapture, getUserAgent]).then((values) => {
+  const data = {}
+  data.domCapture = values[0]
+  data.userAgent = values[1]
+  console.log('log', data)
+  domToolKit = data
+});
 
 function makeGlobalRunHooks() {
   return {
@@ -85,7 +135,7 @@ function makeGlobalRunHooks() {
           config.sessionId = sessionId;
           logger.trace('config.sessionId: ' + config.sessionId);
 
-          if (!config.testRunName) {  //if testRunName not defined---testRunName will be the sessionId
+          if (!config.testRunName) {  //if testRunName not defined---use device / browser
             let osPrettyName;
             if (userAgent.osName === 'macos') {
               osPrettyName = 'macOS';
@@ -105,7 +155,7 @@ function makeGlobalRunHooks() {
             logger.debug('Found config.apiHost')
             config.url = config.apiHost
             logger.warn('overwritten URL is: ' + config.url);
-          } else{
+          } else {
             config.url = 'https://api.visualtest.io';
             logger.trace('URL is: ' + config.url);
           }
@@ -142,8 +192,8 @@ function makeGlobalRunHooks() {
                                 logger.warn('error with the logger task')
         return null
       },
-      async loadScripts () {
-        return toolkitScripts
+      async getToolkit () {
+        return domToolKit
       }
     },
     'after:run':
