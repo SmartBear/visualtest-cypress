@@ -179,8 +179,8 @@ function makeGlobalRunHooks() {
                                 logger.warn('error with the logger task')
         return null
       },
-      async getToolkit () {
-        return domToolKit
+      getToolkit () {
+        return domToolKit;
       }
     },
     'after:run':
