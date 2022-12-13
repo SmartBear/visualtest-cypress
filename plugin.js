@@ -87,18 +87,7 @@ function makeGlobalRunHooks() {
     'task': {
       async postTestRunId (userAgent) { //cy.task('postTestRunId') to run this code
         if (!configFile.testRunId && !configFile.fail) {//all this only needs to run once
-          const fileName = 'visualTest.config.js';
           const sessionId = uuidv4();
-          const fullPath = `${process.cwd()}/${fileName}`;
-          if (fs.existsSync(fullPath)) {
-            logger.trace(fileName + ' has been found');
-            configFile = {...require(fullPath)}; //write the VT config file into config object
-          } else {
-            configFile.fail = true;
-            logger.fatal('The path ' + fullPath + ' was not found');
-            return configFile;
-          }
-
           if (configFile.PINO_LOG_LEVEL) {
             logger.level = configFile.PINO_LOG_LEVEL //overwrite if the user includes a pino flag in VTconf
           } else if (configFile.log) {
