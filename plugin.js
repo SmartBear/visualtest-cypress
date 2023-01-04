@@ -5,7 +5,7 @@ const package_json = require('./package.json');
 const cwd = process.cwd();
 const path = require("path");
 const chalk = require('chalk')
-
+require('dotenv').config();
 
 const pino = require('pino')
 const logger = pino({transport: {target: 'pino-pretty'}});
@@ -29,6 +29,7 @@ try {
   logger.warn(err.message)
 }
 
+let env, host, webUrl, cdnUrl;
 let configFile = (() => {
   try {
     let config = {}
@@ -38,12 +39,31 @@ let configFile = (() => {
       logger.trace(fileName + ' has been found');
       config = {...require(fullPath)}; //write the VT config file into config object
 
-      function getCdnUrl() {
-        return config.apiHost === 'https://api.dev.visualtest.io' ? "https://cdn.dev.visualtest.io/browser-toolkit"
-            : config.apiHost === 'https://api.int.visualtest.io' ? "https://cdn.int.visualtest.io/browser-toolkit"
-                    : "https://cdn.visualtest.io/browser-toolkit";
+      env = (config.VT_ENV || process.env.VT_ENV || 'PROD').toUpperCase();
+
+      if (env === "PROD") {
+        host = "https://api.visualtest.io";
+        webUrl = "https://app.visualtest.io";
+        cdnUrl = "https://cdn.visualtest.io/browser-toolkit";
       }
-      config.cdnUrl = getCdnUrl();
+      else if (env === "DEV") {
+        host = "https://api.dev.visualtest.io";
+        webUrl = "https://app.dev.visualtest.io";
+        cdnUrl = "https://cdn.dev.visualtest.io/browser-toolkit";
+      }
+      else if (env === "INT") {
+        host = "https://api.int.visualtest.io";
+        webUrl = "https://app.int.visualtest.io";
+        cdnUrl = "https://cdn.int.visualtest.io/browser-toolkit";
+      }
+      else {
+        logger.warn(`Invalid VT_ENV param: ${env}. Please use DEV or INT. Defaulting to PROD`);
+        host = "https://api.visualtest.io"
+        webUrl = "https://app.visualtest.io"
+        cdnUrl = "https://cdn.visualtest.io/browser-toolkit"
+      }
+
+      config.cdnUrl = cdnUrl
       return config;
     } else {
       config.fail = true;
@@ -52,7 +72,8 @@ let configFile = (() => {
     }
   } catch (e) {
     console.log(e)
-  }})();
+  }
+})();
 
 let getDomCapture = (async () => {
   try {
@@ -138,16 +159,13 @@ function makeGlobalRunHooks() {
           }
           logger.trace('config.testRunName: ' + configFile.testRunName);
 
-          if (configFile.apiHost) {
-            logger.debug('Found config.apiHost')
-            configFile.url = configFile.apiHost
-            logger.warn('overwritten URL is: ' + configFile.url);
+          configFile.url = host;
+          configFile.websiteUrl = webUrl;
+          if (env !== "PROD") {
+            logger.warn('VT_ENV: ' + env);
           } else {
-            configFile.url = 'https://api.visualtest.io';
-            logger.trace('URL is: ' + configFile.url);
+            logger.trace('environment is: ' + env);
           }
-          configFile.websiteUrl = configFile.url.replace('api', 'app');
-          logger.trace('config.websiteUrl: ' + configFile.websiteUrl);
 
           configFile.cypressVersion = usersCypress.version
           try {
