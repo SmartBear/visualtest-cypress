@@ -39,23 +39,22 @@ let configFile = (() => {
       logger.trace(fileName + ' has been found');
       config = {...require(fullPath)}; //write the VT config file into config object
 
-      env = config.VT_ENV || process.env.VT_ENV || 'PROD'
-      env = env.toUpperCase()
+      env = (config.VT_ENV || process.env.VT_ENV || 'PROD').toUpperCase();
 
       if (env === "PROD") {
-        host = "https://api.visualtest.io"
-        webUrl = "https://app.visualtest.io"
-        cdnUrl = "https://cdn.visualtest.io/browser-toolkit"
+        host = "https://api.visualtest.io";
+        webUrl = "https://app.visualtest.io";
+        cdnUrl = "https://cdn.visualtest.io/browser-toolkit";
       }
       else if (env === "DEV") {
-        host = "https://api.dev.visualtest.io"
-        webUrl = "https://app.dev.visualtest.io"
-        cdnUrl = "https://cdn.dev.visualtest.io/browser-toolkit"
+        host = "https://api.dev.visualtest.io";
+        webUrl = "https://app.dev.visualtest.io";
+        cdnUrl = "https://cdn.dev.visualtest.io/browser-toolkit";
       }
       else if (env === "INT") {
-        host = "https://api.int.visualtest.io"
-        webUrl = "https://app.int.visualtest.io"
-        cdnUrl = "https://cdn.int.visualtest.io/browser-toolkit"
+        host = "https://api.int.visualtest.io";
+        webUrl = "https://app.int.visualtest.io";
+        cdnUrl = "https://cdn.int.visualtest.io/browser-toolkit";
       }
       else {
         logger.warn(`Invalid VT_ENV param: ${env}. Please use DEV or INT. Defaulting to PROD`);
@@ -160,10 +159,10 @@ function makeGlobalRunHooks() {
           }
           logger.trace('config.testRunName: ' + configFile.testRunName);
 
-          configFile.url = host
-          configFile.websiteUrl = webUrl
+          configFile.url = host;
+          configFile.websiteUrl = webUrl;
           if (env !== "PROD") {
-            logger.warn('VT_ENT: ' + env);
+            logger.warn('VT_ENV: ' + env);
           } else {
             logger.trace('environment is: ' + env);
           }
