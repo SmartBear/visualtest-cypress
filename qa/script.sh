@@ -3,15 +3,12 @@
 echo Running the Cypress local test
 npm install cypress@latest
 
-if [ "$1" == "full" ] # full 30 tests
-then
-  viewportWidth=( 1366 1920)
-  viewportHeight=(768  1080)
+viewportWidth=( 1366 1920)
+viewportHeight=(768  1080)
 #  browsers=(chrome electron firefox)
-  browsers=(electron)
+browsers=(electron)
 #  variations=(Original ColorDiff FontDiff MissingElement ContentDiff)
-  variations=(Original ContentDiff MissingElement)
-fi
+variations=(Original ContentDiff MissingElement)
 
 testCount=0
 for name in "${variations[@]}";
