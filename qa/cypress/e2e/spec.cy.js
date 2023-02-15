@@ -20,3 +20,13 @@ describe(`Starting ${variation} Spec`, () => {
     })
   });
 })
+describe(`testing lazy loading`, () => {
+  beforeEach('visit', () => {
+    cy.visit(`https://www.f150forum.com`)
+  })
+  it('should take a fullpage lazyload sbvtCapture', function () {
+    cy.sbvtCapture('f150 lazy loaded', {
+      lazyload: 500
+    })
+  });
+})
