@@ -1,4 +1,7 @@
 .idea
 .env
 /node_modules
+qa/node_modules
+qa/cypress/screenshots/*
+qa/cypress/videos/*
 sessionId.txt
