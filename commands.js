@@ -81,6 +81,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
                 win.eval(`document.body.style.transform="translateY(0)"`)
                 win.eval(`document.body.style.overflow="hidden"`)
+                // TODO convert string 'number' into javascript number
                 if (typeof modifiedOptions.lazyload === 'number') {
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
                         cy.task('logger', {type: 'info', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds`})
@@ -96,7 +97,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     } else {
                         cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`})
                     }
-                } else if (typeof modifiedOptions.lazyload !== undefined) {
+                } else if (modifiedOptions.lazyload !== undefined) {
                     cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number`})
                 }
                 cy.task('logger', {type: 'info', message: `starting cypress's screenshot`})
