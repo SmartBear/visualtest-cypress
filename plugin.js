@@ -109,6 +109,14 @@ function makeGlobalRunHooks() {
       async postTestRunId (userAgent) { //cy.task('postTestRunId') to run this code
         if (!configFile.testRunId && !configFile.fail) {//all this only needs to run once
           const sessionId = uuidv4();
+          try {
+            //Create file for BitBar to grab sessionId
+            fs.writeFileSync('./node_modules/@smartbear/visualtest-cypress/sessionId.txt', sessionId)
+          } catch (error) {
+            //In case of an error do not want to throw an error
+            logger.info("FOR BitBar——issue creating the sessionId file: %o", error)
+          }
+
           if (configFile.PINO_LOG_LEVEL) {
             logger.level = configFile.PINO_LOG_LEVEL //overwrite if the user includes a pino flag in VTconf
           } else if (configFile.log) {
