@@ -78,28 +78,40 @@ let takeScreenshot = (element, name, modifiedOptions) => {
         let initialPageState;
         cy.window()
             .then((win) => {
-                cy.task('logger', {type: 'trace', message: `Before win.eval`});
                 initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
                 win.eval(`document.body.style.transform="translateY(0)"`)
-                cy.task('logger', {type: 'trace', message: `After win.eval`});
-
+                win.eval(`document.body.style.overflow="hidden"`)
+                if (typeof modifiedOptions.lazyload === 'number') {
+                    if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
+                        cy.task('logger', {type: 'info', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds`})
+                        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
+                        cy.task('logger', {type: 'debug', message: `numScrolls: ${numScrolls}`});
+                        let viewport = win.eval("window.innerHeight");
+                        cy.task('logger', {type: 'debug', message: `viewport height: ${viewport}`});
+                        let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
+                        cy.wrap(scrollArray).each(index => {
+                            cy.scrollTo(0, viewport*index);
+                            cy.wait(modifiedOptions.lazyload);
+                        })
+                    } else {
+                        cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`})
+                    }
+                } else if (typeof modifiedOptions.lazyload !== undefined) {
+                    cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number`})
+                }
+                cy.task('logger', {type: 'info', message: `starting cypress's screenshot`})
                 cy.screenshot(
-                    name,
-                    modifiedOptions,
+                        name,
+                        modifiedOptions,
                 ).then(() => {
+                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                    win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                     domCapture();
                     picFileFormat();
-
-                    cy.task('logger', {type: 'trace', message: `document.body.style.transform='${initialPageState.transform}'`});
-                    cy.task('logger', {type: 'trace',message: `window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`});
-                    cy.task('logger', {type: 'trace',message: `document.body.style.overflow='${initialPageState.overflow}'`});
-
-                    win.eval(`document.body.style.transform='${initialPageState.transform}'`)
-                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
                     win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
 
                     cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
-                });
+                })
             })
     }
 };
@@ -177,6 +189,7 @@ let domCapture = () => {
     cy.window()
         .then((win) => {
             dom = win.eval(toolkitScripts.domCapture)
+            // cy.task('logger', {type: 'fatal', message: `dom: ${dom}`});
         });
 };
 let getImageById = () => {
