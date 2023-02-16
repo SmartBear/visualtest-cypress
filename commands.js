@@ -84,7 +84,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 // TODO convert string 'number' into javascript number
                 if (typeof modifiedOptions.lazyload === 'number') {
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
-                        cy.task('logger', {type: 'info', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds`})
+                        cy.task('logger', {type: 'info', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
                         let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
                         cy.task('logger', {type: 'debug', message: `numScrolls: ${numScrolls}`});
                         let viewport = win.eval("window.innerHeight");

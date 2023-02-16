@@ -8,6 +8,8 @@ then cd into qa folder & run:
 ./script.sh
 ```
 
+logs can be turned on in visualtest.config.js file ```log: "trace"```
+
 ---
 
 ### to run custom tests

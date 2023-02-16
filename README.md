@@ -27,6 +27,13 @@ You can also run tests against just certain elements, this will run regression t
 cy.get('.container').eq(0).sbvtCapture('Capture of the homepage header')
 ```
 
+For lazy loaded websites use:
+```
+cy.sbvtCapture('lazyloaded capture', { 
+      lazyload: 250, //number is milliseconds between scrolls 
+})
+```
+
 To pass in other [arguments](https://docs.cypress.io/api/commands/screenshot#Arguments) , the syntax would be the same as ```cy.screenshot```
 ```
 cy.sbvtCapture('Clipping the homepage viewport', { 
