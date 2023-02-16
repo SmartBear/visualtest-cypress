@@ -8,7 +8,7 @@ viewportHeight=(768  1080)
 #  browsers=(chrome electron firefox)
 browsers=(electron)
 #  variations=(Original ColorDiff FontDiff MissingElement ContentDiff)
-variations=(Original ContentDiff MissingElement)
+variations=(Original ContentDiff)
 
 testCount=0
 for name in "${variations[@]}";

@@ -20,3 +20,17 @@ describe(`Starting ${variation} Spec`, () => {
     })
   });
 })
+describe(`testing lazy loading`, () => {
+  beforeEach('visit', () => {
+    cy.visit(`https://www.glds.com/`)
+  })
+  it('should take a fullpage sbvtCapture', function () {
+    cy.sbvtCapture('glds NOT lazy loaded', {
+    })
+  });
+  it('should take a fullpage lazyload sbvtCapture', function () {
+    cy.sbvtCapture('glds lazy loaded', {
+      lazyload: 500
+    })
+  });
+})
