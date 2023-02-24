@@ -6,6 +6,7 @@ const cwd = process.cwd();
 const path = require("path");
 const chalk = require('chalk')
 require('dotenv').config();
+const Jimp = require("jimp");
 
 const pino = require('pino')
 const logger = pino({transport: {target: 'pino-pretty'}});
@@ -194,6 +195,49 @@ function makeGlobalRunHooks() {
           logger.trace('—————————————————Successfully created a testRunId—————————————————');
         }
         return configFile;
+      },
+
+      async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
+        const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf('/'));
+        const files = fs.readdirSync(folderPath);
+        logger.info(`inside picLazy()——imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`)
+
+        //create the new blank fullpage image
+        const newImage = new Jimp(viewportWidth, pageHeight);
+
+        //crop the last image
+        const toBeCropped = (files.length*viewportHeight)-pageHeight
+        logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length*viewportHeight)-pageHeight} ((files.length*viewportHeight)-pageHeight)`)
+        logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight-toBeCropped} (viewportHeight-toBeCropped)`)
+        const bottomImage = await Jimp.read(`${folderPath}/${files.length-1}.png`);
+        logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
+        bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
+        logger.debug(`resized last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
+        bottomImage.crop(0, 0, viewportWidth, viewportHeight-toBeCropped)
+        logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
+        bottomImage.write(`${folderPath}/${files.length-1}.png`); //overwrite the file
+
+        //stitch the images all together
+        for (let i = 0; i < files.length; i++) {
+          const image = await Jimp.read(`${folderPath}/${i}.png`);
+          image.resize(viewportWidth, Jimp.AUTO); //resize (causes issue with retina display)
+          logger.trace(`blit ${i+1}/${files.length}`)
+          newImage.blit(image, 0, viewportHeight * i)
+        }
+        // TODO break this out to put the images in different folders (to prevent issue when not removing the old folder)
+        //remove the old viewport images
+        fs.rmSync(folderPath, { recursive: true, force: true });
+        logger.debug(`removed the folder at: ${folderPath}`)
+
+        // write the new image to the users screenshot folder
+        const userPath = `${folderPath.substring(0, folderPath.lastIndexOf('/'))}/${imageName}.png`;
+        newImage.write(userPath)
+        logger.debug(`new stitched image has been written at: ${userPath}`)
+        return {
+          height: newImage.bitmap.height,
+          width: newImage.bitmap.width,
+          path: userPath
+        }
       },
       async logger ({type, message}) { //this task is for printing logs to node console from the custom command
         type === 'fatal'  ? logger.fatal(message) :

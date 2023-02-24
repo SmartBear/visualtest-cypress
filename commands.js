@@ -17,6 +17,7 @@ let vtConfFile;
 let dom;
 let toolkitScripts;
 let deviceInfoResponse;
+let lazyloadData;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
@@ -83,17 +84,76 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 win.eval(`document.body.style.overflow="hidden"`)
                 // TODO convert string 'number' into javascript number
                 if (typeof modifiedOptions.lazyload === 'number') {
+                    lazyloadData = {delay: modifiedOptions.lazyload}
+                    /*
+                    * let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
+                    * @LUKE the above caused issues with https://www.apple.com/iphone-14-pro/ on my retina mac, look at the discrepancies
+                    * was then later throwing an error when trying to crop the last image... but apple is the only site I am aware of right now
+                    * numScrolls WAS returning: 96 instead of the correct: 58
+                    * APPLE: offsetHeight: 38009, bodyScrollHeight: 62937, documentElementScrollHeight: 62936, documentElementOffsetHeight: 38009, innerHeight: 660
+                    * GLDS: offsetHeight: 6017, bodyScrollHeight: 6017, documentElementScrollHeight: 6017 , documentElementOffsetHeight: 6017, innerHeight: 660
+                    * EXAMPLE 4: offsetHeight: 7601, bodyScrollHeight: 7601, documentElementScrollHeight: 7601 , documentElementOffsetHeight: 7601, innerHeight: 660
+                    *
+                    * Used below to test/prove theory
+                    * // let offsetHeight = win.eval("window.document.body.offsetHeight")
+                    * // let bodyScrollHeight = win.eval("window.document.body.scrollHeight")
+                    * // let documentElementOffsetHeight = win.eval("window.document.documentElement.offsetHeight")
+                    * // let documentElementScrollHeight = win.eval("window.document.documentElement.scrollHeight")
+                    * // let innerHeight = win.eval("window.innerHeight")
+                    * // cy.task('logger', {type: 'fatal', message: `offsetHeight: ${offsetHeight}, bodyScrollHeight: ${bodyScrollHeight}, documentElementScrollHeight: ${documentElementScrollHeight}, documentElementOffsetHeight: ${documentElementOffsetHeight}, innerHeight: ${innerHeight}`})
+                    *
+                    */
+                    // TODO temp fix for now pertains to above
+                    let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.documentElement.offsetHeight) / window.innerHeight)")
+                    let viewportHeight = win.eval("window.innerHeight");
+                    let viewportWidth = win.eval("window.innerWidth");
+                    let pageHeight = win.eval("window.document.body.offsetHeight");
+                    let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
+                    cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, pageHeight: ${pageHeight}, scrollArray: ${scrollArray}`})
+                    // TODO convert string 'number' into javascript number
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
-                        cy.task('logger', {type: 'info', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
-                        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
-                        cy.task('logger', {type: 'debug', message: `numScrolls: ${numScrolls}`});
-                        let viewport = win.eval("window.innerHeight");
-                        cy.task('logger', {type: 'debug', message: `viewport height: ${viewport}`});
-                        let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
+                        cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
                         cy.wrap(scrollArray).each(index => {
-                            cy.scrollTo(0, viewport*index);
+                            cy.task('logger', {type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload/1000} seconds per scroll`})
+                            cy.scrollTo(0, viewportHeight*index);
                             cy.wait(modifiedOptions.lazyload);
                         })
+
+                        cy.scrollTo(0, 0);
+                        cy.wait(1000);
+
+                        // scroll down a viewport at a time and take a viewport screenshot
+                        cy.wrap(scrollArray).each(index => {
+                            cy.task('logger', {type: 'trace', message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`})
+                            cy.screenshot(`ignore-lazy-load/${index-1}`,{
+                                capture: "viewport",
+                                overwrite: true,
+                                onAfterScreenshot($el, props) {
+                                    lazyloadData = {
+                                        tmpPath: props.path,
+                                        url: $el[0].baseURI
+                                    }
+                                }
+                            }).then(() => {
+                                win.eval(`document.body.style.transform="translateY(${(index)*-100}vh)"`)
+                                if (numScrolls === index) {// because of cypress and no await... (is called at the end of the taking all the viewport images)
+                                    cy.task('logger', {type: 'info', message: `finished taking viewports, now going to the lazyStitch task`})
+                                    cy.task('lazyStitch', {imageName, lazyLoadedPath: lazyloadData.tmpPath, pageHeight, viewportWidth, viewportHeight})
+                                        .then((imageData) => {
+                                            picProps = {
+                                                path: imageData.path,
+                                                dimensions: {
+                                                    height: imageData.height,
+                                                    width: imageData.width
+                                                }
+                                            }
+                                        domCapture();
+                                        picFileFormat();
+                                        });
+                                }
+                            })
+                        })
+                        return
                     } else {
                         cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`})
                     }
@@ -120,14 +180,14 @@ let sendImageApiJSON = () => {
     let imagePostData = {
         imageHeight: picProps.dimensions.height,
         imageWidth: picProps.dimensions.width,
-        viewportHeight: picElements[0].clientHeight,
-        viewportWidth: picElements[0].clientWidth,
+        viewportHeight: picElements ? picElements[0].clientHeight : JSON.parse(dom).viewport.height,
+        viewportWidth: picElements ? picElements[0].clientWidth : JSON.parse(dom).viewport.width,
         sessionId: vtConfFile.sessionId,
         imageType: imageType.toLowerCase(),
-        imageName: imageName,
+        imageName,
         devicePixelRatio: picProps.pixelRatio,
         imageExt: "png",
-        testUrl: picElements[0].baseURI,
+        testUrl: picElements ? picElements[0].baseURI : lazyloadData.url,
         dom,
         userAgentInfo: JSON.stringify(userAgentData)
     }

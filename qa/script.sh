@@ -1,5 +1,5 @@
 #! /bin/bash
-if [ "$1" == "full" ] || [ "$1" != null ]
+if [ "$1" == "full" ] || [ "$1" == null ]
 then
   echo Running the FULL Cypress local test
   npm install cypress@latest
