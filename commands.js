@@ -82,7 +82,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
                 win.eval(`document.body.style.transform="translateY(0)"`)
                 win.eval(`document.body.style.overflow="hidden"`)
-                // TODO convert string 'number' into javascript number
+                modifiedOptions.lazyload = Number(modifiedOptions.lazyload)
                 if (typeof modifiedOptions.lazyload === 'number') {
                     lazyloadData = {delay: modifiedOptions.lazyload}
                     /*
@@ -110,7 +110,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     let pageHeight = win.eval("window.document.body.offsetHeight");
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
                     cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, pageHeight: ${pageHeight}, scrollArray: ${scrollArray}`})
-                    // TODO convert string 'number' into javascript number
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
                         cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
                         cy.wrap(scrollArray).each(index => {
