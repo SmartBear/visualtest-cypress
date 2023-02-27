@@ -97,7 +97,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     let offsetHeight = win.eval("window.document.body.offsetHeight");
                     let viewportHeight = win.eval("window.innerHeight");
                     let viewportWidth = win.eval("window.innerWidth");
-                    cy.task('logger', {type: 'warn', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight: ${offsetHeight}`})
+                    cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight: ${offsetHeight}`})
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
                         cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})

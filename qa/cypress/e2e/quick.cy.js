@@ -26,10 +26,56 @@ describe(`running apple.com`, () => {
     });
     it('should take a fullpage sbvtCapture', function () {
         cy.sbvtCapture('apple lazyloaded 750ms', {
-            lazyload: 750
+            lazyload: 250
         })
     });
 })
+
+describe(`running apple.com iphone 14`, () => {
+    beforeEach('visit', () => {
+        cy.visit(`https://www.apple.com/iphone-14-pro/`)
+    })
+    it('should take a fullpage sbvtCapture', function () {
+        cy.wait(1000)
+        cy.sbvtCapture('apple iphone 14 lazyloaded 500ms', {
+            lazyload: 600
+        })
+        cy.sbvtCapture('apple iphone 14 regular')
+    });
+})
+
+
+describe(`running glds.ocom`, () => {
+    beforeEach('visit', () => {
+        cy.visit(`https://www.glds.com/`)
+    })
+    it('should take a glds lazy fullpage sbvtCapture', function () {
+        cy.sbvtCapture('glds lazyloaded 750ms', {
+            lazyload: 600
+        })
+    });
+    it('should take a regular glds fullpage sbvtCapture', function () {
+        cy.sbvtCapture('regular glds')
+    });
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // describe(`running example 2`, () => {
 //     beforeEach('visit', () => {
@@ -47,31 +93,3 @@ describe(`running apple.com`, () => {
 //         })
 //     });
 // })
-
-
-describe(`running apple.com iphone 14`, () => {
-    beforeEach('visit', () => {
-        cy.visit(`https://www.apple.com/iphone-14-pro/`)
-    })
-    it('should take a fullpage sbvtCapture', function () {
-        cy.sbvtCapture('apple iphone 14 lazyloaded 500ms', {
-            lazyload: 500
-        })
-        cy.sbvtCapture('apple iphone 14 regular')
-    });
-})
-
-
-describe(`running glds.ocom`, () => {
-    beforeEach('visit', () => {
-        cy.visit(`https://www.glds.com/`)
-    })
-    it('should take a glds lazy fullpage sbvtCapture', function () {
-        cy.sbvtCapture('glds lazyloaded 750ms', {
-            lazyload: 750
-        })
-    });
-    it('should take a regular glds fullpage sbvtCapture', function () {
-        cy.sbvtCapture('regular glds')
-    });
-})
