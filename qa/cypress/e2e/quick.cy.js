@@ -36,60 +36,9 @@ describe(`running apple.com iphone 14`, () => {
         cy.visit(`https://www.apple.com/iphone-14-pro/`)
     })
     it('should take a fullpage sbvtCapture', function () {
-        cy.wait(1000)
         cy.sbvtCapture('apple iphone 14 lazyloaded 500ms', {
-            lazyload: 600
+            lazyload: "600"
         })
         cy.sbvtCapture('apple iphone 14 regular')
     });
 })
-
-
-describe(`running glds.ocom`, () => {
-    beforeEach('visit', () => {
-        cy.visit(`https://www.glds.com/`)
-    })
-    it('should take a glds lazy fullpage sbvtCapture', function () {
-        cy.sbvtCapture('glds lazyloaded 750ms', {
-            lazyload: 600
-        })
-    });
-    it('should take a regular glds fullpage sbvtCapture', function () {
-        cy.sbvtCapture('regular glds')
-    });
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// describe(`running example 2`, () => {
-//     beforeEach('visit', () => {
-//         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example2/Original/index.html`)
-//     })
-//     // it('should take a fullpage sbvtCapture', function () {
-//     //     cy.sbvtCapture('example 2 lazy', {
-//     //         lazyload: 750
-//     //     })
-//     // });
-//     it('should take a regular fullpage sbvtCapture', function () {
-//         // cy.sbvtCapture('regular example 2')
-//         cy.sbvtCapture('viewport example 2', {
-//             capture: "viewport"
-//         })
-//     });
-// })
