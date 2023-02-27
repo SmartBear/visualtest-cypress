@@ -17,6 +17,7 @@ let vtConfFile;
 let dom;
 let toolkitScripts;
 let deviceInfoResponse;
+let lazyloadData;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
@@ -55,7 +56,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
         console.log('The sbvtScreenshot() has failed');
         cy.task('logger', {type: 'trace', message: `sbvtCapture() has failed`}); //I dont think this should be printed out each screenshot
     } else if (element) {
-        cy.task('logger', {type: 'trace', message: `Before element cy.screenshot('${name}')`});
+        cy.task('logger', {type: 'debug', message: `Before element cy.screenshot('${name}')`});
         cy.get(element).screenshot(
             name,
             modifiedOptions,
@@ -65,7 +66,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             picFileFormat();
         });
     } else if (modifiedOptions.capture === 'viewport') {
-        cy.task('logger', {type: 'trace', message: `Before viewport cy.screenshot('${name}')`});
+        cy.task('logger', {type: 'debug', message: `Before viewport cy.screenshot('${name}')`});
         cy.screenshot(
             name,
             modifiedOptions,
@@ -74,33 +75,86 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             picFileFormat();
         });
     } else {
-        cy.task('logger', {type: 'debug', message: `Before fullpage cy.screenshot('${name}')`});
+        cy.task('logger', {type: 'debug', message: `Before fullpage cy.screenshot('${name}')`})
+
+        // this is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
+        modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null
+        if (typeof modifiedOptions.lazyload === 'number') {
+            const defaultDelay = 1500
+            const pageLoadDelay = modifiedOptions.lazyload * 3 > defaultDelay ? modifiedOptions.lazyload * 3 : 1500
+            cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay/1000} seconds`})
+            cy.wait(pageLoadDelay)
+        }
+
         let initialPageState;
         cy.window()
             .then((win) => {
                 initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
                 win.eval(`document.body.style.transform="translateY(0)"`)
                 win.eval(`document.body.style.overflow="hidden"`)
-                // TODO convert string 'number' into javascript number
                 if (typeof modifiedOptions.lazyload === 'number') {
+                    lazyloadData = {delay: modifiedOptions.lazyload}
+                    let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
+                    let offsetHeight = win.eval("window.document.body.offsetHeight");
+                    let viewportHeight = win.eval("window.innerHeight");
+                    let viewportWidth = win.eval("window.innerWidth");
+                    cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight: ${offsetHeight}`})
+                    let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
-                        cy.task('logger', {type: 'info', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
-                        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
-                        cy.task('logger', {type: 'debug', message: `numScrolls: ${numScrolls}`});
-                        let viewport = win.eval("window.innerHeight");
-                        cy.task('logger', {type: 'debug', message: `viewport height: ${viewport}`});
-                        let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
+                        cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
+
                         cy.wrap(scrollArray).each(index => {
-                            cy.scrollTo(0, viewport*index);
+                            cy.task('logger', {type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload/1000} seconds per scroll`})
+                            cy.scrollTo(0, viewportHeight*index);
                             cy.wait(modifiedOptions.lazyload);
                         })
+
+                        cy.scrollTo(0, 0);
+                        cy.wait(1000);
+
+                        // scroll down a viewport at a time and take a viewport screenshot
+                        cy.wrap(scrollArray).each(index => {
+                            cy.task('logger', {type: 'trace', message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`})
+                            cy.screenshot(`toBeDeleted/${imageName}/${index-1}`,{
+                                capture: "viewport",
+                                overwrite: true,
+                                onAfterScreenshot($el, props) {
+                                    lazyloadData = {
+                                        tmpPath: props.path,
+                                        url: $el[0].baseURI
+                                    }
+                                }
+                            }).then(() => {
+                                win.eval(`document.body.style.transform="translateY(${(index)*-100}vh)"`)
+                                if (numScrolls === index) {// because of cypress and no await... (is called at the end of the taking all the viewport images)
+                                    cy.task('logger', {type: 'info', message: `finished taking viewports, now going to the lazyStitch task`})
+                                    cy.task('lazyStitch', {imageName, lazyLoadedPath: lazyloadData.tmpPath, pageHeight: offsetHeight, viewportWidth, viewportHeight})
+                                        .then((imageData) => {
+                                            picProps = {
+                                                path: imageData.path,
+                                                dimensions: {
+                                                    height: imageData.height,
+                                                    width: imageData.width
+                                                }
+                                            }
+                                            win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                                            win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                                            domCapture();
+                                            picFileFormat();
+                                            win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+                                            cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
+                                        });
+                                }
+                            })
+                        })
+                        return
                     } else {
                         cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`})
                     }
                 } else if (modifiedOptions.lazyload !== undefined) {
                     cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number`})
                 }
-                cy.task('logger', {type: 'info', message: `starting cypress's screenshot`})
+                cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`})
                 cy.screenshot(
                         name,
                         modifiedOptions,
@@ -110,7 +164,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     domCapture();
                     picFileFormat();
                     win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
-
                     cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
                 })
             })
@@ -120,14 +173,14 @@ let sendImageApiJSON = () => {
     let imagePostData = {
         imageHeight: picProps.dimensions.height,
         imageWidth: picProps.dimensions.width,
-        viewportHeight: picElements[0].clientHeight,
-        viewportWidth: picElements[0].clientWidth,
+        viewportHeight: picElements ? picElements[0].clientHeight : JSON.parse(dom).viewport.height,
+        viewportWidth: picElements ? picElements[0].clientWidth : JSON.parse(dom).viewport.width,
         sessionId: vtConfFile.sessionId,
         imageType: imageType.toLowerCase(),
-        imageName: imageName,
+        imageName,
         devicePixelRatio: picProps.pixelRatio,
         imageExt: "png",
-        testUrl: picElements[0].baseURI,
+        testUrl: picElements ? picElements[0].baseURI : lazyloadData.url,
         dom,
         userAgentInfo: JSON.stringify(userAgentData)
     }
