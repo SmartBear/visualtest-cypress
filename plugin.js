@@ -224,13 +224,14 @@ function makeGlobalRunHooks() {
           logger.trace(`blit ${i+1}/${files.length}`)
           newImage.blit(image, 0, viewportHeight * i)
         }
-        // TODO break this out to put the images in different folders (to prevent issue when not removing the old folder)
-        //remove the old viewport images
-        fs.rmSync(folderPath, { recursive: true, force: true });
-        logger.debug(`removed the folder at: ${folderPath}`)
+
+        // remove the old viewport images
+        const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf('/'))}`;
+        fs.rmSync(deleteFolder, { recursive: true, force: true });
+        logger.debug(`removed the folder at: ${deleteFolder}`)
 
         // write the new image to the users screenshot folder
-        const userPath = `${folderPath.substring(0, folderPath.lastIndexOf('/'))}/${imageName}.png`;
+        const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf('/'))}/${imageName}.png`;
         newImage.write(userPath)
         logger.debug(`new stitched image has been written at: ${userPath}`)
         return {
