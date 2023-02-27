@@ -75,6 +75,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             picFileFormat();
         });
     } else {
+        cy.task('logger', {type: 'debug', message: `Before fullpage cy.screenshot('${name}')`})
+
         // this is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
         modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null
         if (typeof modifiedOptions.lazyload === 'number') {
@@ -83,7 +85,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay/1000} seconds`})
             cy.wait(pageLoadDelay)
         }
-        cy.task('logger', {type: 'debug', message: `Before fullpage cy.screenshot('${name}')`})
 
         let initialPageState;
         cy.window()
@@ -101,6 +102,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
                         cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
+
                         cy.wrap(scrollArray).each(index => {
                             cy.task('logger', {type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload/1000} seconds per scroll`})
                             cy.scrollTo(0, viewportHeight*index);
@@ -135,8 +137,12 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                                                     width: imageData.width
                                                 }
                                             }
-                                        domCapture();
-                                        picFileFormat();
+                                            win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                                            win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                                            domCapture();
+                                            picFileFormat();
+                                            win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+                                            cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                                         });
                                 }
                             })
