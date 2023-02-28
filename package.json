@@ -13,12 +13,9 @@
     "chalk": "^4.1.2",
     "dotenv": "^16.0.3",
     "jimp": "^0.22.5",
-    "pino": "^8.4.2",
+    "pino": "^8.11.0",
     "pino-pretty": "^9.1.0",
     "uuid": "^9.0.0"
-  },
-  "devDependencies": {
-    "cypress": "^12.7.0"
   },
   "repository": {
     "type": "git",
