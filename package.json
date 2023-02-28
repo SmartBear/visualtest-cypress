@@ -15,7 +15,7 @@
     "jimp": "^0.22.5",
     "pino": "^8.4.2",
     "pino-pretty": "^9.1.0",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "cypress": "^10.10.0"
