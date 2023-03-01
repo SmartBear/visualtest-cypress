@@ -273,7 +273,7 @@ function makeGlobalRunHooks() {
 
               let comparisonResponse;
               let comparisonTotal = 0;
-              for (let i = 0; comparisonTotal !== imageCount && i < 60; i++) { //wait 15 seconds before timeout
+              for (let i = 0; comparisonTotal !== imageCount && i < 40; i++) { //wait 10 seconds before timeout
                 if (i > 0) {//don't wait the first iteration
                   await sleep(250)
                   process.stdout.write("\r\x1b[K");
