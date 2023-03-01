@@ -78,10 +78,10 @@ let setupCommands = () => {
     let fileContent;
     try {
         fileContent = fs.readFileSync(filePath, 'utf-8');
-    } catch (e) {
+    } catch (err) {
         error = true
         console.log(chalk.bgRedBright(`Cypress e2e.js file not found, this is most likely due to Cypress not being setup yet (npx cypress open).`));
-        console.log(chalk.grey(`e2e.js not found at: ${filePath}`));
+        console.log(chalk.grey(`\t${err}`));
         return
     }
 
@@ -102,10 +102,10 @@ let setupPlugin = () => {
     let fileContent;
     try {
         fileContent = fs.readFileSync(filePath, 'utf-8');
-    } catch (e) {
+    } catch (err) {
         error = true
         console.log(chalk.bgRedBright(`Cypress cypress.config.js file not found, this is most likely due to Cypress not being setup yet (npx cypress open).`));
-        console.log(chalk.grey(`cypress.config.js not found at: ${filePath}`));
+        console.log(chalk.grey(`\t${err}`));
         return
     }
 
