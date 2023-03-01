@@ -198,7 +198,7 @@ function makeGlobalRunHooks() {
       },
 
       async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
-        const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf('/'));
+        const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
         const files = fs.readdirSync(folderPath);
         logger.info(`inside picLazy()——imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`)
 
@@ -226,12 +226,12 @@ function makeGlobalRunHooks() {
         }
 
         // remove the old viewport images
-        const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf('/'))}`;
+        const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
         fs.rmSync(deleteFolder, { recursive: true, force: true });
         logger.debug(`removed the folder at: ${deleteFolder}`)
 
         // write the new image to the users screenshot folder
-        const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf('/'))}/${imageName}.png`;
+        const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf(path.sep))}/${imageName}.png`;
         newImage.write(userPath)
         logger.debug(`new stitched image has been written at: ${userPath}`)
         return {
