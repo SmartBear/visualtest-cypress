@@ -258,7 +258,10 @@ function makeGlobalRunHooks() {
         async () => {
           if (configFile.fail === false) {
             try {
+              process.stderr.write(chalk.magenta(' ...loading the VisualTest URL'))
               const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
+              process.stderr.write("\r\x1b[K"); //clear last line
+
               const imageCount = imageResponse.data.page.totalItems;
 
               process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
@@ -270,11 +273,17 @@ function makeGlobalRunHooks() {
 
               let comparisonResponse;
               let comparisonTotal = 0;
-              for (let i = 0; comparisonTotal !== imageCount && i < 20; i++) {
-                if (i > 0) await sleep(250); //don't wait the first iteration
+              for (let i = 0; comparisonTotal !== imageCount && i < 60; i++) { //wait 15 seconds before timeout
+                if (i > 0) {//don't wait the first iteration
+                  await sleep(250)
+                  process.stderr.write("\r\x1b[K");
+                }
+                const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "...."
+                process.stderr.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`))
                 comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
                 comparisonTotal = comparisonResponse.data.comparisons.total;
               }
+              process.stderr.write("\r\x1b[K");
               let comparisonResult = comparisonResponse.data.comparisons;
 
               if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
