@@ -12,6 +12,8 @@ const jsonData = `"chromeWebSecurity": false`
 //TODO add try catch
 const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'))
 const usersCypress = JSON.parse(packageFile.toString());
+let error = false;
+
 let checkForOlderVersion = () => {
     if (usersCypress.version.split('.')[0] < 7 || (usersCypress.version.split('.')[0] <= 7 && usersCypress.version.split('.')[1] < 4)) {
         const filePath = path.resolve(process.cwd(), 'cypress.json');
@@ -73,7 +75,15 @@ let setupCommands = () => {
     } else {
         filePath = `${process.cwd()}/cypress/support/index.js`;
     }
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    let fileContent;
+    try {
+        fileContent = fs.readFileSync(filePath, 'utf-8');
+    } catch (err) {
+        error = true
+        console.log(chalk.bgRedBright(`Cypress e2e.js file not found, this is most likely due to Cypress not being setup yet (npx cypress open).`));
+        console.log(chalk.grey(`\t${err}`));
+        return
+    }
 
     if (fileContent.toString().includes(commandsImport)){
         console.log(chalk.blue(`Commands already installed.`));
@@ -89,7 +99,15 @@ let setupPlugin = () => {
     } else {
         filePath = `${process.cwd()}/cypress/plugins/index.js`;
     }
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    let fileContent;
+    try {
+        fileContent = fs.readFileSync(filePath, 'utf-8');
+    } catch (err) {
+        error = true
+        console.log(chalk.bgRedBright(`Cypress cypress.config.js file not found, this is most likely due to Cypress not being setup yet (npx cypress open).`));
+        console.log(chalk.grey(`\t${err}`));
+        return
+    }
 
     if (fileContent.toString().includes(pluginRequire)){
         console.log(chalk.blue(`Plugin already installed.`));
@@ -98,7 +116,8 @@ let setupPlugin = () => {
         console.log(chalk.green(`Plugin installed.`));
     }
 }
-checkForOlderVersion()
-setupCommands()
-setupPlugin()
-setupVTConf()
+
+if (!error) checkForOlderVersion()
+if (!error) setupCommands()
+if (!error) setupPlugin()
+if (!error) setupVTConf()

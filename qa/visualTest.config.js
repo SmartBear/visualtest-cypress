@@ -1,5 +1,5 @@
 module.exports = {
-	projectToken: 'l593dj01/YHrQxDOn4jU=',
+	projectToken: process.env.EXAMPLE7,
 	// log: "info"
 	// log: "trace"
 }
