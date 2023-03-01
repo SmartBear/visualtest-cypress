@@ -258,7 +258,7 @@ function makeGlobalRunHooks() {
         async () => {
           if (configFile.fail === false) {
             try {
-              process.stdout.write(chalk.magenta(' ...loading the VisualTest URL'))
+              process.stdout.write('View your captures here: ....')
               const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
               process.stdout.write("\r\x1b[K"); //clear last line
 
