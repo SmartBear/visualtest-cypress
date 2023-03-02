@@ -293,7 +293,7 @@ function makeGlobalRunHooks() {
               if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
               if (comparisonResult.failed) console.log(chalk.red(`\t${comparisonResult.failed} image comparison ${comparisonResult.failed === 1 ? 'failure' : 'failures'} to review`));
               if (comparisonResult.passed) console.log(chalk.green(`\t${comparisonResult.passed} image ${comparisonResult.passed === 1 ? 'comparison' : 'comparisons'} passed`));
-              if (comparisonTotal !== imageCount) console.log(chalk.magenta('\tTimed out getting comparisons results'));
+              if (comparisonTotal !== imageCount) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
             } catch (error) {
               console.error(error);
