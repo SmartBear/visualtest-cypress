@@ -32,7 +32,6 @@
     "package.json",
     "plugin.js",
     "commands.js",
-    "LICENSE",
-    "sbvt-browser-toolkit"
+    "LICENSE"
   ]
 }
