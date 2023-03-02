@@ -151,7 +151,9 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     } else if (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0){ //warning if invalid wait time
                         cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds, taking regular screenshot`})
                     } else if (numScrolls <= 1) { //warning if page isnt scrollable
-                        cy.task('logger', {type: 'warn', message: `not able to lazyload "${imageName}", the webpage is not scrollable, taking regular screenshot`})
+                        cy.task('logger', {type: 'warn', message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`})
+                    } else {
+                        cy.task('logger', {type: 'warn', message: `error — not able to lazyload "${imageName}", taking regular screenshot`})
                     }
                 } else if (modifiedOptions.lazyload !== undefined) {
                     cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number`})
