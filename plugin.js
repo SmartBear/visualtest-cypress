@@ -200,13 +200,19 @@ function makeGlobalRunHooks() {
       async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
         const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
         const files = fs.readdirSync(folderPath);
-        logger.info(`inside picLazy()——imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`)
+        logger.info(`inside lazyStitch()——imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`)
 
         //create the new blank fullpage image
         const newImage = new Jimp(viewportWidth, pageHeight);
 
         //crop the last image
         const toBeCropped = (files.length*viewportHeight)-pageHeight
+        if (viewportHeight-toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
+          logger.warn(`lazyLoadedPath: ${lazyLoadedPath}`)
+          logger.warn(`imageName: ${imageName}, lazyLoadedPath: ${lazyLoadedPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
+          logger.warn(`toBeCropped:${toBeCropped}, viewportHeight-toBeCropped:${viewportHeight-toBeCropped}`)
+          return "error"
+        }
         logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length*viewportHeight)-pageHeight} ((files.length*viewportHeight)-pageHeight)`)
         logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight-toBeCropped} (viewportHeight-toBeCropped)`)
         const bottomImage = await Jimp.read(`${folderPath}/${files.length-1}.png`);

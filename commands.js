@@ -80,8 +80,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
         // this is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
         modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null
         if (typeof modifiedOptions.lazyload === 'number' && modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
-            const defaultDelay = 1500
-            const pageLoadDelay = modifiedOptions.lazyload * 3 > defaultDelay ? modifiedOptions.lazyload * 3 : 1500
+            const defaultDelay = 1500 // if the user lazyloads above 375ms it will be X * 4
+            const pageLoadDelay = modifiedOptions.lazyload * 4 > defaultDelay ? modifiedOptions.lazyload * 4 : defaultDelay
             cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay/1000} seconds`})
             cy.wait(pageLoadDelay)
         }
@@ -98,6 +98,13 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     let offsetHeight = win.eval("window.document.body.offsetHeight");
                     let viewportHeight = win.eval("window.innerHeight");
                     let viewportWidth = win.eval("window.innerWidth");
+                    if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
+                        //TODO eventually add a wait here and rerun the above data on the webpage
+                        cy.task('logger', {type: 'info', message: `numScrolls * viewportHeight <= offsetHeight: ${numScrolls * viewportHeight} >= ${offsetHeight} ——> ${numScrolls * viewportHeight >= offsetHeight}`})
+                        cy.task('logger', {type: 'info', message: `numScrolls * viewportHeight - viewportHeight >= offsetHeight: ${numScrolls * viewportHeight - viewportHeight} <= ${offsetHeight} ——> ${numScrolls * viewportHeight - viewportHeight <= offsetHeight}`})
+                        cy.task('logger', {type: 'error', message: `This webpage is not fully loaded, no image taken for: "${imageName}", please raise the lazyload time and try again (recommend "lazyload: 1000" to start, then lower slowly)`})
+                        return //do not proceed the lazyload function with bad numbers here
+                    }
                     cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight: ${offsetHeight}`})
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
                     if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0 && numScrolls > 1) { //within ms params & a scrollable page
@@ -130,6 +137,10 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                                     cy.task('logger', {type: 'info', message: `finished taking viewports, now going to the lazyStitch task`})
                                     cy.task('lazyStitch', {imageName, lazyLoadedPath: lazyloadData.tmpPath, pageHeight: offsetHeight, viewportWidth, viewportHeight})
                                         .then((imageData) => {
+                                            if (imageData === "error") { //should not get here, error should be handled earlier
+                                                cy.task('logger', {type: 'error', message: `Error with lazyload on ${imageName}, no screenshot taken`});
+                                                return
+                                            }
                                             picProps = {
                                                 path: imageData.path,
                                                 dimensions: {
