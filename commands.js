@@ -79,7 +79,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
 
         // this is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
         modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null
-        if (typeof modifiedOptions.lazyload === 'number') {
+        if (typeof modifiedOptions.lazyload === 'number' && modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
             const defaultDelay = 1500
             const pageLoadDelay = modifiedOptions.lazyload * 3 > defaultDelay ? modifiedOptions.lazyload * 3 : 1500
             cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay/1000} seconds`})
@@ -100,7 +100,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     let viewportWidth = win.eval("window.innerWidth");
                     cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight: ${offsetHeight}`})
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
-                    if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
+                    if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0 && numScrolls > 1) { //within ms params & a scrollable page
                         cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
 
                         cy.wrap(scrollArray).each(index => {
@@ -148,8 +148,10 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                             })
                         })
                         return
-                    } else {
-                        cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`})
+                    } else if (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0){ //warning if invalid wait time
+                        cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds, taking regular screenshot`})
+                    } else if (numScrolls <= 1) { //warning if page isnt scrollable
+                        cy.task('logger', {type: 'warn', message: `not able to lazyload "${imageName}", the webpage is not scrollable, taking regular screenshot`})
                     }
                 } else if (modifiedOptions.lazyload !== undefined) {
                     cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number`})
