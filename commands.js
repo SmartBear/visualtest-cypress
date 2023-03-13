@@ -45,6 +45,18 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                 }}).then((res) => {
                 deviceInfoResponse = res.body
             })
+                if (modifiedOptions.script) {
+                    // TODO add this to a task so there can be a try catch.... https://docs.cypress.io/api/commands/task#Read-a-file-that-might-not-exist
+                    cy.readFile(modifiedOptions.script).then((file) => {
+                        cy.task('logger', {type: 'info', message: `about to inject the script at: "${modifiedOptions.script}"`});
+                        cy.task('logger', {type: 'debug', message: `the file being injected from "${modifiedOptions.script}" is: \n${file}`});
+                        cy.window()
+                            .then((win) => {
+                                win.eval(file)
+                            })
+                    })
+                    cy.task('logger', {type: 'fatal', message: `issue with file "${modifiedOptions.script}"`});
+                }
                 takeScreenshot(element, name, modifiedOptions);
             }).then(() => {
                 return apiRes;
