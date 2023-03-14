@@ -52,7 +52,7 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                             cy.task('logger', {type: 'debug', message: `the file being injected from "${modifiedOptions.script}" is: \n${data}`});
                             cy.window()
                                 .then((win) => {
-                                    win.eval(textOrNull)
+                                    win.eval(data)
                                 })
                         } else {
                             cy.task('logger', {type: 'fatal', message: `issue with reading the file: "${modifiedOptions.script}"`});
