@@ -52,6 +52,26 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
         });
 });
 let takeScreenshot = (element, name, modifiedOptions) => {
+    let initialPageState;
+    if (!vtConfFile.fail) {
+        // this is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
+        modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null
+        if (typeof modifiedOptions.lazyload === 'number' && modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
+            const defaultDelay = 1500 // if the user lazyloads above 375ms it will be X * 4
+            const pageLoadDelay = modifiedOptions.lazyload * 4 > defaultDelay ? modifiedOptions.lazyload * 4 : defaultDelay
+            cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay/1000} seconds`})
+            cy.wait(pageLoadDelay)
+        }
+
+        //hide the scroll bar before the sbvtCapture starts & grab the initial state of the webpage to return it back after the capture
+        cy.window()
+            .then((win) => {
+                initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
+                win.eval(`document.body.style.transform="translateY(0)"`)
+                win.eval(`document.body.style.overflow="hidden"`)
+            })
+    }
+
     if (vtConfFile.fail) {
         console.log('The sbvtScreenshot() has failed');
         cy.task('logger', {type: 'trace', message: `sbvtCapture() has failed`}); //I dont think this should be printed out each screenshot
@@ -77,21 +97,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
     } else {
         cy.task('logger', {type: 'debug', message: `Before fullpage cy.screenshot('${name}')`})
 
-        // this is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
-        modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null
-        if (typeof modifiedOptions.lazyload === 'number' && modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
-            const defaultDelay = 1500 // if the user lazyloads above 375ms it will be X * 4
-            const pageLoadDelay = modifiedOptions.lazyload * 4 > defaultDelay ? modifiedOptions.lazyload * 4 : defaultDelay
-            cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay/1000} seconds`})
-            cy.wait(pageLoadDelay)
-        }
-
-        let initialPageState;
         cy.window()
             .then((win) => {
-                initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`)
-                win.eval(`document.body.style.transform="translateY(0)"`)
-                win.eval(`document.body.style.overflow="hidden"`)
                 if (typeof modifiedOptions.lazyload === 'number') {
                     lazyloadData = {delay: modifiedOptions.lazyload}
                     let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
@@ -178,10 +185,16 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                     domCapture();
                     picFileFormat();
-                    win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
-                    cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
                 })
             })
+    }
+    if (!vtConfFile.fail) {
+        //return the scroll bar after the sbvtCapture has completed
+        cy.window()
+            .then((win) => {
+                win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+            })
+        cy.task('logger', {type: 'info', message: `After sbvtCapture cy.screenshot('${name}')`});
     }
 };
 let sendImageApiJSON = () => {
@@ -258,7 +271,6 @@ let domCapture = () => {
     cy.window()
         .then((win) => {
             dom = win.eval(toolkitScripts.domCapture)
-            // cy.task('logger', {type: 'fatal', message: `dom: ${dom}`});
         });
 };
 let getImageById = () => {

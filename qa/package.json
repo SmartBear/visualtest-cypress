@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:..",
-    "cypress": "^12.7.0"
+    "cypress": "^12.8.0"
   }
 }
