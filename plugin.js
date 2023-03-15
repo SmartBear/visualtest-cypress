@@ -196,7 +196,6 @@ function makeGlobalRunHooks() {
         }
         return configFile;
       },
-
       async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
         const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
         const files = fs.readdirSync(folderPath);

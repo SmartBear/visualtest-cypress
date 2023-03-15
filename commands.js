@@ -159,7 +159,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                                             win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                                             domCapture();
                                             picFileFormat();
-                                            win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
                                             cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                                         });
                                 }
