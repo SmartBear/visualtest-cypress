@@ -1,3 +1,5 @@
+//for these sites:
+//https://smartbear.github.io/visual-testing-example-website/Example4/Original/index.html
 if (typeof jQuery == 'function'){
     if (typeof jQuery('.carousel').carousel == 'function'){
         jQuery('.carousel').carousel(0);

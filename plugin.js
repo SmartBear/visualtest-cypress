@@ -257,14 +257,7 @@ function makeGlobalRunHooks() {
       },
       getToolkit () {
         return domToolKit;
-      },
-      readFile(filename) {
-        // this is a task incase the file is not found.... https://docs.cypress.io/api/commands/task#Read-a-file-that-might-not-exist
-        if (fs.existsSync(filename)) {
-          return fs.readFileSync(filename, 'utf8')
-        }
-        return null
-      },
+      }
     },
     'after:run':
         async () => {

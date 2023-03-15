@@ -45,20 +45,6 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                 }}).then((res) => {
                 deviceInfoResponse = res.body
             })
-                if (modifiedOptions.script) {
-                    cy.task('readFile', modifiedOptions.script).then((data) => {
-                        if (data) {
-                            cy.task('logger', {type: 'info', message: `about to inject the script at: "${modifiedOptions.script}"`});
-                            cy.task('logger', {type: 'debug', message: `the file being injected from "${modifiedOptions.script}" is: \n${data}`});
-                            cy.window()
-                                .then((win) => {
-                                    win.eval(data)
-                                })
-                        } else {
-                            cy.task('logger', {type: 'fatal', message: `issue with reading the file: "${modifiedOptions.script}"`});
-                        }
-                    })
-                }
                 takeScreenshot(element, name, modifiedOptions);
             }).then(() => {
                 return apiRes;

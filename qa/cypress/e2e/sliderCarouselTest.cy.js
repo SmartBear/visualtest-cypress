@@ -13,7 +13,7 @@ describe(`running example 1`, () => {
         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html`)
         cy.window()
             .then((win) => {
-                cy.readFile("./exampleFreezePage.js").then((str) => {
+                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                     win.eval(str)
                 })
             })
@@ -30,7 +30,7 @@ describe(`running example 2`, () => {
         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example2/Original/index.html`)
         cy.window()
             .then((win) => {
-                cy.readFile("./exampleFreezePage.js").then((str) => {
+                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                     win.eval(str)
                 })
             })
@@ -47,7 +47,7 @@ describe(`running example 3`, () => {
         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example3/Original/index.html`)
         cy.window()
             .then((win) => {
-                cy.readFile("./exampleFreezePage.js").then((str) => {
+                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                     win.eval(str)
                 })
             })
@@ -64,7 +64,7 @@ describe(`running example 4`, () => {
         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example4/Original/index.html`)
         cy.window()
             .then((win) => {
-                cy.readFile("./exampleFreezePage.js").then((str) => {
+                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                     win.eval(str)
                 })
             })
@@ -81,7 +81,7 @@ describe(`running example 5`, () => {
         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example5/Original/index.html`)
         cy.window()
             .then((win) => {
-                cy.readFile("./exampleFreezePage.js").then((str) => {
+                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                     win.eval(str)
                 })
             })
@@ -98,7 +98,7 @@ describe(`running example 6`, () => {
         cy.visit(`https://smartbear.github.io/visual-testing-example-website/Example6/Original/index.html`)
         cy.window()
             .then((win) => {
-                cy.readFile("./exampleFreezePage.js").then((str) => {
+                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                     win.eval(str)
                 })
             })
