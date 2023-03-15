@@ -1,3 +1,6 @@
+
+// Run against EXAMPLE 7 and all test should pass
+
 Cypress.on('uncaught:exception', (err, runnable) => {
     // returning false here prevents Cypress from
     // failing the test
