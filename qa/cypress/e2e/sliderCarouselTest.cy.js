@@ -1,5 +1,6 @@
 
 // Run against EXAMPLE 7 and all test should pass
+// it is KNOWN that example 2 might have comparison failure, as the scroll bar does not go away
 
 Cypress.on('uncaught:exception', (err, runnable) => {
     // returning false here prevents Cypress from
