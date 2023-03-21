@@ -73,23 +73,17 @@ let takeScreenshot = (element, name, modifiedOptions) => {
 
         //check for any elements that the user passed that they want to ignore
         if (Array.isArray(modifiedOptions.ignoreElements)) {
-            try {
-                cy.task('logger', {type: 'info',message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
+            cy.task('logger', {type: 'info',message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
 
-                //make sure each element is found on the dom, will throw error here if element not found
-                modifiedOptions.ignoreElements.forEach(element => {
-                    cy.get(element)
+            //make sure each element is found on the dom, will throw error here if element not found
+            modifiedOptions.ignoreElements.forEach(element => {
+                cy.get(element)
+            })
+
+            cy.window()
+                .then((win) => {
+                    win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`)
                 })
-
-                cy.window()
-                    .then((win) => {
-                        win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`)
-                        let test = win.eval(`window.sbvt`)
-                        cy.task('logger', {type: 'info', message: `win.eval(\`window.sbvt\`): ${JSON.stringify(test)}`});
-                    })
-            } catch (e) {
-                cy.task('logger', {type: 'fatal', message: `failure!!!!`});
-            }
         }
     }
 
@@ -293,7 +287,7 @@ let domCapture = () => {
         .then((win) => {
             dom = JSON.parse(win.eval(toolkitScripts.domCapture))
             if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
-            })
+        })
 
 };
 let getImageById = () => {
