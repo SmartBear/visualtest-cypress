@@ -255,6 +255,10 @@ function makeGlobalRunHooks() {
                                 logger.warn('error with the logger task')
         return null
       },
+      async log ({message}) {
+        console.log(message)
+        return null
+      },
       getToolkit () {
         return domToolKit;
       }

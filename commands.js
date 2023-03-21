@@ -70,6 +70,21 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 win.eval(`document.body.style.transform="translateY(0)"`)
                 win.eval(`document.body.style.overflow="hidden"`)
             })
+
+        //check for any elements that the user passed that they want to ignore
+        if (Array.isArray(modifiedOptions.ignoreElements)) {
+            cy.task('logger', {type: 'info',message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
+
+            //make sure each element is found on the dom, will throw error here if element not found
+            modifiedOptions.ignoreElements.forEach(element => {
+                cy.get(element)
+            })
+
+            cy.window()
+                .then((win) => {
+                    win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`)
+                })
+        }
     }
 
     if (vtConfFile.fail) {
@@ -208,7 +223,8 @@ let sendImageApiJSON = () => {
         devicePixelRatio: picProps.pixelRatio,
         imageExt: "png",
         testUrl: picElements ? picElements[0].baseURI : lazyloadData.url,
-        dom,
+        dom: JSON.stringify(dom),
+        ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData)
     }
     Object.assign(imagePostData, deviceInfoResponse);
@@ -269,8 +285,10 @@ let picFileFormat = () => {
 let domCapture = () => {
     cy.window()
         .then((win) => {
-            dom = win.eval(toolkitScripts.domCapture)
-        });
+            dom = JSON.parse(win.eval(toolkitScripts.domCapture))
+            if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+        })
+
 };
 let getImageById = () => {
     cy.request({
