@@ -292,7 +292,7 @@ let domCapture = () => {
     cy.window()
         .then((win) => {
             dom = JSON.parse(win.eval(toolkitScripts.domCapture))
-            if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "debug", message: `dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+            if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
             })
 
 };
