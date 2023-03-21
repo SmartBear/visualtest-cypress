@@ -75,13 +75,12 @@ let takeScreenshot = (element, name, modifiedOptions) => {
         if (Array.isArray(modifiedOptions.ignoreElements)) {
             try {
                 cy.task('logger', {type: 'info',message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
+
+                //make sure each element is found on the dom, will throw error here if element not found
                 modifiedOptions.ignoreElements.forEach(element => {
-                    try {
-                        cy.get(element)
-                    } catch (e) {
-                        cy.task('logger', {type: 'warn', message: `issue finding element: ${element}`});
-                    }
+                    cy.get(element)
                 })
+
                 cy.window()
                     .then((win) => {
                         win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`)
@@ -231,6 +230,7 @@ let sendImageApiJSON = () => {
         imageExt: "png",
         testUrl: picElements ? picElements[0].baseURI : lazyloadData.url,
         dom: JSON.stringify(dom),
+        ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData)
     }
     Object.assign(imagePostData, deviceInfoResponse);
