@@ -70,6 +70,28 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 win.eval(`document.body.style.transform="translateY(0)"`)
                 win.eval(`document.body.style.overflow="hidden"`)
             })
+
+        //check for any elements that the user passed that they want to ignore
+        if (Array.isArray(modifiedOptions.ignoreElements)) {
+            try {
+                cy.task('logger', {type: 'info',message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
+                modifiedOptions.ignoreElements.forEach(element => {
+                    try {
+                        cy.get(element)
+                    } catch (e) {
+                        cy.task('logger', {type: 'warn', message: `issue finding element: ${element}`});
+                    }
+                })
+                cy.window()
+                    .then((win) => {
+                        win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`)
+                        let test = win.eval(`window.sbvt`)
+                        cy.task('logger', {type: 'info', message: `win.eval(\`window.sbvt\`): ${JSON.stringify(test)}`});
+                    })
+            } catch (e) {
+                cy.task('logger', {type: 'fatal', message: `failure!!!!`});
+            }
+        }
     }
 
     if (vtConfFile.fail) {
@@ -208,7 +230,7 @@ let sendImageApiJSON = () => {
         devicePixelRatio: picProps.pixelRatio,
         imageExt: "png",
         testUrl: picElements ? picElements[0].baseURI : lazyloadData.url,
-        dom,
+        dom: JSON.stringify(dom),
         userAgentInfo: JSON.stringify(userAgentData)
     }
     Object.assign(imagePostData, deviceInfoResponse);
@@ -269,8 +291,10 @@ let picFileFormat = () => {
 let domCapture = () => {
     cy.window()
         .then((win) => {
-            dom = win.eval(toolkitScripts.domCapture)
-        });
+            dom = JSON.parse(win.eval(toolkitScripts.domCapture))
+            if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "debug", message: `dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+            })
+
 };
 let getImageById = () => {
     cy.request({
