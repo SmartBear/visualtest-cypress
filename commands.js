@@ -18,6 +18,7 @@ let dom;
 let toolkitScripts;
 let deviceInfoResponse;
 let lazyloadData;
+let saveDOM;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
@@ -85,6 +86,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`)
                 })
         }
+        modifiedOptions.saveDOM === true ? saveDOM = name : saveDOM = false
     }
 
     if (vtConfFile.fail) {
@@ -287,6 +289,12 @@ let domCapture = () => {
         .then((win) => {
             dom = JSON.parse(win.eval(toolkitScripts.domCapture))
             if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+
+            //return and write the dom if the "saveDOM: true" flag is thrown
+            if (saveDOM) {
+                cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
+                cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom)
+            }
         })
 
 };
