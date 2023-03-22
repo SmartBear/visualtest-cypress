@@ -8,17 +8,7 @@ const func = {
 
 let imageType = 'fullPage';
 let apiRes = {};
-let picProps;
-let blobData;
-let userAgentData;
-let picElements;
-let imageName;
-let vtConfFile;
-let dom;
-let toolkitScripts;
-let deviceInfoResponse;
-let lazyloadData;
-let saveDOM;
+let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse, lazyloadData, saveDOM;
 
 Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name, options) => {
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
