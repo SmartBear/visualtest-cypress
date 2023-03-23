@@ -7,6 +7,13 @@ const func = {
     }
 };
 
+const headers = {
+    "Authorization": null,
+    "sbvt-client": "sdk",
+    "sbvt-sdk": "cypress",
+    "sbvt-sdk-version": package_json.version
+}
+
 let imageType = 'fullPage';
 let apiRes = {};
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse, lazyloadData, saveDOM;
@@ -27,13 +34,10 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
             userAgentData = win.eval(toolkitScripts.userAgent)
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
+                headers.Authorization = `Bearer ${vtConfFile.projectToken}`
                 cy.request({
                     method: "POST",
-                    headers: {
-                        'sbvt-client': 'sdk',
-                        'sbvt-sdk': `cypress`,
-                        'sbvt-sdk-version': package_json.version
-                    },
+                    headers,
                     url: `${vtConfFile.url}/api/v1/device-info`,
                     failOnStatusCode: false,
                     body: {
@@ -229,12 +233,7 @@ let sendImageApiJSON = () => {
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
-        headers: {
-            "Authorization": `Bearer ${vtConfFile.projectToken}`,
-            'sbvt-client': 'sdk',
-            'sbvt-sdk': `cypress`,
-            'sbvt-sdk-version': package_json.version
-        },
+        headers,
         failOnStatusCode: false,
         body: imagePostData,
     }).then((res) => {
@@ -268,9 +267,6 @@ let uploadToS3 = async (res) => {
             url: res.body.uploadUrl,
             headers: {
                 "Content-Type": "application/octet-stream",
-                'sbvt-client': 'sdk',
-                'sbvt-sdk': `cypress`,
-                'sbvt-sdk-version': package_json.version
             },
             failOnStatusCode: false,
             body: blobData
@@ -307,12 +303,7 @@ let domCapture = () => {
 let getImageById = () => {
     cy.request({
         method: 'GET',
-        headers: {
-            "Authorization": `Bearer ${vtConfFile.projectToken}`,
-            'sbvt-client': 'sdk',
-            'sbvt-sdk': `cypress`,
-            'sbvt-sdk-version': package_json.version
-        },
+        headers,
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`
     })
         .then((res) => {
