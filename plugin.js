@@ -288,14 +288,14 @@ function makeGlobalRunHooks() {
                 const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "...."
                 process.stdout.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`))
                 comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
-                comparisonTotal = comparisonResponse.data.comparisons.total;
+                comparisonTotal = comparisonResponse.data.comparisons.complete;
               }
               process.stdout.write("\r\x1b[K");
               let comparisonResult = comparisonResponse.data.comparisons;
 
-              if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
-              if (comparisonResult.failed) console.log(chalk.red(`\t${comparisonResult.failed} image comparison ${comparisonResult.failed === 1 ? 'failure' : 'failures'} to review`));
-              if (comparisonResult.passed) console.log(chalk.green(`\t${comparisonResult.passed} image ${comparisonResult.passed === 1 ? 'comparison' : 'comparisons'} passed`));
+              if (comparisonResult.status.new_image) console.log(chalk.yellow(`\t${comparisonResult.status.new_image} new base ${comparisonResult.status.new_image === 1 ? 'image' : 'images'}`));
+              if (comparisonResult.status.unreviewed) console.log(chalk.red(`\t${comparisonResult.status.unreviewed} image comparison ${comparisonResult.status.unreviewed === 1 ? 'failure' : 'failures'} to review`));
+              if (comparisonResult.status.passed) console.log(chalk.green(`\t${comparisonResult.status.passed} image ${comparisonResult.status.passed === 1 ? 'comparison' : 'comparisons'} passed`));
               if (comparisonTotal !== imageCount) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
             } catch (error) {
