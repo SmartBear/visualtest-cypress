@@ -1,3 +1,4 @@
+const package_json = require("./package.json");
 
 const func = {
     onAfterScreenshot($el, props) {
@@ -27,12 +28,16 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
                 cy.request({
-                method: "POST",
+                    method: "POST",
+                    headers: {
+                        'sbvt-sdk': `cypress`,
+                        'sbvt-sdk-version': package_json.version
+                    },
                     url: `${vtConfFile.url}/api/v1/device-info`,
                     failOnStatusCode: false,
                     body: {
                     "userAgentInfo": userAgentData,
-                        'driverCapabilities': {}
+                    'driverCapabilities': {}
                 }}).then((res) => {
                 deviceInfoResponse = res.body
             })
@@ -223,10 +228,14 @@ let sendImageApiJSON = () => {
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
-        headers: {"Authorization": `Bearer ${vtConfFile.projectToken}`},
+        headers: {
+            "Authorization": `Bearer ${vtConfFile.projectToken}`,
+            'sbvt-sdk': `cypress`,
+            'sbvt-sdk-version': package_json.version
+        },
         failOnStatusCode: false,
         body: imagePostData,
-    }).then( (res) => {
+    }).then((res) => {
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
@@ -255,7 +264,11 @@ let uploadToS3 = async (res) => {
         cy.request({
             method: "PUT",
             url: res.body.uploadUrl,
-            headers: {"Content-Type": "application/octet-stream"},
+            headers: {
+                "Content-Type": "application/octet-stream",
+                'sbvt-sdk': `cypress`,
+                'sbvt-sdk-version': package_json.version
+            },
             failOnStatusCode: false,
             body: blobData
         }).then((res) => {
@@ -291,7 +304,11 @@ let domCapture = () => {
 let getImageById = () => {
     cy.request({
         method: 'GET',
-        headers: {"Authorization": `Bearer ${vtConfFile.projectToken}`},
+        headers: {
+            "Authorization": `Bearer ${vtConfFile.projectToken}`,
+            'sbvt-sdk': `cypress`,
+            'sbvt-sdk-version': package_json.version
+        },
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`
     })
         .then((res) => {
