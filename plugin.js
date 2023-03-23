@@ -147,6 +147,7 @@ function makeGlobalRunHooks() {
           logger.trace('config.projectId: ' + configFile.projectId);
 
           axios.defaults.headers.common['Authorization'] = `Bearer ${configFile.projectToken}`;
+          axios.defaults.headers.common['sbvt-client'] =  'sdk';
           axios.defaults.headers.common['sbvt-sdk'] = `cypress`;
           axios.defaults.headers.common['sbvt-sdk-version'] = package_json.version;
           logger.trace(`axios.defaults.headers.common['Authorization']: ` + axios.defaults.headers.common['Authorization']);

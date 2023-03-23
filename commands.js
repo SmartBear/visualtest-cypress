@@ -30,6 +30,7 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                 cy.request({
                     method: "POST",
                     headers: {
+                        'sbvt-client': 'sdk',
                         'sbvt-sdk': `cypress`,
                         'sbvt-sdk-version': package_json.version
                     },
@@ -230,6 +231,7 @@ let sendImageApiJSON = () => {
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         headers: {
             "Authorization": `Bearer ${vtConfFile.projectToken}`,
+            'sbvt-client': 'sdk',
             'sbvt-sdk': `cypress`,
             'sbvt-sdk-version': package_json.version
         },
@@ -266,6 +268,7 @@ let uploadToS3 = async (res) => {
             url: res.body.uploadUrl,
             headers: {
                 "Content-Type": "application/octet-stream",
+                'sbvt-client': 'sdk',
                 'sbvt-sdk': `cypress`,
                 'sbvt-sdk-version': package_json.version
             },
@@ -306,6 +309,7 @@ let getImageById = () => {
         method: 'GET',
         headers: {
             "Authorization": `Bearer ${vtConfFile.projectToken}`,
+            'sbvt-client': 'sdk',
             'sbvt-sdk': `cypress`,
             'sbvt-sdk-version': package_json.version
         },
