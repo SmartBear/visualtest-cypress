@@ -285,19 +285,22 @@ function makeGlobalRunHooks() {
                 return new Promise(resolve => setTimeout(resolve, ms));
               }
 
+              // just a delay, for issue with logging not removing the last log properly (race-condition with logs)
+              if (['info', 'debug', 'trace'].includes(logger.level)) await sleep(300)
+
               let comparisonResponse;
               let comparisonTotal = 0;
               for (let i = 0; comparisonTotal !== imageCount && i < 40; i++) { //wait 10 seconds before timeout
                 if (i > 0) {//don't wait the first iteration
                   await sleep(250)
-                  process.stdout.write("\r\x1b[K");
+                  process.stdout.write("\r\x1b[K"); //remove last log
                 }
                 const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "...."
                 process.stdout.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`))
                 comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
                 comparisonTotal = comparisonResponse.data.comparisons.total;
               }
-              process.stdout.write("\r\x1b[K");
+              process.stdout.write("\r\x1b[K"); //remove last log
               let comparisonResult = comparisonResponse.data.comparisons;
 
               if (comparisonResult.new_image) console.log(chalk.yellow(`\t${comparisonResult.new_image} new base ${comparisonResult.new_image === 1 ? 'image' : 'images'}`));
