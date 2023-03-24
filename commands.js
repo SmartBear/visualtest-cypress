@@ -106,7 +106,6 @@ let takeScreenshot = (element, name, modifiedOptions) => {
 
         cy.window()
             .then((win) => {
-                if (typeof modifiedOptions.lazyload === 'number') {
                     lazyloadData = {delay: modifiedOptions.lazyload}
                     let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)")
                     let offsetHeight = win.eval("window.document.body.offsetHeight");
@@ -119,19 +118,22 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                         cy.task('logger', {type: 'error', message: `This webpage is not fully loaded, no image taken for: "${imageName}", please raise the lazyload time and try again (recommend "lazyload: 1000" to start, then lower slowly)`})
                         return //do not proceed the lazyload function with bad numbers here
                     }
-                    cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight: ${offsetHeight}`})
+                    cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`})
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
-                    if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0 && numScrolls > 1) { //within ms params & a scrollable page
-                        cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
-
-                        cy.wrap(scrollArray).each(index => {
-                            cy.task('logger', {type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload/1000} seconds per scroll`})
-                            cy.scrollTo(0, viewportHeight*index);
-                            cy.wait(modifiedOptions.lazyload);
-                        })
-
-                        cy.scrollTo(0, 0);
-                        cy.wait(1000);
+                    if (numScrolls > 1 && modifiedOptions.scroll !== "JS") { // a scrollable page & scroll: "JS" is so if a user complains they can use the cypress default fullpage capture
+                        if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
+                        cy.task('logger', {type: 'warn', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
+                            cy.wrap(scrollArray).each(index => {
+                                cy.task('logger', { type: 'warn', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll` })
+                                cy.scrollTo(0, viewportHeight * index);
+                                cy.wait(modifiedOptions.lazyload);
+                            })
+                            cy.scrollTo(0, 0);
+                            cy.wait(1000);
+                        } else if (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || modifiedOptions.lazyload !== undefined){ //warning if invalid wait time
+                            cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`})
+                            throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds")
+                        }
 
                         // scroll down a viewport at a time and take a viewport screenshot
                         cy.wrap(scrollArray).each(index => {
@@ -172,16 +174,9 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                             })
                         })
                         return
-                    } else if (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0){ //warning if invalid wait time
-                        cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds, taking regular screenshot`})
                     } else if (numScrolls <= 1) { //warning if page isnt scrollable
                         cy.task('logger', {type: 'warn', message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`})
-                    } else {
-                        cy.task('logger', {type: 'warn', message: `error — not able to lazyload "${imageName}", taking regular screenshot`})
                     }
-                } else if (modifiedOptions.lazyload !== undefined) {
-                    cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number`})
-                }
                 cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`})
                 cy.screenshot(
                         name,
