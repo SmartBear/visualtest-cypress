@@ -199,40 +199,41 @@ function makeGlobalRunHooks() {
       async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
         const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
         const files = fs.readdirSync(folderPath);
-        logger.info(`inside lazyStitch()——imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`)
+        const firstImage = await Jimp.read(`${folderPath}/0.png`);
+        const pixelRatio = (firstImage.bitmap.width / viewportWidth)
+        logger.debug(`pixelRatio (firstImage.bitmap.width/viewportWidth): ${pixelRatio}, firstImage.bitmap.width: ${firstImage.bitmap.width}, viewportWidth: ${viewportWidth}`)
+        logger.info(`inside lazyStitch()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight * pixelRatio}, viewportWidth: ${viewportWidth * pixelRatio}, viewportHeight: ${viewportHeight * pixelRatio}, ${files.length} images.`)
 
         //create the new blank fullpage image
-        const newImage = new Jimp(viewportWidth, pageHeight);
+        const newImage = new Jimp(viewportWidth * pixelRatio, pageHeight * pixelRatio);
 
         //crop the last image
-        const toBeCropped = (files.length*viewportHeight)-pageHeight
-        if (viewportHeight-toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
+        const toBeCropped = (files.length * (viewportHeight * pixelRatio)) - (pageHeight * pixelRatio)
+        if ((viewportHeight * pixelRatio)-toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
           logger.warn(`lazyLoadedPath: ${lazyLoadedPath}`)
-          logger.warn(`imageName: ${imageName}, lazyLoadedPath: ${lazyLoadedPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
-          logger.warn(`toBeCropped:${toBeCropped}, viewportHeight-toBeCropped:${viewportHeight-toBeCropped}`)
+          logger.warn(`pixelRatio: ${pixelRatio}, imageName: ${imageName}, lazyLoadedPath: ${lazyLoadedPath}, pageHeight: ${pageHeight * pixelRatio}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
+          logger.warn(`toBeCropped:${toBeCropped}, viewportHeight-toBeCropped:${(viewportHeight * pixelRatio)-toBeCropped}`)
           return "error"
         }
-        logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length*viewportHeight)-pageHeight} ((files.length*viewportHeight)-pageHeight)`)
-        logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight-toBeCropped} (viewportHeight-toBeCropped)`)
+        logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight * pixelRatio}, pageHeight:${pageHeight * pixelRatio}, toBeCropped:${(files.length * (viewportHeight * pixelRatio))-(pageHeight * pixelRatio)} ((files.length*viewportHeight)-pageHeight)`)
+        logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth * pixelRatio} x height:${(viewportHeight * pixelRatio)-toBeCropped} (viewportHeight-toBeCropped)`)
         const bottomImage = await Jimp.read(`${folderPath}/${files.length-1}.png`);
         logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
-        bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
-        logger.debug(`resized last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
-        bottomImage.crop(0, 0, viewportWidth, viewportHeight-toBeCropped)
+        // bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
+        bottomImage.crop(0, 0, viewportWidth * pixelRatio, (viewportHeight * pixelRatio)-toBeCropped)
         logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
         bottomImage.write(`${folderPath}/${files.length-1}.png`); //overwrite the file
 
         //stitch the images all together
         for (let i = 0; i < files.length; i++) {
           const image = await Jimp.read(`${folderPath}/${i}.png`);
-          image.resize(viewportWidth, Jimp.AUTO); //resize (causes issue with retina display)
-          logger.trace(`blit ${i+1}/${files.length}`)
-          newImage.blit(image, 0, viewportHeight * i)
+          logger.trace(`stitching ${i+1}/${files.length}`)
+          newImage.blit(image, 0, (viewportHeight * pixelRatio) * i)
         }
 
         // remove the old viewport images
         const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
-        fs.rmSync(deleteFolder, { recursive: true, force: true });
+        fs.rmSync(deleteFolder, { recursive: true, force: true }); // comment this out to check viewports before stitched together
         logger.debug(`removed the folder at: ${deleteFolder}`)
 
         // write the new image to the users screenshot folder
@@ -270,6 +271,7 @@ function makeGlobalRunHooks() {
               const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
 
               const imageCount = imageResponse.data.page.totalItems;
+              // TODO Errors can be caught here when this equals 0...
 
               process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
               console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));

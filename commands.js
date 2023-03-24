@@ -150,7 +150,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                             }).then(() => {
                                 win.eval(`document.body.style.transform="translateY(${(index)*-100}vh)"`)
                                 if (numScrolls === index) {// because of cypress and no await... (is called at the end of the taking all the viewport images)
-                                    cy.task('logger', {type: 'info', message: `finished taking viewports, now going to the lazyStitch task`})
+                                    cy.task('logger', {type: 'debug', message: `finished taking viewports, now going to the lazyStitch task`})
                                     cy.task('lazyStitch', {imageName, lazyLoadedPath: lazyloadData.tmpPath, pageHeight: offsetHeight, viewportWidth, viewportHeight})
                                         .then((imageData) => {
                                             if (imageData === "error") { //should not get here, error should be handled earlier
