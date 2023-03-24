@@ -122,7 +122,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1)
                     if (numScrolls > 1 && modifiedOptions.scroll !== "JS") { // a scrollable page & scroll: "JS" is so if a user complains they can use the cypress default fullpage capture
                         if (modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
-                        cy.task('logger', {type: 'warn', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
+                        cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`})
                             cy.wrap(scrollArray).each(index => {
                                 cy.task('logger', { type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll` })
                                 cy.scrollTo(0, viewportHeight * index);
