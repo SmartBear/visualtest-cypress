@@ -278,15 +278,17 @@ function makeGlobalRunHooks() {
               const imageCount = imageResponse.data.page.totalItems;
               // TODO Errors can be caught here when this equals 0...
 
-              process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
-              console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
-
               function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
               }
 
               // just a delay, for issue with logging not removing the last log properly (race-condition with logs)
               if (['info', 'debug', 'trace'].includes(logger.level)) await sleep(300)
+
+              process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
+              console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
+
+
 
               let comparisonResponse;
               let comparisonTotal = 0;
