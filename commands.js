@@ -152,15 +152,14 @@ let takeScreenshot = (element, name, modifiedOptions) => {
 
                 // No errors so far
                 else {
-
-                    // User gave us a bad wait time —— `lazyload: "bad"`
-                    if (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload)){ //warning if invalid wait time
+                    // User gave us a bad wait time
+                    if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))){ //warning if invalid wait time
                         cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`});
                         throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds");
                     }
 
                     // Begin the lazyload method - no errors
-                    else {
+                    else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
                         cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`});
                         cy.wrap(scrollArray).each(index => {
                             cy.task('logger', { type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll` });
