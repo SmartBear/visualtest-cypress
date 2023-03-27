@@ -202,25 +202,32 @@ function makeGlobalRunHooks() {
       async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
         const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
         const files = fs.readdirSync(folderPath);
-        logger.info(`inside lazyStitch()——imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`)
+        const firstImage = await Jimp.read(`${folderPath}/0.png`);
+        const pixelRatio = (firstImage.bitmap.width / viewportWidth)
+        logger.debug(`pixelRatio (firstImage.bitmap.width/viewportWidth): ${pixelRatio}, firstImage.bitmap.width: ${firstImage.bitmap.width}, viewportWidth: ${viewportWidth}`)
+        if (pixelRatio !== 1) {
+          pageHeight = pageHeight * pixelRatio
+          viewportWidth = viewportWidth * pixelRatio
+          viewportHeight = viewportHeight * pixelRatio
+        }
+        logger.info(`inside lazyStitch()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth }, viewportHeight: ${viewportHeight}, ${files.length} images.`)
 
         //create the new blank fullpage image
         const newImage = new Jimp(viewportWidth, pageHeight);
 
         //crop the last image
-        const toBeCropped = (files.length*viewportHeight)-pageHeight
-        if (viewportHeight-toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
+        const toBeCropped = (files.length * (viewportHeight)) - (pageHeight)
+        if ((viewportHeight)-toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
           logger.warn(`lazyLoadedPath: ${lazyLoadedPath}`)
-          logger.warn(`imageName: ${imageName}, lazyLoadedPath: ${lazyLoadedPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
+          logger.warn(`pixelRatio: ${pixelRatio}, imageName: ${imageName}, lazyLoadedPath: ${lazyLoadedPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
           logger.warn(`toBeCropped:${toBeCropped}, viewportHeight-toBeCropped:${viewportHeight-toBeCropped}`)
           return "error"
         }
-        logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length*viewportHeight)-pageHeight} ((files.length*viewportHeight)-pageHeight)`)
+        logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length * viewportHeight)-pageHeight} ((files.length*viewportHeight)-pageHeight)`)
         logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight-toBeCropped} (viewportHeight-toBeCropped)`)
         const bottomImage = await Jimp.read(`${folderPath}/${files.length-1}.png`);
         logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
-        bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
-        logger.debug(`resized last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
+        // bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
         bottomImage.crop(0, 0, viewportWidth, viewportHeight-toBeCropped)
         logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
         bottomImage.write(`${folderPath}/${files.length-1}.png`); //overwrite the file
@@ -228,14 +235,13 @@ function makeGlobalRunHooks() {
         //stitch the images all together
         for (let i = 0; i < files.length; i++) {
           const image = await Jimp.read(`${folderPath}/${i}.png`);
-          image.resize(viewportWidth, Jimp.AUTO); //resize (causes issue with retina display)
-          logger.trace(`blit ${i+1}/${files.length}`)
+          logger.trace(`stitching ${i+1}/${files.length}`)
           newImage.blit(image, 0, viewportHeight * i)
         }
 
         // remove the old viewport images
         const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
-        fs.rmSync(deleteFolder, { recursive: true, force: true });
+        fs.rmSync(deleteFolder, { recursive: true, force: true }); // comment this out to check viewports before stitched together
         logger.debug(`removed the folder at: ${deleteFolder}`)
 
         // write the new image to the users screenshot folder
@@ -273,27 +279,33 @@ function makeGlobalRunHooks() {
               const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
 
               const imageCount = imageResponse.data.page.totalItems;
-
-              process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
-              console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
+              // TODO Errors can be caught here when this equals 0...
 
               function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
               }
+
+              // just a delay, for issue with logging not removing the last log properly (race-condition with logs)
+              if (['info', 'debug', 'trace'].includes(logger.level)) await sleep(1000)
+
+              process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
+              console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
+
+
 
               let comparisonResponse;
               let comparisonTotal = 0;
               for (let i = 0; comparisonTotal !== imageCount && i < 40; i++) { //wait 10 seconds before timeout
                 if (i > 0) {//don't wait the first iteration
                   await sleep(250)
-                  process.stdout.write("\r\x1b[K");
+                  process.stdout.write("\r\x1b[K"); //remove last log
                 }
                 const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "...."
                 process.stdout.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`))
                 comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
                 comparisonTotal = comparisonResponse.data.comparisons.complete;
               }
-              process.stdout.write("\r\x1b[K");
+              process.stdout.write("\r\x1b[K"); //remove last log
               let comparisonResult = comparisonResponse.data.comparisons;
 
               if (comparisonResult.status.new_image) console.log(chalk.yellow(`\t${comparisonResult.status.new_image} new base ${comparisonResult.status.new_image === 1 ? 'image' : 'images'}`));
