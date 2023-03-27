@@ -200,9 +200,14 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                                                 width: imageData.width
                                             }
                                         }
+                                        // Translate to the top of the page and then capture the dom
                                         win.eval(`document.body.style.transform="translateY(0)"`)
-                                        domCapture();
+                                        domCapture(win);
+
+                                        // Read the new image base64 to blob to be sent to AWS
                                         picFileFormat();
+
+                                        // Reset browser to initial state
                                         win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
                                         win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                                         cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
@@ -217,11 +222,17 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                         name,
                         modifiedOptions,
                 ).then(() => {
+                    // Translate to the top of the page and then capture the dom
                     win.eval(`document.body.style.transform="translateY(0)"`)
-                    domCapture();
+                    domCapture(win);
+
+                    // Read the new image base64 to blob to be sent to AWS
                     picFileFormat();
+
+                    // Reset browser to initial state
                     win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
                     win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                    cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                 })
             })
     }
@@ -307,18 +318,19 @@ let picFileFormat = () => {
         sendImageApiJSON();
     });
 };
-let domCapture = () => {
-    cy.window()
-        .then((win) => {
+let domCapture = (win) => {
+    // cy.window()
+    //     .then((win) => {
             dom = JSON.parse(win.eval(toolkitScripts.domCapture))
             if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+
 
             // Return and write the dom if the "saveDOM: true" flag is thrown
             if (saveDOM) {
                 cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
                 cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom)
             }
-        })
+        // })
 
 };
 let getImageById = () => {
