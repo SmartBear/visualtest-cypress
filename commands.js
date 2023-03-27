@@ -319,19 +319,14 @@ let picFileFormat = () => {
     });
 };
 let domCapture = (win) => {
-    // cy.window()
-    //     .then((win) => {
-            dom = JSON.parse(win.eval(toolkitScripts.domCapture))
-            if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+    dom = JSON.parse(win.eval(toolkitScripts.domCapture))
+    if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
 
-
-            // Return and write the dom if the "saveDOM: true" flag is thrown
-            if (saveDOM) {
-                cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
-                cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom)
-            }
-        // })
-
+    // Return and write the dom if the "saveDOM: true" flag is thrown
+    if (saveDOM) {
+        cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
+        cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom)
+    }
 };
 let getImageById = () => {
     cy.request({
