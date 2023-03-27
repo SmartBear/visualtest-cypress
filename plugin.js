@@ -130,7 +130,7 @@ function makeGlobalRunHooks() {
             return configFile;
           }
 
-          if (configFile.projectToken.includes("_")) { //check to make sure the user changed it from the default
+          if (configFile.projectToken.includes("PROJECT_TOKEN")) { //check to make sure the user changed it from the default
             configFile.fail = true;
             logger.fatal(`Please insert your actual projectToken`);
             return configFile;
