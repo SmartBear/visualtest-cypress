@@ -190,10 +190,11 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                                                 width: imageData.width
                                             }
                                         }
-                                        win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
-                                        win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+                                        win.eval(`document.body.style.transform="translateY(0)"`)
                                         domCapture();
                                         picFileFormat();
+                                        win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                                        win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                                         cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                                     });
                             }
@@ -206,10 +207,11 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                         name,
                         modifiedOptions,
                 ).then(() => {
-                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
-                    win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                    win.eval(`document.body.style.transform="translateY(0)"`)
                     domCapture();
                     picFileFormat();
+                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
+                    win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                 })
             })
     }
