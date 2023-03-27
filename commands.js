@@ -62,8 +62,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 win.eval(`document.body.style.overflow="hidden"`);
             })
 
-        // ignoreElements function
         if (Array.isArray(modifiedOptions.ignoreElements)) {
+            // ignoreElements function
             cy.task('logger', {type: 'info',message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
 
             // Make sure each element is found on the dom, will throw error here if element not found
@@ -84,10 +84,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
         console.log('The sbvtScreenshot() has failed');
         cy.task('logger', {type: 'trace', message: `sbvtCapture() has failed`}); //I dont think this should be printed out each screenshot
 
-    }
-
-    // Begin Cypress element capture method
-    else if (element) {
+    } else if (element) {
+        // Begin Cypress element capture method
         cy.task('logger', {type: 'debug', message: `Beginning element cy.screenshot('${name}')`});
         cy.get(element).screenshot(
             name,
@@ -98,10 +96,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             picFileFormat();
         });
 
-    }
-
-    // Begin Cypress viewport capture method
-    else if (modifiedOptions.capture === 'viewport') {
+    } else if (modifiedOptions.capture === 'viewport') {
+        // Begin Cypress viewport capture method
         cy.task('logger', {type: 'debug', message: `Beginning viewport cy.screenshot('${name}')`});
         cy.screenshot(
             name,
@@ -110,10 +106,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             domCapture();
             picFileFormat();
         });
-    }
-
-    // Begin fullpage capture method
-    else {
+    } else {
+        // Begin fullpage capture method
         cy.task('logger', {type: 'debug', message: `Beginning fullpage cy.screenshot('${name}')`});
         cy.window()
             .then((win) => {
@@ -126,8 +120,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 let viewportHeight = win.eval("window.innerHeight");
                 let viewportWidth = win.eval("window.innerWidth");
 
-                // This basically checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
                 if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
+                    // This checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
                     //TODO eventually add a wait here and rerun the above data on the webpage
                     cy.task('logger', {type: 'info', message: `numScrolls * viewportHeight <= offsetHeight: ${numScrolls * viewportHeight} >= ${offsetHeight} ——> ${numScrolls * viewportHeight >= offsetHeight}`});
                     cy.task('logger', {type: 'info', message: `numScrolls * viewportHeight - viewportHeight >= offsetHeight: ${numScrolls * viewportHeight - viewportHeight} <= ${offsetHeight} ——> ${numScrolls * viewportHeight - viewportHeight <= offsetHeight}`});
@@ -139,27 +133,20 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                 // Generate the array needed for a for-loop in Cypress
                 let scrollArray = Array.from({length:numScrolls},(v,k)=>k+1);
 
-                // Check if the webpage is not scrollable
-                if (numScrolls <= 1) { //warning if page isnt scrollable
+                if (numScrolls <= 1) {
+                    // Check if the webpage is not scrollable
                     cy.task('logger', {type: 'warn', message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`});
-                }
-
-                // If the user wants to use the old JS_SCROLL method
-                else if (modifiedOptions.scrollMethod === "JS_SCROLL") {
+                } else if (modifiedOptions.scrollMethod === "JS_SCROLL") {
+                    // If the user wants to use the old JS_SCROLL method
                     cy.task('logger', {type: 'warn', message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`});
-
-                }
-
-                // No errors so far
-                else {
-                    // User gave us a bad wait time
-                    if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))){ //warning if invalid wait time
+                } else {
+                    // No errors so far
+                    if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))){
+                        // User gave us a bad wait time
                         cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`});
                         throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds");
-                    }
-
-                    // Begin the lazyload method - no errors
-                    else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
+                    } else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
+                        // Begin the lazyload method - no errors
                         cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload/1000} seconds per scroll`});
                         cy.wrap(scrollArray).each(index => {
                             cy.task('logger', { type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll` });
@@ -185,8 +172,8 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                         }).then(() => {
                             win.eval(`document.body.style.transform="translateY(${(index)*-100}vh)"`);
 
-                            // This if checks if the for-loop is done...
                             if (numScrolls === index) {
+                                // This if checks if the for-loop is done...
                                 cy.task('logger', {type: 'debug', message: `finished taking viewports, now going to the lazyStitch task`});
 
                                 // Jump into lazyStitch task/method to stitch all the viewports together
