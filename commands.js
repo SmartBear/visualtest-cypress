@@ -145,10 +145,17 @@ let takeScreenshot = (element, name, modifiedOptions) => {
 
                 if (numScrolls <= 1) {
                     // Check if the webpage is not scrollable
-                    cy.task('logger', {type: 'warn', message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`});
+                    if (modifiedOptions.lazyload) {
+                        // Warn if the webpage is not scrollable, and user is trying to lazyload
+                        cy.task('logger', {type: `warn`, message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`});
+                    }
+                    else {
+                        // No need to throw warning if not lazyload
+                        cy.task('logger', {type: `info`, message: `the webpage is not scrollable for image: "${imageName}", taking regular screenshot`});
+                    }
                 } else if (modifiedOptions.scrollMethod === "JS_SCROLL") {
                     // If the user wants to use the old JS_SCROLL method
-                    cy.task('logger', {type: 'warn', message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`});
+                    cy.task('logger', {type: 'info', message: `Passed in 'scrollMethod= "JS_SCROLL"' taking regular screenshot`});
                 } else {
                     // No errors so far
                     if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))){
