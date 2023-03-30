@@ -30,7 +30,7 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
     cy.task('logger', {type: 'trace', message: `Beginning sbvtCapture('${name}')`});
     if (element) cy.task('logger', {type: 'trace', message: 'This is chained and there is an "element" value'});
     cy.window()
-        .then((win) => {
+        .then(win => {
             userAgentData = win.eval(toolkitScripts.userAgent)
             return cy.task('postTestRunId', userAgentData).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
@@ -46,13 +46,13 @@ Cypress.Commands.add('sbvtCapture', { prevSubject: 'optional' }, (element, name,
                 }}).then((res) => {
                 deviceInfoResponse = res.body
             })
-                takeScreenshot(element, name, modifiedOptions);
+                takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
                 return apiRes;
             });
         });
 });
-let takeScreenshot = (element, name, modifiedOptions) => {
+let takeScreenshot = (element, name, modifiedOptions, win) => {
     let initialPageState;
     if (!vtConfFile.fail) {
         // This is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
@@ -65,12 +65,9 @@ let takeScreenshot = (element, name, modifiedOptions) => {
         }
 
         // Hide the scroll bar before the sbvtCapture starts & grab the initial state of the webpage to return it back after the capture
-        cy.window()
-            .then((win) => {
                 initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`);
                 win.eval(`document.body.style.transform="translateY(0)"`);
                 win.eval(`document.body.style.overflow="hidden"`);
-            })
 
         if (Array.isArray(modifiedOptions.ignoreElements)) {
             // ignoreElements function
@@ -82,10 +79,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             })
 
             // Put the ignoredElements that the user gave us on the browsers window for the domCapture script to read them
-            cy.window()
-                .then((win) => {
                     win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`);
-                })
         }
         modifiedOptions.saveDOM === true ? saveDOM = name : saveDOM = false;
     }
@@ -102,7 +96,7 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             modifiedOptions,
             imageType = 'element'
         ).then(() => {
-            domCapture();
+            domCapture(win);
             picFileFormat();
         });
 
@@ -113,14 +107,12 @@ let takeScreenshot = (element, name, modifiedOptions) => {
             name,
             modifiedOptions,
         ).then(() => {
-            domCapture();
+            domCapture(win);
             picFileFormat();
         });
     } else {
         // Begin fullpage capture method
         cy.task('logger', {type: 'debug', message: `Beginning fullpage cy.screenshot('${name}')`});
-        cy.window()
-            .then((win) => {
                 // Load this for state issues
                 lazyloadData = {delay: modifiedOptions.lazyload}
 
@@ -241,14 +233,10 @@ let takeScreenshot = (element, name, modifiedOptions) => {
                     win.eval(`document.body.style.transform='${initialPageState.transform}'`)
                     cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                 })
-            })
     }
     if (!vtConfFile.fail) {
         // Return the scroll bar after the sbvtCapture has completed
-        cy.window()
-            .then((win) => {
                 win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
-            })
         cy.task('logger', {type: 'info', message: `After sbvtCapture cy.screenshot('${name}')`});
     }
 };
