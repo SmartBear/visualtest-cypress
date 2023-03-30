@@ -261,8 +261,8 @@ let sendImageApiJSON = () => {
     let imagePostData = {
         imageHeight: picProps.dimensions.height,
         imageWidth: picProps.dimensions.width,
-        viewportHeight: picElements ? picElements[0].clientHeight : dom.viewport.height,
-        viewportWidth: picElements ? picElements[0].clientWidth : dom.viewport.width,
+        viewportHeight: dom.viewport.height,
+        viewportWidth: dom.viewport.width,
         sessionId: vtConfFile.sessionId,
         imageType: imageType.toLowerCase(),
         imageName,
