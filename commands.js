@@ -26,10 +26,9 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
     })(); //check for file name and then assign to global let
     imageType = (options && options.capture) ? options.capture : imageType;  //pass through options.capture if provided
 
-    if (options && options.onAfterScreenshot || options && options.onBeforeScreenshot) cy.task('logger', {
-        type: 'warn',
-        message: `'${imageName}': Callback functions are not supported.`
-    });
+    if (options && options.onAfterScreenshot || options && options.onBeforeScreenshot) {
+        cy.task('logger', {type: 'warn', message: `'${imageName}': Callback functions are not supported.`});
+    }
 
     const modifiedOptions = options ? Object.assign(options, func) : func
 
@@ -67,10 +66,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         if (typeof modifiedOptions.lazyload === 'number' && modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
             const defaultDelay = 1500; // if the user lazyloads above 375ms it will be X * 4
             const pageLoadDelay = modifiedOptions.lazyload * 4 > defaultDelay ? modifiedOptions.lazyload * 4 : defaultDelay;
-            cy.task('logger', {
-                type: 'info',
-                message: `Adding a delay to let the page load of ${pageLoadDelay / 1000} seconds`
-            });
+            cy.task('logger', {type: 'info', message: `Adding a delay to let the page load of ${pageLoadDelay / 1000} seconds`});
             cy.wait(pageLoadDelay);
         }
 
@@ -81,10 +77,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
 
         if (Array.isArray(modifiedOptions.ignoreElements)) {
             // ignoreElements function
-            cy.task('logger', {
-                type: 'info',
-                message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`
-            });
+            cy.task('logger', {type: 'info', message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
 
             // Make sure each element is found on the dom, will throw error here if element not found
             modifiedOptions.ignoreElements.forEach(element => {
@@ -138,10 +131,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
             // This checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
             //TODO eventually add a wait here and rerun the above data on the webpage
-            cy.task('logger', {
-                type: 'info',
-                message: `numScrolls * viewportHeight <= offsetHeight: ${numScrolls * viewportHeight} >= ${offsetHeight} ——> ${numScrolls * viewportHeight >= offsetHeight}`
-            });
+            cy.task('logger', {type: 'info', message: `numScrolls * viewportHeight <= offsetHeight: ${numScrolls * viewportHeight} >= ${offsetHeight} ——> ${numScrolls * viewportHeight >= offsetHeight}`});
             cy.task('logger', {
                 type: 'info',
                 message: `numScrolls * viewportHeight - viewportHeight >= offsetHeight: ${numScrolls * viewportHeight - viewportHeight} <= ${offsetHeight} ——> ${numScrolls * viewportHeight - viewportHeight <= offsetHeight}`
@@ -152,10 +142,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             });
             return //do not proceed the lazyload function with bad numbers here
         }
-        cy.task('logger', {
-            type: 'info',
-            message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`
-        });
+        cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`});
 
         // Generate the array needed for a for-loop in Cypress
         let scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
@@ -164,43 +151,25 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             // Check if the webpage is not scrollable
             if (modifiedOptions.lazyload) {
                 // Warn if the webpage is not scrollable, and user is trying to lazyload
-                cy.task('logger', {
-                    type: `warn`,
-                    message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`
-                });
+                cy.task('logger', {type: `warn`, message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`});
             } else {
                 // No need to throw warning if not lazyload
-                cy.task('logger', {
-                    type: `info`,
-                    message: `the webpage is not scrollable for image: "${imageName}", taking regular screenshot`
-                });
+                cy.task('logger', {type: `info`, message: `the webpage is not scrollable for image: "${imageName}", taking regular screenshot`});
             }
         } else if (modifiedOptions.scrollMethod === "JS_SCROLL") {
             // If the user wants to use the old JS_SCROLL method
-            cy.task('logger', {
-                type: 'info',
-                message: `Passed in 'scrollMethod= "JS_SCROLL"' taking regular screenshot`
-            });
+            cy.task('logger', {type: 'info', message: `Passed in 'scrollMethod= "JS_SCROLL"' taking regular screenshot`});
         } else {
             // No errors so far
             if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))) {
                 // User gave us a bad wait time
-                cy.task('logger', {
-                    type: 'warn',
-                    message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`
-                });
+                cy.task('logger', {type: 'warn', message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`});
                 throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds");
             } else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
                 // Begin the lazyload method - no errors
-                cy.task('logger', {
-                    type: 'debug',
-                    message: `starting lazy load script with wait time: ${modifiedOptions.lazyload / 1000} seconds per scroll`
-                });
+                cy.task('logger', {type: 'debug', message: `starting lazy load script with wait time: ${modifiedOptions.lazyload / 1000} seconds per scroll`});
                 cy.wrap(scrollArray).each(index => {
-                    cy.task('logger', {
-                        type: 'trace',
-                        message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll`
-                    });
+                    cy.task('logger', {type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll`});
                     cy.scrollTo(0, viewportHeight * index);
                     cy.wait(modifiedOptions.lazyload);
                 })
@@ -210,10 +179,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
 
             // scroll down one viewport at a time and take a viewport screenshot
             cy.wrap(scrollArray).each(index => {
-                cy.task('logger', {
-                    type: 'trace',
-                    message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`
-                });
+                cy.task('logger', {type: 'trace', message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`});
                 cy.screenshot(`toBeDeleted/${imageName}/${index - 1}`, {
                     capture: "viewport",
                     overwrite: true,
@@ -228,10 +194,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
 
                     if (numScrolls === index) {
                         // This if checks if the for-loop is done...
-                        cy.task('logger', {
-                            type: 'debug',
-                            message: `finished taking viewports, now going to the lazyStitch task`
-                        });
+                        cy.task('logger', {type: 'debug', message: `finished taking viewports, now going to the lazyStitch task`});
 
                         // Jump into lazyStitch task/method to stitch all the viewports together
                         cy.task('lazyStitch', {
@@ -243,10 +206,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                         })
                             .then((imageData) => {
                                 if (imageData === "error") { //should not get here, error should be handled earlier
-                                    cy.task('logger', {
-                                        type: 'error',
-                                        message: `Error with lazyload on ${imageName}, no screenshot taken`
-                                    });
+                                    cy.task('logger', {type: 'error', message: `Error with lazyload on ${imageName}, no screenshot taken`});
                                     return
                                 }
                                 picProps = {
@@ -266,10 +226,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                 // Reset browser to initial state
                                 win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
                                 win.eval(`document.body.style.transform='${initialPageState.transform}'`)
-                                cy.task('logger', {
-                                    type: 'trace',
-                                    message: `After lazyloaded fullpage cy.screenshot('${name}')`
-                                });
+                                cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                             });
                     }
                 })
@@ -328,10 +285,7 @@ let sendImageApiJSON = () => {
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
             console.log(`Error ${res.body.status}: ${res.body.message}`);
-            cy.task('logger', {
-                type: 'error',
-                message: `'${imageName}': Error ${res.body.status} - ${res.body.message}`
-            });
+            cy.task('logger', {type: 'error', message: `'${imageName}': Error ${res.body.status} - ${res.body.message}`});
         }
     })
 };
@@ -355,19 +309,14 @@ let uploadToS3 = async (res) => {
         cy.request({
             method: "PUT",
             url: res.body.uploadUrl,
-            headers: {
-                "Content-Type": "application/octet-stream",
-            },
+            headers: {"Content-Type": "application/octet-stream"},
             failOnStatusCode: false,
             body: blobData
         }).then((res) => {
             if (res.statusText === "OK") {
                 cy.task('logger', {type: 'trace', message: `Successful image PUT: ${res.statusText}`});
             } else {
-                cy.task('logger', {
-                    type: 'error',
-                    message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`
-                });
+                cy.task('logger', {type: 'error', message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`});
             }
             getImageById(); //only necessary for ~debugging, and only works in interactive mode
         })
@@ -381,10 +330,9 @@ let readImageAndBase64ToBlob = () => {
 };
 let captureDom = (win) => {
     dom = JSON.parse(win.eval(toolkitScripts.domCapture))
-    if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {
-        type: "info",
-        message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`
-    });
+    if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) {
+        cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
+    }
 
     // Return and write the dom if the "saveDOM: true" flag is thrown
     if (saveDOM) {
@@ -402,9 +350,6 @@ let getImageById = () => {
             let responseObj = {};
             responseObj.testRunId = vtConfFile.testRunId, responseObj.imageId = res.body.items[0].imageId, responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
             console.log('Successfully uploaded:', res.body.items[0].imageName, responseObj);
-            cy.task('logger', {
-                type: 'info',
-                message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`
-            });
+            cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
         });
 };
