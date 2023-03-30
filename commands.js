@@ -96,8 +96,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
             imageType = 'element'
         ).then(() => {
-            domCapture(win);
-            picFileFormat();
+            captureDom(win);
+            readImageAndBase64ToBlob();
         });
 
     } else if (modifiedOptions.capture === 'viewport') {
@@ -107,8 +107,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             name,
             modifiedOptions,
         ).then(() => {
-            domCapture(win);
-            picFileFormat();
+            captureDom(win);
+            readImageAndBase64ToBlob();
         });
     } else {
         // Begin fullpage capture method
@@ -201,10 +201,10 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                         }
                                         // Translate to the top of the page and then capture the dom
                                         win.eval(`document.body.style.transform="translateY(0)"`)
-                                        domCapture(win);
+                                        captureDom(win);
 
                                         // Read the new image base64 to blob to be sent to AWS
-                                        picFileFormat();
+                                        readImageAndBase64ToBlob();
 
                                         // Reset browser to initial state
                                         win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
@@ -223,10 +223,10 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 ).then(() => {
                     // Translate to the top of the page and then capture the dom
                     win.eval(`document.body.style.transform="translateY(0)"`)
-                    domCapture(win);
+                    captureDom(win);
 
                     // Read the new image base64 to blob to be sent to AWS
-                    picFileFormat();
+                    readImageAndBase64ToBlob();
 
                     // Reset browser to initial state
                     win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
@@ -307,13 +307,13 @@ let uploadToS3 = async (res) => {
         })
     }
 }
-let picFileFormat = () => {
+let readImageAndBase64ToBlob = () => {
     cy.readFile(picProps.path,"base64").then((file) => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
         sendImageApiJSON();
     });
 };
-let domCapture = (win) => {
+let captureDom = (win) => {
     dom = JSON.parse(win.eval(toolkitScripts.domCapture))
     if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
 
