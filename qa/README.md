@@ -5,7 +5,7 @@ make sure in root folder to ```npm i```
 
 then cd into qa folder & run:
 ``` 
-./script.sh
+./script.sh full
 ```
 
 logs can be turned on in visualtest.config.js file ```log: "trace"```
