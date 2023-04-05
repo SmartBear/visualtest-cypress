@@ -201,7 +201,7 @@ function makeGlobalRunHooks() {
       },
       async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
         const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
-        const files = fs.readdirSync(folderPath);
+        let files = fs.readdirSync(folderPath);
         const firstImage = await Jimp.read(`${folderPath}/0.png`);
         const pixelRatio = (firstImage.bitmap.width / viewportWidth)
         logger.debug(`pixelRatio (firstImage.bitmap.width/viewportWidth): ${pixelRatio}, firstImage.bitmap.width: ${firstImage.bitmap.width}, viewportWidth: ${viewportWidth}`)
@@ -225,12 +225,19 @@ function makeGlobalRunHooks() {
         }
         logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length * viewportHeight)-pageHeight} ((files.length*viewportHeight)-pageHeight)`)
         logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight-toBeCropped} (viewportHeight-toBeCropped)`)
-        const bottomImage = await Jimp.read(`${folderPath}/${files.length-1}.png`);
+        const bottomImagePath = `${folderPath}/${files.length-1}.png`
+        const bottomImage = await Jimp.read(bottomImagePath);
         logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
         // bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
-        bottomImage.crop(0, 0, viewportWidth, viewportHeight-toBeCropped)
-        logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
-        bottomImage.write(`${folderPath}/${files.length-1}.png`); //overwrite the file
+        if (viewportHeight-toBeCropped !== 0) {
+          bottomImage.crop(0, 0, viewportWidth, viewportHeight-toBeCropped)
+          logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`)
+          bottomImage.write(`${folderPath}/${files.length - 1}.png`); //overwrite the file
+        } else {
+          logger.info(`stopped the cropping because: viewportHeight-toBeCropped = 0, removing the image at: ${bottomImagePath}`)
+          fs.unlinkSync(bottomImagePath)
+          files = fs.readdirSync(folderPath); //reading this folder again since an image has been deleted
+        }
 
         //stitch the images all together
         for (let i = 0; i < files.length; i++) {
