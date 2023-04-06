@@ -16,7 +16,7 @@ const headers = {
 
 let apiRes = {};
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    lazyloadData, saveDOM, imageType;
+    fullpageData, saveDOM, imageType;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
@@ -120,7 +120,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Begin fullpage capture method
         cy.task('logger', {type: 'debug', message: `Beginning fullpage cy.screenshot('${name}')`});
         // Load this for state issues
-        lazyloadData = {delay: modifiedOptions.lazyload}
+        fullpageData = {delay: modifiedOptions.lazyload}
 
         // Run some JS commands on the user's browser
         let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
@@ -180,11 +180,11 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             // scroll down one viewport at a time and take a viewport screenshot
             cy.wrap(scrollArray).each(index => {
                 cy.task('logger', {type: 'trace', message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`});
-                cy.screenshot(`toBeDeleted/${imageName}/${index - 1}`, {
+                cy.screenshot(`tmp/${imageName}/${index - 1}`, {
                     capture: "viewport",
                     overwrite: true,
                     onAfterScreenshot($el, props) {
-                        lazyloadData = {
+                        fullpageData = {
                             tmpPath: props.path,
                             url: $el[0].baseURI
                         }
@@ -194,12 +194,12 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
 
                     if (numScrolls === index) {
                         // This if checks if the for-loop is done...
-                        cy.task('logger', {type: 'debug', message: `finished taking viewports, now going to the lazyStitch task`});
+                        cy.task('logger', {type: 'debug', message: `finished taking viewports, now going to the stitchImages task`});
 
-                        // Jump into lazyStitch task/method to stitch all the viewports together
-                        cy.task('lazyStitch', {
+                        // Jump into stitchImages task/method to stitch all the viewports together
+                        cy.task('stitchImages', {
                             imageName,
-                            lazyLoadedPath: lazyloadData.tmpPath,
+                            imagesPath: fullpageData.tmpPath,
                             pageHeight: offsetHeight,
                             viewportWidth,
                             viewportHeight
@@ -268,7 +268,7 @@ let sendImageApiJSON = () => {
         imageName,
         devicePixelRatio: picProps.pixelRatio,
         imageExt: "png",
-        testUrl: picElements ? picElements[0].baseURI : lazyloadData.url,
+        testUrl: picElements ? picElements[0].baseURI : fullpageData.url,
         dom: JSON.stringify(dom),
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData)

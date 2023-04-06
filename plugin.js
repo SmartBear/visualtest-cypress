@@ -199,8 +199,8 @@ function makeGlobalRunHooks() {
         }
         return configFile;
       },
-      async lazyStitch ({imageName, lazyLoadedPath, pageHeight, viewportWidth, viewportHeight}) {
-        const folderPath = lazyLoadedPath.substring(0, lazyLoadedPath.lastIndexOf(path.sep));
+      async stitchImages ({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
+        const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
         let files = fs.readdirSync(folderPath);
         const firstImage = await Jimp.read(`${folderPath}/0.png`);
         const pixelRatio = (firstImage.bitmap.width / viewportWidth)
@@ -210,7 +210,7 @@ function makeGlobalRunHooks() {
           viewportWidth = viewportWidth * pixelRatio
           viewportHeight = viewportHeight * pixelRatio
         }
-        logger.info(`inside lazyStitch()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth }, viewportHeight: ${viewportHeight}, ${files.length} images.`)
+        logger.info(`inside stitchImages()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth }, viewportHeight: ${viewportHeight}, ${files.length} images.`)
 
         //create the new blank fullpage image
         const newImage = new Jimp(viewportWidth, pageHeight);
@@ -218,8 +218,8 @@ function makeGlobalRunHooks() {
         //crop the last image
         const toBeCropped = (files.length * (viewportHeight)) - (pageHeight)
         if ((viewportHeight)-toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
-          logger.warn(`lazyLoadedPath: ${lazyLoadedPath}`)
-          logger.warn(`pixelRatio: ${pixelRatio}, imageName: ${imageName}, lazyLoadedPath: ${lazyLoadedPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
+          logger.warn(`imagesPath: ${imagesPath}`)
+          logger.warn(`pixelRatio: ${pixelRatio}, imageName: ${imageName}, imagesPath: ${imagesPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`)
           logger.warn(`toBeCropped:${toBeCropped}, viewportHeight-toBeCropped:${viewportHeight-toBeCropped}`)
           return "error"
         }
