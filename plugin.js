@@ -82,25 +82,36 @@ let getDomCapture = (async () => {
     return domCapture.data
   } catch (error) {
     configFile.fail = true;
-    logger.fatal(`Error with grabbing getDomCapture: %o`, error.message);
+    logger.fatal(`Error with grabbing domCapture: %o`, error.message);
   }
 })();
 
 let getUserAgent = (async () => {
   try {
-    const domCapture = await axios.get(`${configFile.cdnUrl}/user-agent.min.js`)
-    return domCapture.data
+    const userAgent = await axios.get(`${configFile.cdnUrl}/user-agent.min.js`)
+    return userAgent.data
   } catch (error) {
     configFile.fail = true;
-    logger.fatal(`Error with grabbing getUserAgent: %o`, error.message);
+    logger.fatal(`Error with grabbing userAgent: %o`, error.message);
+  }
+})();
+
+let getFreezePage = (async () => {
+  try {
+    const freezePage = await axios.get(`${configFile.cdnUrl}/freeze-page.min.js`)
+    return freezePage.data
+  } catch (error) {
+    configFile.fail = true;
+    logger.fatal(`Error with grabbing freezePage: %o`, error.message);
   }
 })();
 
 let domToolKit = null
-Promise.all([getDomCapture, getUserAgent]).then((values) => {
+Promise.all([getDomCapture, getUserAgent, getFreezePage]).then((values) => {
   const data = {}
   data.domCapture = values[0]
   data.userAgent = values[1]
+  data.freezePage = values[2]
   domToolKit = data
 });
 
