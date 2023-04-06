@@ -14,12 +14,12 @@ const headers = {
     "sbvt-sdk-version": package_json.version
 }
 
-let imageType = 'fullPage';
 let apiRes = {};
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    lazyloadData, saveDOM;
+    lazyloadData, saveDOM, imageType;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
+    imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
     imageName = (name) ? name : (function () {
         throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')")
