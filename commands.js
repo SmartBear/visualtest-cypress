@@ -334,6 +334,9 @@ let captureDom = (win) => {
         cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
     }
 
+    const megabytes = ((new TextEncoder().encode(JSON.stringify(dom)).byteLength) / 1048576);
+    cy.task('logger', {type: "fatal", message: `${imageName} dom size: ${megabytes.toFixed(4)} MB`});
+
     // Return and write the dom if the "saveDOM: true" flag is thrown
     if (saveDOM) {
         cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
