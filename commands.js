@@ -348,7 +348,7 @@ let captureDom = (win) => {
     }
 
     const megabytes = ((new TextEncoder().encode(JSON.stringify(dom)).byteLength) / 1048576);
-    cy.task('logger', {type: "fatal", message: `${imageName} dom size: ${megabytes.toFixed(4)} MB`});
+    cy.task('logger', {type: "info", message: `${imageName} dom size: ${megabytes.toFixed(4)} MB`});
 
     // Return and write the dom if the "saveDOM: true" flag is thrown
     if (saveDOM) {
