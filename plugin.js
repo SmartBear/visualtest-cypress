@@ -149,7 +149,7 @@ function makeGlobalRunHooks() {
 
           if (configFile.projectToken.includes("PROJECT_TOKEN")) { //check to make sure the user changed it from the default
             configFile.fail = true;
-            logger.fatal(`Please insert your actual projectToken`);
+            logger.fatal(`Please insert your projectToken. If you don't have an account, start a free trial: https://try.smartbear.com/visualtest`);
             return configFile;
           }
 
