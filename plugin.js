@@ -40,6 +40,12 @@ let configFile = (() => {
       logger.trace(fileName + ' has been found');
       config = {...require(fullPath)}; //write the VT config file into config object
 
+      if (config.projectToken && config.projectToken.split('_')[1] && config.projectToken.includes("/")) {
+        //check if the projectToken is environmented, and not to throw any errors here if user messes up, error later
+        config.VT_ENV = config.projectToken.split('_')[1].toUpperCase();
+        logger.warn(`From the projectToken: ${config.projectToken}, the env is ${config.VT_ENV.toUpperCase()}`);
+      }
+
       env = (config.VT_ENV || process.env.VT_ENV || 'PROD').toUpperCase();
 
       if (env === "PROD") {
