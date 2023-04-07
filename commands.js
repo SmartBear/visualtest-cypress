@@ -17,7 +17,7 @@ const headers = {
 let imageType = 'fullPage';
 let apiRes = {};
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    lazyloadData, saveDOM;
+    lazyloadData, saveDOM, runFreezePage;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
@@ -88,6 +88,11 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`);
         }
         modifiedOptions.saveDOM === true ? saveDOM = name : saveDOM = false;
+        modifiedOptions.freezePage !== false ? runFreezePage = true : runFreezePage = false
+        if (!modifiedOptions.lazyload && runFreezePage) {
+            cy.task('logger', {type: 'debug', message: `running freezePage at the beginning.`});
+            win.eval(toolkitScripts.freezePage)
+        }
     }
 
     if (vtConfFile.fail) {
@@ -175,6 +180,10 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 })
                 cy.scrollTo(0, 0);
                 cy.wait(1000);
+                if (runFreezePage) {
+                    cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
+                    win.eval(toolkitScripts.freezePage)
+                }
             }
 
             // scroll down one viewport at a time and take a viewport screenshot
@@ -234,6 +243,10 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             return
         }
         cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`})
+        if (runFreezePage) {
+            win.eval(toolkitScripts.freezePage)
+            cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
+        }
         cy.screenshot(
             name,
             modifiedOptions,
