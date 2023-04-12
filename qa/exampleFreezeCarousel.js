@@ -5,7 +5,7 @@ if (typeof jQuery == 'function'){
         jQuery('.carousel').carousel(0);
         jQuery('.carousel').carousel('pause');
     }
-    if (typeof jQuery('.owl-carousel').carousel == 'function'){
+    if (typeof jQuery('.owl-carousel').owlCarousel == 'function'){
         jQuery('.owl-carousel').trigger('stop.owl.autoplay');
         jQuery('.owl-carousel').trigger('to.owl.carousel',[0]);
     }
