@@ -129,7 +129,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
 
         // Run some JS commands on the user's browser
         let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
-        let offsetHeight = win.eval("window.document.body.offsetHeight");
+        let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
         let viewportHeight = win.eval("window.innerHeight");
         let viewportWidth = win.eval("window.innerWidth");
 
