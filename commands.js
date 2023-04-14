@@ -14,12 +14,13 @@ const headers = {
     "sbvt-sdk-version": package_json.version
 }
 
-let apiRes = {};
+let apiRes;
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
     fullpageData, saveDOM, imageType, runFreezePage;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
+    apiRes = {};
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
     imageName = (name) ? name : (function () {
         throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')")
@@ -287,6 +288,14 @@ let sendImageApiJSON = () => {
         userAgentInfo: JSON.stringify(userAgentData)
     }
     Object.assign(imagePostData, deviceInfoResponse);
+    apiRes.screenshotResult = {
+        imagePath: picProps.path,
+        imageSize: {
+            width: imagePostData.imageWidth,
+            height: imagePostData.imageHeight
+        },
+        devicePixelRatio: imagePostData.devicePixelRatio,
+    }
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
@@ -294,6 +303,7 @@ let sendImageApiJSON = () => {
         failOnStatusCode: false,
         body: imagePostData,
     }).then((res) => {
+        apiRes.imageApiResults = res.body;
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
@@ -352,6 +362,7 @@ let captureDom = (win) => {
 
     // Return and write the dom if the "saveDOM: true" flag is thrown
     if (saveDOM) {
+        apiRes.dom = dom;
         cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
         cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom)
     }

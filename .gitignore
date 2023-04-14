@@ -1,8 +1,8 @@
 .idea
 .env
 /node_modules
-qa/node_modules
-qa/cypress/screenshots/*
-qa/cypress/dom
-qa/cypress/videos/*
+test/node_modules
+test/cypress/screenshots/*
+test/cypress/dom
+test/cypress/videos/*
 sessionId.txt
