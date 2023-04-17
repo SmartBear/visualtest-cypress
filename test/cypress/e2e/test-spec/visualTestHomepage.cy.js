@@ -20,8 +20,6 @@
 //         cy.get('.Button-Container-Primary-Solid').click();
 //
 //         cy.origin('https://id.smartbear.com/login', () => {
-//             // cy.get('#email').type('cypress@visual.test.com');
-//             // cy.get('#password').type('asdfasdfasdf1A');
 //             cy.get('#email').type('trevor147+39@live.com');
 //             cy.get('#password').type('ENTER_PASSWORD');
 //
