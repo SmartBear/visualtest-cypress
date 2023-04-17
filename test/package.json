@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx cypress run --spec 'cypress/e2e/test-spec' -q"
+    "test": "echo \"Tests shouldn't have any differences unless spec files are altered.\" && \nnpx cypress run --spec 'cypress/e2e/test-spec' -q"
   },
   "keywords": [],
   "author": "",
