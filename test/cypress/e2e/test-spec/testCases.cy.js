@@ -141,7 +141,7 @@ testCases.forEach(currentTestCase => {
                 const ignoredElements = dataFromTest.dom.ignoredElementsData;
                 assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
                 assert(ignoredElements.length > 0, 'ignoredElementsData is an empty array');
-                assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector.includes(selector))), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
+                assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector === selector)), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
             })
             it(`filter through the flat dom and make sure there are some cases of ignore: true`, () => {
                 const flatDom = flattenTree(dataFromTest.dom.dom[0])
@@ -154,7 +154,7 @@ testCases.forEach(currentTestCase => {
                 const ignoredElements = dataFromTest.imageApiResult.ignoredElements;
                 assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
                 assert(ignoredElements.length > 0, 'ignoredElements on image API result was an empty array');
-                assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector.includes(selector))), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
+                assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector === selector)), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
             })
         }
         if (currentTestCase.validation) {
