@@ -3,7 +3,7 @@ const testCases = [
         'name': 'Example1-Original',
         'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
         'options': {
-            'ignoreElements': ['.carousel.slide']
+            'ignoreElements': ['.carousel.slide', '.about_section']
         }
     },
     {
@@ -74,11 +74,11 @@ const testCases = [
 ]
 
 const getDescribeTitle = (currentTestCase) => {
-    let describeLog = `Running: ${currentTestCase.name}`;
-    describeLog += currentTestCase.options.lazyload || currentTestCase.options.ignoreElements ? `.\tTesting: `: ''
-    describeLog += currentTestCase.options.lazyload ? `lazyload for ${currentTestCase.options.lazyload}\t`: ''
-    describeLog += currentTestCase.options.ignoreElements ? `ignoreElements for ${currentTestCase.options.ignoreElements}`: ''
-    return describeLog
+    let describeTitle = `Running: ${currentTestCase.name}`;
+    describeTitle += currentTestCase.options.lazyload || currentTestCase.options.ignoreElements ? `.\tTesting: `: ''
+    describeTitle += currentTestCase.options.lazyload ? `lazyload for ${currentTestCase.options.lazyload}\t`: ''
+    describeTitle += currentTestCase.options.ignoreElements ? `ignoreElements for ${currentTestCase.options.ignoreElements}`: ''
+    return describeTitle
 }
 const flattenTree = dom => {
     const flat = [];
@@ -88,9 +88,9 @@ const flattenTree = dom => {
             return;
         }
         if (node.children) {
-            for (let i = 0; i < node.children.length; i++) {
-                traverse(node.children[i]);
-            }
+            node.children.forEach(child =>{
+                traverse(child);
+            })
             delete node.children;
             flat.push(node);
         } else {
@@ -114,21 +114,26 @@ testCases.forEach(currentTestCase => {
     describe(getDescribeTitle(currentTestCase), () => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
-                if (currentTestCase.validation || currentTestCase.options) currentTestCase.options.saveDOM = true;
+                currentTestCase.options.saveDOM = true;
                 cy.wait(1000);
                 cy.window()
                     .then((win) => {
                         cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                             if (insertCustomFreezeScript) win.eval(str);
+                            cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
+                                dataFromTest = data;
+                            })
                         })
                     })
-                cy.wait(200);
-                cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
-                    dataFromTest = data;
-                })
             })
         })
-
+        it(`dom should have correct data`, () => {
+            assert(dataFromTest.dom.error === false,'DOM capture has an error');
+            assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height,'DOM capture doesnt have fullpage width and height');
+            assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height,'DOM capture doesnt have viewport width and height');
+            assert(dataFromTest.dom.devicePixelRatio >= 1,'DOM capture invalid devicePixelRatio');
+            assert(dataFromTest.dom.dom.length >= 1,'DOM elements missing');
+        })
         if (currentTestCase.options.ignoreElements) {
             it(`check that the dom has the cssSelectors in the ignoredElements`, () => {
                 assert(dataFromTest.dom, 'dom missing from result')
@@ -136,8 +141,7 @@ testCases.forEach(currentTestCase => {
                 const ignoredElements = dataFromTest.dom.ignoredElementsData;
                 assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
                 assert(ignoredElements.length > 0, 'ignoredElementsData is an empty array');
-                const cssSelectorsFound = ignoredElements.filter(el => currentTestCase.options.ignoreElements.includes(el.cssSelector))
-                assert(cssSelectorsFound.length > 0, 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
+                assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector.includes(selector))), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
             })
             it(`filter through the flat dom and make sure there are some cases of ignore: true`, () => {
                 const flatDom = flattenTree(dataFromTest.dom.dom[0])
@@ -150,20 +154,10 @@ testCases.forEach(currentTestCase => {
                 const ignoredElements = dataFromTest.imageApiResult.ignoredElements;
                 assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
                 assert(ignoredElements.length > 0, 'ignoredElements on image API result was an empty array');
-                const cssSelectorsFound = ignoredElements.filter(el => currentTestCase.options.ignoreElements.includes(el.cssSelector))
-                assert(cssSelectorsFound.length > 0, 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
+                assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector.includes(selector))), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
             })
         }
-
         if (currentTestCase.validation) {
-            it(`dom should have no missing data`, () => {
-                assert(dataFromTest.dom.error === false,'DOM capture has an error');
-                assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height,'DOM capture doesnt have fullpage width and height');
-                assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height,'DOM capture doesnt have viewport width and height');
-                assert(dataFromTest.dom.devicePixelRatio >= 1,'DOM capture invalid devicePixelRatio');
-                assert(dataFromTest.dom.dom.length >= 1,'DOM elements missing');
-            })
-
             it(`dom should prove lazyload is working`, () => {
                 const flatDom = flattenTree(dataFromTest.dom.dom[0])
                 // go through all the elements in the testCases JSON
