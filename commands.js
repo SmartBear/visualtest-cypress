@@ -303,7 +303,7 @@ let sendImageApiJSON = () => {
         failOnStatusCode: false,
         body: imagePostData,
     }).then((res) => {
-        apiRes.imageApiResults = res.body;
+        apiRes.imageApiResult = res.body;
         if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
