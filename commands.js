@@ -16,11 +16,12 @@ const headers = {
 
 let apiRes;
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, saveDOM, imageType, runFreezePage;
+    fullpageData, saveDOM, imageType, runFreezePage, platformVersion;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
     apiRes = {};
+    if (!platformVersion) cy.task('getOsVersion').then((version) => platformVersion = version);
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
     imageName = (name) ? name : (function () {
         throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')")
@@ -48,7 +49,9 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                     failOnStatusCode: false,
                     body: {
                         "userAgentInfo": userAgentData,
-                        'driverCapabilities': {}
+                        'driverCapabilities': {
+                            platformVersion
+                        }
                     }
                 }).then((res) => {
                     deviceInfoResponse = res.body
