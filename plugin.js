@@ -7,7 +7,7 @@ const path = require("path");
 const chalk = require('chalk')
 require('dotenv').config();
 const Jimp = require("jimp");
-
+const os = require('node:os');
 const pino = require('pino')
 const logger = pino({transport: {target: 'pino-pretty'}});
 logger.level = 'warn' ;// warn will be the default level for debug logs
@@ -291,6 +291,9 @@ function makeGlobalRunHooks() {
       async log ({message}) {
         console.log(message)
         return null
+      },
+      async getOsVersion() {
+        return os.release()
       },
       getToolkit () {
         return domToolKit;
