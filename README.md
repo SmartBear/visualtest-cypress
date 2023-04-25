@@ -1,8 +1,9 @@
 
 # Cypress VisualTest Plugin
 
-### Requirements
- - Cypress v6.7.0+ (Recommend v10.10.0+)
+
+### Documentation
+For more detailed docs, visit: https://support.smartbear.com/visualtest/docs/sdks/cypress.html
 
 ## Setup
 Run ```npm install @smartbear/visualtest-cypress```
@@ -13,6 +14,7 @@ Run ```npx visualtest-setup``` , **this will**:
  - Create **visualTest.config.js** in the main test folder
    -  that file will contain:
    ```module.exports = { projectToken: 'PROJECT_TOKEN' }```
+   - Insert your projectToken, or create a trial here: https://try.smartbear.com/visualtest
  
 ## Implementation
  Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
@@ -34,6 +36,13 @@ cy.sbvtCapture('lazyloaded capture', {
 })
 ```
 
+To ignore elements on the comparison:
+```
+cy.sbvtCapture('ignoreElements-example', {
+      ignoreElements: ['.exampleClass', '.class1 > div > li:nth-child(1)'],
+})
+```
+
 To pass in other [arguments](https://docs.cypress.io/api/commands/screenshot#Arguments) , the syntax would be the same as ```cy.screenshot```
 ```
 cy.sbvtCapture('Clipping the homepage viewport', { 
@@ -47,6 +56,9 @@ cy.sbvtCapture('Clipping the homepage viewport', {
 ## Running
  - ```npx cypress run``` is the recommended way to run our plugin.
  - Going into 'interactive mode' (```npx cypress open```) works, but each test can only be ran once without closing and relauching the Cypress application.
- 
+
+
+### Requirements
+- Cypress v6.7.0+ (Recommend v10.10.0+)
 
 
