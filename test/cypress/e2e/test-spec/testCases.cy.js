@@ -115,7 +115,7 @@ testCases.forEach(currentTestCase => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options.saveDOM = true;
-                cy.wait(1000);
+                cy.wait(1500);
                 cy.window()
                     .then((win) => {
                         cy.readFile("./exampleFreezeCarousel.js").then((str) => {
