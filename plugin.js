@@ -184,7 +184,7 @@ function makeGlobalRunHooks() {
             const browserPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
 
             const browserMajorVersion = userAgent.browserVersion.split('.');
-            configFile.testRunName = `${osPrettyName} ${userAgent.osVersion} / ${browserPrettyName} ${browserMajorVersion[0]}`;
+            configFile.testRunName = `${osPrettyName} / ${browserPrettyName} ${browserMajorVersion[0]}`;
           }
           logger.trace('config.testRunName: ' + configFile.testRunName);
 
