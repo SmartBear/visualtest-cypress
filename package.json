@@ -1,10 +1,10 @@
 {
   "name": "@smartbear/visualtest-cypress",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified, please cd into the test folder.\" && exit 1"
+    "test": "echo \"Tests shouldn't have any differences unless spec files are altered.\" && cd test && npx cypress run --spec 'cypress/e2e/test-spec' -q && cd .."
   },
   "author": "Trevor Nelms",
   "license": "ISC",
