@@ -74,7 +74,7 @@ const testCases = [
 ]
 
 const getDescribeTitle = require('../../../bin/getDescribeTitle')
-const falttenDom = require('../../../bin/falttenDom')
+const flattenDom = require('../../../bin/falttenDom')
 
 Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from
@@ -118,7 +118,7 @@ testCases.forEach(currentTestCase => {
                 assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector === selector)), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
             })
             it(`filter through the flat dom and make sure there are some cases of ignore: true`, () => {
-                const flatDom = falttenDom(dataFromTest.dom.dom[0])
+                const flatDom = flattenDom(dataFromTest.dom.dom[0])
                 const elementsToBeIgnored = flatDom.filter(el => el.ignore)
                 assert(elementsToBeIgnored.length >= currentTestCase.options.ignoreElements.length, 'There are less elements ignored than testCase ignoreElements.length');
             })
@@ -133,7 +133,7 @@ testCases.forEach(currentTestCase => {
         }
         if (currentTestCase.validation) {
             it(`dom should prove lazyload is working`, () => {
-                const flatDom = flattenTree(dataFromTest.dom.dom[0])
+                const flatDom = flattenDom(dataFromTest.dom.dom[0])
                 // go through all the elements in the testCases JSON
                 currentTestCase.validation.elements.forEach(currentElementOnTestcase => {
                     // filter through the flatDom for cssSelectors on it, that match the testcase
