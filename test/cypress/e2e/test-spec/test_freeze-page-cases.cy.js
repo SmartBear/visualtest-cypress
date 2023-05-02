@@ -106,13 +106,9 @@ const testCases = [
     // },
 ]
 
-const getDescribeTitle = (currentTestCase) => {
-    let describeTitle = `Running: ${currentTestCase.name}`;
-    describeTitle += currentTestCase.options.lazyload || currentTestCase.options.ignoreElements ? `.\tTesting: ` : ''
-    describeTitle += currentTestCase.options.lazyload ? `lazyload for ${currentTestCase.options.lazyload}\t` : ''
-    describeTitle += currentTestCase.options.ignoreElements ? `ignoreElements for ${currentTestCase.options.ignoreElements}` : ''
-    return describeTitle
-}
+const getDescribeTitle = require('../../../bin/getDescribeTitle')
+
+
 const flattenTree = dom => {
     const flat = [];
     const traverse = node => {
@@ -144,7 +140,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 const insertCustomFreezeScript = true;
 testCases.forEach(currentTestCase => {
     let dataFromTest;
-    describe(getDescribeTitle(currentTestCase), () => {
+    describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options.saveDOM = true;
