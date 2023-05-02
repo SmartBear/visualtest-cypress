@@ -1,7 +1,7 @@
 const {defineConfig} = require("cypress");
 const chalk = require("chalk");
-const deletePastReports = require("./bin/deletePastReports")
-const generateReports = require("./bin/generateReports")
+const deletePastReports = require("./utils/deletePastReports")
+const generateReports = require("./utils/generateReports")
 
 
 module.exports = defineConfig({
@@ -17,7 +17,7 @@ module.exports = defineConfig({
     bail: true,
     video: false,
     e2e: {
-        setupNodeEvents(on, config) {
+        setupNodeEvents(on) {
 
             on('before:run', (results) => {
                 if (results.config.reporter === "mochawesome") {

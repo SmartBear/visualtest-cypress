@@ -73,8 +73,8 @@ const testCases = [
     }
 ]
 
-const getDescribeTitle = require('../../../bin/getDescribeTitle')
-const flattenDom = require('../../../bin/falttenDom')
+const getDescribeTitle = require('../../../utils/getDescribeTitle')
+const flattenDom = require('../../../utils/falttenDom')
 
 Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from

@@ -106,7 +106,7 @@ const testCases = [
     // },
 ]
 
-const getDescribeTitle = require('../../../bin/getDescribeTitle')
+const getDescribeTitle = require('../../../utils/getDescribeTitle')
 
 Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from
