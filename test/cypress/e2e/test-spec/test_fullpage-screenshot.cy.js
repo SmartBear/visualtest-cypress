@@ -3,7 +3,7 @@ const testCases = [
         'name': 'Example1-Original',
         'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
         'options': {
-            'ignoreElements': ['.carousel.slide', '.about_section']
+            'ignoreElements': ['.carousel.slide']
         }
     },
     {
@@ -75,9 +75,9 @@ const testCases = [
 
 const getDescribeTitle = (currentTestCase) => {
     let describeTitle = `Running: ${currentTestCase.name}`;
-    describeTitle += currentTestCase.options.lazyload || currentTestCase.options.ignoreElements ? `.\tTesting: `: ''
-    describeTitle += currentTestCase.options.lazyload ? `lazyload for ${currentTestCase.options.lazyload}\t`: ''
-    describeTitle += currentTestCase.options.ignoreElements ? `ignoreElements for ${currentTestCase.options.ignoreElements}`: ''
+    describeTitle += currentTestCase.options.lazyload || currentTestCase.options.ignoreElements ? `.\tTesting: ` : ''
+    describeTitle += currentTestCase.options.lazyload ? `lazyload for ${currentTestCase.options.lazyload}\t` : ''
+    describeTitle += currentTestCase.options.ignoreElements ? `ignoreElements for ${currentTestCase.options.ignoreElements}` : ''
     return describeTitle
 }
 const flattenTree = dom => {
@@ -88,7 +88,7 @@ const flattenTree = dom => {
             return;
         }
         if (node.children) {
-            node.children.forEach(child =>{
+            node.children.forEach(child => {
                 traverse(child);
             })
             delete node.children;
@@ -128,11 +128,11 @@ testCases.forEach(currentTestCase => {
             })
         })
         it(`dom should have correct data`, () => {
-            assert(dataFromTest.dom.error === false,'DOM capture has an error');
-            assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height,'DOM capture doesnt have fullpage width and height');
-            assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height,'DOM capture doesnt have viewport width and height');
-            assert(dataFromTest.dom.devicePixelRatio >= 1,'DOM capture invalid devicePixelRatio');
-            assert(dataFromTest.dom.dom.length >= 1,'DOM elements missing');
+            assert(dataFromTest.dom.error === false, 'DOM capture has an error');
+            assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
+            assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
+            assert(dataFromTest.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
+            assert(dataFromTest.dom.dom.length >= 1, 'DOM elements missing');
         })
         if (currentTestCase.options.ignoreElements) {
             it(`check that the dom has the cssSelectors in the ignoredElements`, () => {
@@ -164,9 +164,9 @@ testCases.forEach(currentTestCase => {
                 currentTestCase.validation.elements.forEach(currentElementOnTestcase => {
                     // filter through the flatDom for cssSelectors on it, that match the testcase
                     const matchingElementsOnDom = flatDom.filter(el => el.attrs && el.attrs.class && el.attrs.class.includes(currentElementOnTestcase.class))
-                    assert(matchingElementsOnDom.length === currentElementOnTestcase.count,`DOM did not have ${currentElementOnTestcase.count} elements matching class: "${currentElementOnTestcase.class}", had ${matchingElementsOnDom.length}.`);
+                    assert(matchingElementsOnDom.length === currentElementOnTestcase.count, `DOM did not have ${currentElementOnTestcase.count} elements matching class: "${currentElementOnTestcase.class}", had ${matchingElementsOnDom.length}.`);
                     matchingElementsOnDom.forEach(matchedElementOnDom => {
-                        assert(matchedElementOnDom.styles.visibility === currentElementOnTestcase.styles.visibility,`Element "${matchedElementOnDom.attrs.class}" had "${matchedElementOnDom.styles.visibility}" visibility.`);
+                        assert(matchedElementOnDom.styles.visibility === currentElementOnTestcase.styles.visibility, `Element "${matchedElementOnDom.attrs.class}" had "${matchedElementOnDom.styles.visibility}" visibility.`);
                     })
                 })
             })

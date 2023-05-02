@@ -16,7 +16,7 @@ const headers = {
 
 let apiRes;
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, saveDOM, imageType, runFreezePage, platformVersion;
+    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
@@ -95,7 +95,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         modifiedOptions.freezePage !== false ? runFreezePage = true : runFreezePage = false
         if (!modifiedOptions.lazyload && runFreezePage) {
             cy.task('logger', {type: 'debug', message: `running freezePage at the beginning.`});
-            win.eval(toolkitScripts.freezePage)
+            freezePageResult = win.eval(toolkitScripts.freezePage)
         }
     }
 
@@ -186,7 +186,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 cy.wait(1000);
                 if (runFreezePage) {
                     cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
-                    win.eval(toolkitScripts.freezePage)
+                    freezePageResult = win.eval(toolkitScripts.freezePage)
                 }
             }
 
@@ -248,7 +248,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         }
         cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`})
         if (runFreezePage) {
-            win.eval(toolkitScripts.freezePage)
+            // freezePageResult = win.eval(toolkitScripts.freezePage)
+            win.eval(toolkitScripts.freezePage) // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
             cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
         }
         cy.screenshot(
@@ -298,6 +299,7 @@ let sendImageApiJSON = () => {
             height: imagePostData.imageHeight
         },
         devicePixelRatio: imagePostData.devicePixelRatio,
+        freezePageResult
     }
     cy.request({
         method: "POST",
