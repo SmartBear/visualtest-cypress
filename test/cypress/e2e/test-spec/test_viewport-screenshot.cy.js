@@ -13,7 +13,7 @@ const testCases = [
         }
     },
     {
-        'name': 'Example1-Original-Scrolled-2-Viewports',
+        'name': 'Example1-Original-Scrolled-2-Viewport',
         'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
         'options': {'viewport': true},
         'scrollViewport': {
