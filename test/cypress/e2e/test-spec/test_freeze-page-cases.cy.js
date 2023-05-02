@@ -108,30 +108,7 @@ const testCases = [
 
 const getDescribeTitle = require('../../../bin/getDescribeTitle')
 
-
-const flattenTree = dom => {
-    const flat = [];
-    const traverse = node => {
-        if (node == null) {
-            console.log('node is null')
-            return;
-        }
-        if (node.children) {
-            node.children.forEach(child => {
-                traverse(child);
-            })
-            delete node.children;
-            flat.push(node);
-        } else {
-            flat.push(node);
-        }
-    }
-
-    traverse(dom);
-    return flat;
-}
-
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from
     // failing the test
     return false
