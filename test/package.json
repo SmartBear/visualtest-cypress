@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Tests shouldn't have any differences unless spec files are altered.\" && \nnpx cypress run --spec 'cypress/e2e/test-spec' -q"
+    "test": "npx cypress run --spec 'cypress/e2e/test-spec/test_*' -q --reporter mochawesome"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:..",
-    "cypress": "^12.10.0"
+    "cypress": "^12.11.0",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0"
   }
 }
