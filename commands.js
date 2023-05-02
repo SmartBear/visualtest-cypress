@@ -79,8 +79,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         win.eval(`document.body.style.transform="translateY(0)"`);
         win.eval(`document.body.style.overflow="hidden"`);
 
-        if (Array.isArray(modifiedOptions.ignoreElements)) {
-            // ignoreElements function
+        win.eval(`delete window.sbvt`); //clear the window.sbvt so subsequent runs don't have previous ignoredElements
+        if (Array.isArray(modifiedOptions.ignoreElements)) { // ignoreElements function
             cy.task('logger', {type: 'info', message: `JSON.stringify(modifiedOptions.ignoreElements): ${JSON.stringify(modifiedOptions.ignoreElements)}`});
 
             // Make sure each element is found on the dom, will throw error here if element not found

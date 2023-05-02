@@ -89,7 +89,7 @@ testCases.forEach(currentTestCase => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options.saveDOM = true;
-                cy.wait(1000);
+                cy.wait(1500);
                 cy.window()
                     .then((win) => {
                         cy.readFile("./exampleFreezeCarousel.js").then((str) => {
@@ -102,6 +102,7 @@ testCases.forEach(currentTestCase => {
             })
         })
         it(`dom should have correct data`, () => {
+            assert(dataFromTest.dom, 'DOM missing from result')
             assert(dataFromTest.dom.error === false, 'DOM capture has an error');
             assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
             assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
@@ -129,6 +130,20 @@ testCases.forEach(currentTestCase => {
                 assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
                 assert(ignoredElements.length > 0, 'ignoredElements on image API result was an empty array');
                 assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector === selector)), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
+            })
+        } else {
+            it(`check that the dom.ignoredElements is empty`, () => {
+                assert(dataFromTest.dom.ignoredElementsData, 'ignoredElementsData missing from dom');
+                const ignoredElements = dataFromTest.dom.ignoredElementsData;
+                assert(Array.isArray(ignoredElements), 'ignoredElementsData on image API result was not an array');
+                assert(ignoredElements.length === 0, 'ignoredElementsData is not empty');
+            })
+            it(`check that the image API result on ignoredElements is empty`, () => {
+                assert(dataFromTest.imageApiResult, 'imageApiResult missing from API result');
+                assert(dataFromTest.imageApiResult.ignoredElements, 'ignoredElements property missing from API result');
+                const ignoredElements = dataFromTest.imageApiResult.ignoredElements;
+                assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
+                assert(ignoredElements.length === 0, 'ignoredElements on image API result was not an empty array');
             })
         }
         if (currentTestCase.validation) {
