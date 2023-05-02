@@ -12,17 +12,20 @@ module.exports = defineConfig({
         html: false,
         json: true,
         timestamp: "mm/dd/yyyy_HH|MM|ss",
-        console: false
+        quiet: true
     },
     bail: true,
     video: false,
     e2e: {
-        setupNodeEvents(on) {
+        setupNodeEvents(on, config) {
+
             on('before:run', (results) => {
-                if (results.config.reporter === "mochawesome") deletePastReports()
+                if (results.config.reporter === "mochawesome") {
+                    deletePastReports()
+                }
             })
             on('after:run', (results) => {
-                // over write this... figure out a better solution eventually
+                //todo fix the sbvt after test report being overwritten
 
                 if (results.config.reporter === "mochawesome") {
                     generateReports()
