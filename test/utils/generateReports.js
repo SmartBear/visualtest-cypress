@@ -1,6 +1,6 @@
 const {platform} = require("os");
+const chalk = require("chalk");
 const execSync = require('child_process').execSync;
-
 const generateTestReport = () => {
     let mergeCommand, reportCommand, openCommand;
     if (platform() === 'win32') {
@@ -14,7 +14,8 @@ const generateTestReport = () => {
     }
 
     try {
-        console.log(`this is being ran on ${platform()}`)
+        process.stdout.write(chalk.dim(`platform detected: `))
+        console.log(chalk.bold.yellow(platform()))
         process.stdout.write('merging all mochawesome reports!...');
         execSync(mergeCommand);
         process.stdout.write('\tgenerating report!...');
