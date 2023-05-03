@@ -8,10 +8,9 @@ module.exports = defineConfig({
     // viewportWidth: 1920,
     // viewportHeight: 1080,
     reporterOptions: {
-        overwrite: false,
         html: false,
         json: true,
-        timestamp: "mm/dd/yyyy_HH|MM|ss",
+        timestamp: "mm-dd-yyyy_HH-MM-ss",
         quiet: true
     },
     bail: true,
