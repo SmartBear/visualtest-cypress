@@ -1,13 +1,22 @@
+const {platform} = require("os");
+const chalk = require("chalk");
 const execSync = require('child_process').execSync;
-
 const generateTestReport = () => {
-
-    const mergeCommand = 'npx mochawesome-merge mochawesome-report/*.json -o mochawesome-report/merged.json';
-    const reportCommand = 'npx marge mochawesome-report/merged.json';
-    const openCommand = 'open mochawesome-report/merged.html || start mochawesome-report/merged.html';
+    let mergeCommand, reportCommand, openCommand;
+    if (platform() === 'win32') {
+        mergeCommand = `npx mochawesome-merge mochawesome-report\\*.json -o mochawesome-report\\merged.json`;
+        reportCommand = 'npx marge mochawesome-report\\merged.json'
+        openCommand = 'start mochawesome-report\\merged.html'
+    } else {
+        mergeCommand = 'npx mochawesome-merge mochawesome-report/*.json -o mochawesome-report/merged.json';
+        reportCommand = 'npx marge mochawesome-report/merged.json';
+        openCommand = 'open mochawesome-report/merged.html'
+    }
 
     try {
-        process.stdout.write('merging all mochawesome reports!...');
+        process.stdout.write(chalk.dim(`platform detected: `))
+        process.stdout.write(chalk.bold.yellow(`${platform()}\t`))
+        process.stdout.write('merging reports!...');
         execSync(mergeCommand);
         process.stdout.write('\tgenerating report!...');
         execSync(reportCommand);

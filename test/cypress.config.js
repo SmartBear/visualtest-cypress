@@ -8,10 +8,9 @@ module.exports = defineConfig({
     // viewportWidth: 1920,
     // viewportHeight: 1080,
     reporterOptions: {
-        overwrite: false,
         html: false,
         json: true,
-        timestamp: "mm/dd/yyyy_HH|MM|ss",
+        timestamp: "mm-dd-yyyy_HH-MM-ss",
         quiet: true
     },
     bail: true,
@@ -40,12 +39,11 @@ require('@smartbear/visualtest-cypress')(module)
 
 const printResults = (results) => {
     if (results.totalFailed) {
-        process.stdout.write(`\t`);
         process.stdout.write(chalk.bgRedBright(`there was ${results.totalFailed} ${results.totalFailed === 1 ? 'failure' : 'failures'}`));
+        process.stdout.write(`\t`);
     }
     if (results.totalPassed) {
-        process.stdout.write(`\t`);
-        process.stdout.write(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}`));
+        process.stdout.write(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}\t`));
     }
 }
 
