@@ -15,8 +15,8 @@ const generateTestReport = () => {
 
     try {
         process.stdout.write(chalk.dim(`platform detected: `))
-        console.log(chalk.bold.yellow(platform()))
-        process.stdout.write('merging all mochawesome reports!...');
+        process.stdout.write(chalk.bold.yellow(`${platform()}\t`))
+        process.stdout.write('merging reports!...');
         execSync(mergeCommand);
         process.stdout.write('\tgenerating report!...');
         execSync(reportCommand);

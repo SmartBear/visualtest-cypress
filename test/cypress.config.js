@@ -39,12 +39,10 @@ require('@smartbear/visualtest-cypress')(module)
 
 const printResults = (results) => {
     if (results.totalFailed) {
-        process.stdout.write(`\t`);
-        process.stdout.write(chalk.bgRedBright(`there was ${results.totalFailed} ${results.totalFailed === 1 ? 'failure' : 'failures'}`));
+        process.stdout.write(chalk.bgRedBright(`there was ${results.totalFailed} ${results.totalFailed === 1 ? 'failure' : 'failures'}\t`));
     }
     if (results.totalPassed) {
-        process.stdout.write(`\t`);
-        process.stdout.write(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}`));
+        process.stdout.write(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}\t`));
     }
 }
 
