@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx cypress run --spec 'cypress/e2e/test-spec/test_*' -q --reporter mochawesome"
+    "test": "npx cypress run --spec 'cypress/e2e/test-spec/test_*' -q --reporter mochawesome --headed"
   },
   "keywords": [],
   "author": "",
