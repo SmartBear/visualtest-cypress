@@ -59,6 +59,7 @@ resolutions.forEach(widthHeight => {
                                         cy.scrollTo(0, viewportHeight)
                                         scrolledTo = viewportHeight
                                     }
+                                    cy.wait(1000)
                                 }
                                 cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
                                     dataFromTest = data;
