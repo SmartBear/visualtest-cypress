@@ -7,17 +7,22 @@ For more detailed docs, visit: https://support.smartbear.com/visualtest/docs/sdk
 
 ## Setup
 Run the following commands to setup & install VisualTest:
-```
+```shell
 npm install @smartbear/visualtest-cypress
 npx visualtest-setup
 ```
-Here is something similar you should see in your console. 
-```
+Example console output:
+```console
 Commands installed.
 Plugin installed.
 visualTest.config.js has been created.
 Please enter your projectToken in visualTest.config.js
 ```
+Enter your projectToken in visualTest.config.js:
+```javascript
+module.exports = { projectToken: 'PROJECT_TOKEN' }
+```
+
  
 ## Implementation
  Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
