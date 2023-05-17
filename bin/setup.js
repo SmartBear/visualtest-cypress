@@ -15,7 +15,12 @@ const usersCypress = JSON.parse(packageFile.toString());
 let error = false;
 
 let checkForOlderVersion = () => {
-    if (usersCypress.version.split('.')[0] < 7 || (usersCypress.version.split('.')[0] <= 7 && usersCypress.version.split('.')[1] < 4)) {
+    if (usersCypress.version.split('.')[0] < 7 ) {
+        // Note as of now this is not supported because fs.rmSync is not on the Node version before this Cypress version
+        console.log(chalk.redBright(`Detected Cypress ${usersCypress.version}`))
+        console.log(chalk.green(`Only Versions 7.0.0+ are supported`));
+        error = true
+    } else if ((usersCypress.version.split('.')[0] = 7 && usersCypress.version.split('.')[1] < 4)) {
         const filePath = path.resolve(process.cwd(), 'cypress.json');
         if (fs.existsSync(filePath)) { //file exists
             const fileContent = fs.readFileSync(filePath, 'utf-8');
