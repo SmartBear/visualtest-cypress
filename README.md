@@ -6,15 +6,23 @@
 For more detailed docs, visit: https://support.smartbear.com/visualtest/docs/sdks/cypress.html
 
 ## Setup
-Run ```npm install @smartbear/visualtest-cypress```
+Run the following commands to setup & install VisualTest:
+```shell
+npm install @smartbear/visualtest-cypress
+npx visualtest-setup
+```
+Example console output:
+```console
+Commands installed.
+Plugin installed.
+visualTest.config.js has been created.
+Please enter your projectToken in visualTest.config.js
+```
+Enter your projectToken in visualTest.config.js:
+```javascript
+module.exports = { projectToken: 'PROJECT_TOKEN' }
+```
 
-Run ```npx visualtest-setup``` , **this will**:
- - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of **cypress.config.js**
- - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**e2e.js**
- - Create **visualTest.config.js** in the main test folder
-   -  that file will contain:
-   ```module.exports = { projectToken: 'PROJECT_TOKEN' }```
-   - Insert your projectToken, or create a trial here: https://try.smartbear.com/visualtest
  
 ## Implementation
  Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
@@ -58,7 +66,22 @@ cy.sbvtCapture('Clipping the homepage viewport', {
  - Going into 'interactive mode' (```npx cypress open```) works, but each test can only be ran once without closing and relauching the Cypress application.
 
 
-### Requirements
-- Cypress v6.7.0+ (Recommend v10.10.0+)
+## Requirements
+- Cypress v7.0.0+ (Recommend v10.10.0+)
+
+## Manual Setup
+- For manual setup:
+   - On versions 10+
+      - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of **cypress.config.js**
+      - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**e2e.js**
+
+   - On versions 10-
+      - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of cypress/plugins/**index.js**
+      - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**index.js**
+   - Create **visualTest.config.js** in the main test folder
+      -  that file will contain:
+         ```module.exports = { projectToken: 'PROJECT_TOKEN' }```
+      - Insert your projectToken, or create a trial here: https://try.smartbear.com/visualtest
+     
 
 
