@@ -6,15 +6,13 @@
 For more detailed docs, visit: https://support.smartbear.com/visualtest/docs/sdks/cypress.html
 
 ## Setup
-Run ```npm install @smartbear/visualtest-cypress```
+Run the below commands to install and then run our automatic setup command:
+```
+npm install @smartbear/visualtest-cypress
+npx visualtest-setup
+```
+then follow the logs there to complete setup.
 
-Run ```npx visualtest-setup``` , **this will**:
- - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of **cypress.config.js**
- - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**e2e.js**
- - Create **visualTest.config.js** in the main test folder
-   -  that file will contain:
-   ```module.exports = { projectToken: 'PROJECT_TOKEN' }```
-   - Insert your projectToken, or create a trial here: https://try.smartbear.com/visualtest
  
 ## Implementation
  Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
@@ -58,7 +56,22 @@ cy.sbvtCapture('Clipping the homepage viewport', {
  - Going into 'interactive mode' (```npx cypress open```) works, but each test can only be ran once without closing and relauching the Cypress application.
 
 
-### Requirements
+## Requirements
 - Cypress v6.7.0+ (Recommend v10.10.0+)
+
+## Manual Setup
+- For manual setup:
+   - On versions 10+
+      - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of **cypress.config.js**
+      - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**e2e.js**
+
+   - On versions 10-
+      - Add: ```require('@smartbear/visualtest-cypress')(module);``` at the bottom of cypress/plugins/**index.js**
+      - Add: ```import '@smartbear/visualtest-cypress/commands'``` at the bottom of cypress/support/**index.js**
+   - Create **visualTest.config.js** in the main test folder
+      -  that file will contain:
+         ```module.exports = { projectToken: 'PROJECT_TOKEN' }```
+      - Insert your projectToken, or create a trial here: https://try.smartbear.com/visualtest
+     
 
 
