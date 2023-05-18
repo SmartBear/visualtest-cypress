@@ -7,7 +7,7 @@ const path = require("path");
 const chalk = require('chalk')
 require('dotenv').config();
 const Jimp = require("jimp");
-const os = require('node:os');
+const os = require('os');
 const pino = require('pino')
 const logger = pino({transport: {target: 'pino-pretty'}});
 logger.level = 'warn' ;// warn will be the default level for debug logs
@@ -43,7 +43,7 @@ let configFile = (() => {
       if (config.projectToken && config.projectToken.split('_')[1] && config.projectToken.includes("/")) {
         //check if the projectToken is environmented, and not to throw any errors here if user messes up, error later
         config.VT_ENV = config.projectToken.split('_')[1].toUpperCase();
-        logger.warn(`From the projectToken: ${config.projectToken}, the env is ${config.VT_ENV.toUpperCase()}`);
+        logger.debug(`From the projectToken: ${config.projectToken}, the env is ${config.VT_ENV.toUpperCase()}`);
       }
 
       env = (config.VT_ENV || process.env.VT_ENV || 'PROD').toUpperCase();
@@ -124,7 +124,7 @@ Promise.all([getDomCapture, getUserAgent, getFreezePage]).then((values) => {
 function makeGlobalRunHooks() {
   return {
     'task': {
-      async postTestRunId (userAgent) { //cy.task('postTestRunId') to run this code
+      async postTestRunId (fromCommands) { //cy.task('postTestRunId') to run this code
         if (!configFile.testRunId && !configFile.fail) {//all this only needs to run once
           const sessionId = uuidv4();
           try {
@@ -141,18 +141,27 @@ function makeGlobalRunHooks() {
             logger.level = configFile.log
           }
 
-          if (!configFile.projectToken) { //check to make sure user added a projectToken
-            configFile.fail = true;
-            logger.fatal(`Please add **module.exports = { projectToken: 'PROJECT_TOKEN' }** to your visualTest.config.js file`);
-            return configFile;
-          }
+          if (fromCommands.envFromCypress.projectToken) {
+            logger.info('projectToken found in env flag from Cypress')
+            configFile.projectToken = fromCommands.envFromCypress.projectToken
+            //todo need to worry about the env
+          } else if (process.env.PROJECT_TOKEN) {
+            logger.info('PROJECT_TOKEN found in env variable')
+            configFile.projectToken = process.env.PROJECT_TOKEN
+            //todo need to worry about the env
+          } else {
+            if (!configFile.projectToken) { //check to make sure user added a projectToken
+              configFile.fail = true;
+              logger.fatal(`Please add **module.exports = { projectToken: 'PROJECT_TOKEN' }** to your visualTest.config.js file`);
+              return configFile;
+            }
 
-          if (configFile.projectToken.includes("PROJECT_TOKEN")) { //check to make sure the user changed it from the default
-            configFile.fail = true;
-            logger.fatal(`Please insert your projectToken. If you don't have an account, start a free trial: https://try.smartbear.com/visualtest`);
-            return configFile;
+            if (configFile.projectToken.includes("PROJECT_TOKEN")) { //check to make sure the user changed it from the default
+              configFile.fail = true;
+              logger.fatal(`Please insert your projectToken. If you don't have an account, start a free trial: https://try.smartbear.com/visualtest`);
+              return configFile;
+            }
           }
-
           if (!configFile.projectToken.split('/')[1]) { //check to make sure user added the auth part(~second-half) of projectToken
             configFile.fail = true;
             logger.fatal(`Please add your full projectToken for example -> ** projectToken: 'xxxxxxxx/xxxxxxxxxxxx' **`);
@@ -172,18 +181,25 @@ function makeGlobalRunHooks() {
           configFile.sessionId = sessionId;
           logger.trace('config.sessionId: ' + configFile.sessionId);
 
-          if (!configFile.testRunName) {  //if testRunName not defined---use device / browser
+          if (fromCommands.envFromCypress.testRunName) {
+            logger.info('TEST_RUN_NAME found in env flag from Cypress')
+            configFile.testRunName = fromCommands.envFromCypress.testRunName;
+          } else if (process.env.TEST_RUN_NAME) {
+            logger.info('TEST_RUN_NAME found in env variable')
+            configFile.testRunName = process.env.TEST_RUN_NAME;
+          } else if (!configFile.testRunName) {
+            //if testRunName not defined---use device / browser
             let osPrettyName;
-            if (userAgent.osName === 'macos') {
+            if (fromCommands.userAgentData.osName === 'macos') {
               osPrettyName = 'macOS';
             } else {
-              const str = userAgent.osName;
+              const str = fromCommands.userAgentData.osName;
               osPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
             }
-            const str = userAgent.browserName;
+            const str = fromCommands.userAgentData.browserName;
             const browserPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
 
-            const browserMajorVersion = userAgent.browserVersion.split('.');
+            const browserMajorVersion = fromCommands.userAgentData.browserVersion.split('.');
             configFile.testRunName = `${osPrettyName} / ${browserPrettyName} ${browserMajorVersion[0]}`;
           }
           logger.trace('config.testRunName: ' + configFile.testRunName);
