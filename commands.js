@@ -293,9 +293,13 @@ let sendImageApiJSON = () => {
         testUrl: picElements ? picElements[0].baseURI : fullpageData.url,
         dom: JSON.stringify(dom),
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
-        userAgentInfo: JSON.stringify(userAgentData)
+        userAgentInfo: JSON.stringify(userAgentData),
+        headless: Cypress.browser.isHeadless
     };
     Object.assign(imagePostData, deviceInfoResponse);
+    // Overwrite because Cypress is more reliable
+    imagePostData.browserVersion = Cypress.browser.majorVersion;
+
     apiRes.screenshotResult = {
         imagePath: picProps.path,
         imageSize: {
