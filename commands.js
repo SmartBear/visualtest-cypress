@@ -296,13 +296,14 @@ let sendImageApiJSON = () => {
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
         comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
-        sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null
+        sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
+        headless: Cypress.browser.isHeadless
 
-
-        // comparisonMode: layoutData && layoutData.layoutMode && layoutData.sensitivity ? layoutData.layoutMode : "detailed",
-        // sensitivity: layoutData && layoutData.sensitivity && layoutData.layoutMode ? layoutData.sensitivity : null
     };
     Object.assign(imagePostData, deviceInfoResponse);
+    // Overwrite because Cypress is more reliable
+    imagePostData.browserVersion = Cypress.browser.majorVersion;
+
     apiRes.screenshotResult = {
         imagePath: picProps.path,
         imageSize: {
