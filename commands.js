@@ -296,7 +296,7 @@ let sendImageApiJSON = () => {
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
         comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
-        sensitivity: layoutData && layoutData.sensitivity && layoutData.layoutMode ? layoutData.sensitivity : null
+        sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null
 
 
         // comparisonMode: layoutData && layoutData.layoutMode && layoutData.sensitivity ? layoutData.layoutMode : "detailed",
@@ -405,7 +405,6 @@ let getComparisonMode = (layoutMode, sensitivity) => {
     layoutData = {}
     if (layoutMode === 'detailed') {
         layoutData.layoutMode = 'detailed'
-        layoutData.sensitivity = null
     } else if (layoutMode === 'layout'){
         layoutData.layoutMode = layoutMode
         if (['low', 'medium', 'high'].includes(sensitivity)) {
@@ -422,8 +421,7 @@ let getComparisonMode = (layoutMode, sensitivity) => {
                     break;
             }
         } else {
-            cy.task('logger', {type: 'warn', message: `Please set 'sensitivity' on the '${imageName}' capture, defaulting to medium. Options are 'low', 'medium', 'high'`});
-            layoutData.sensitivity = 1
+            throw new Error(`Since comparisonMode: "layout" on sbvtCapture: "${imageName}", sensitivity must be "low", "medium", or "high"`);
         }
     }
 };
