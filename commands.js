@@ -68,7 +68,7 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
 let takeScreenshot = (element, name, modifiedOptions, win) => {
     let initialPageState;
     if (!vtConfFile.fail) {
-        if (modifiedOptions.comparisonMode) getComparisonMode(modifiedOptions.comparisonMode, modifiedOptions.sensitivity)
+        if (modifiedOptions.comparisonMode) getComparisonMode(modifiedOptions.comparisonMode, modifiedOptions.sensitivity);
 
         // This is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
         modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null; // In case the user passes their number in as a 'string'
@@ -402,11 +402,11 @@ let getImageById = () => {
 };
 
 let getComparisonMode = (layoutMode, sensitivity) => {
-    layoutData = {}
+    layoutData = {};
     if (layoutMode === 'detailed') {
-        layoutData.layoutMode = 'detailed'
-    } else if (layoutMode === 'layout'){
-        layoutData.layoutMode = layoutMode
+        layoutData.layoutMode = 'detailed';
+    } else if (layoutMode === 'layout') {
+        layoutData.layoutMode = layoutMode;
         if (['low', 'medium', 'high'].includes(sensitivity)) {
             // Map sensitivity value to the proper enum value
             switch (sensitivity) {
