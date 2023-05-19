@@ -12,7 +12,7 @@ const headers = {
     "sbvt-client": "sdk",
     "sbvt-sdk": "cypress",
     "sbvt-sdk-version": package_json.version
-}
+};
 
 let apiRes;
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
@@ -24,7 +24,7 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
     if (!platformVersion) cy.task('getOsVersion').then((version) => platformVersion = version);
     if (!toolkitScripts) cy.task('getToolkit').then((scripts) => toolkitScripts = scripts);
     imageName = (name) ? name : (function () {
-        throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')")
+        throw new Error("sbvtCapture name cannot be null, please try sbvtCapture('Example name')");
     })(); //check for file name and then assign to global let
     imageType = (options && options.capture) ? options.capture : imageType;  //pass through options.capture if provided
 
@@ -32,20 +32,20 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
         cy.task('logger', {type: 'warn', message: `'${imageName}': Callback functions are not supported.`});
     }
 
-    const modifiedOptions = options ? Object.assign(options, func) : func
+    const modifiedOptions = options ? Object.assign(options, func) : func;
 
     cy.task('logger', {type: 'trace', message: `Beginning sbvtCapture('${name}')`});
     if (element) cy.task('logger', {type: 'trace', message: 'This is chained and there is an "element" value'});
     cy.window()
         .then(win => {
-            userAgentData = win.eval(toolkitScripts.userAgent)
+            userAgentData = win.eval(toolkitScripts.userAgent);
             const envFromCypress = {
                 testRunName: Cypress.env('TEST_RUN_NAME'),
                 projectToken: Cypress.env('PROJECT_TOKEN')
-            }
+            };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
-                headers.Authorization = `Bearer ${vtConfFile.projectToken}`
+                headers.Authorization = `Bearer ${vtConfFile.projectToken}`;
                 cy.request({
                     method: "POST",
                     headers,
@@ -58,8 +58,8 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                         }
                     }
                 }).then((res) => {
-                    deviceInfoResponse = res.body
-                })
+                    deviceInfoResponse = res.body;
+                });
                 takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
                 return apiRes;
@@ -90,16 +90,16 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             // Make sure each element is found on the dom, will throw error here if element not found
             modifiedOptions.ignoreElements.forEach(element => {
                 cy.get(element);
-            })
+            });
 
             // Put the ignoredElements that the user gave us on the browsers window for the domCapture script to read them
             win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`);
         }
         modifiedOptions.saveDOM === true ? saveDOM = name : saveDOM = false;
-        modifiedOptions.freezePage !== false ? runFreezePage = true : runFreezePage = false
+        modifiedOptions.freezePage !== false ? runFreezePage = true : runFreezePage = false;
         if (!modifiedOptions.lazyload && runFreezePage) {
             cy.task('logger', {type: 'debug', message: `running freezePage at the beginning.`});
-            freezePageResult = win.eval(toolkitScripts.freezePage)
+            freezePageResult = win.eval(toolkitScripts.freezePage);
         }
     }
 
@@ -133,7 +133,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Begin fullpage capture method
         cy.task('logger', {type: 'debug', message: `Beginning fullpage cy.screenshot('${name}')`});
         // Load this for state issues
-        fullpageData = {delay: modifiedOptions.lazyload}
+        fullpageData = {delay: modifiedOptions.lazyload};
 
         // Run some JS commands on the user's browser
         let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
@@ -153,7 +153,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 type: 'error',
                 message: `This webpage is not fully loaded, no image taken for: "${imageName}", please raise the lazyload time and try again (recommend "lazyload: 1000" to start, then lower slowly)`
             });
-            return //do not proceed the lazyload function with bad numbers here
+            return; //do not proceed the lazyload function with bad numbers here
         }
         cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`});
 
@@ -185,12 +185,12 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                     cy.task('logger', {type: 'trace', message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll`});
                     cy.scrollTo(0, viewportHeight * index);
                     cy.wait(modifiedOptions.lazyload);
-                })
+                });
                 cy.scrollTo(0, 0);
                 cy.wait(1000);
                 if (runFreezePage) {
                     cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
-                    freezePageResult = win.eval(toolkitScripts.freezePage)
+                    freezePageResult = win.eval(toolkitScripts.freezePage);
                 }
             }
 
@@ -204,7 +204,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                         fullpageData = {
                             tmpPath: props.path,
                             url: $el[0].baseURI
-                        }
+                        };
                     }
                 }).then(() => {
                     win.eval(`document.body.style.transform="translateY(${(index) * -100}vh)"`);
@@ -224,7 +224,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                             .then((imageData) => {
                                 if (imageData === "error") { //should not get here, error should be handled earlier
                                     cy.task('logger', {type: 'error', message: `Error with lazyload on ${imageName}, no screenshot taken`});
-                                    return
+                                    return;
                                 }
                                 picProps = {
                                     path: imageData.path,
@@ -232,28 +232,28 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                         height: imageData.height,
                                         width: imageData.width
                                     }
-                                }
+                                };
                                 // Translate to the top of the page and then capture the dom
-                                win.eval(`document.body.style.transform="translateY(0)"`)
+                                win.eval(`document.body.style.transform="translateY(0)"`);
                                 captureDom(win);
 
                                 // Read the new image base64 to blob to be sent to AWS
                                 readImageAndBase64ToBlob();
 
                                 // Reset browser to initial state
-                                win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
-                                win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+                                win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+                                win.eval(`document.body.style.transform='${initialPageState.transform}'`);
                                 cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                             });
                     }
-                })
-            })
-            return
+                });
+            });
+            return;
         }
-        cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`})
+        cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`});
         if (runFreezePage) {
             // freezePageResult = win.eval(toolkitScripts.freezePage)
-            win.eval(toolkitScripts.freezePage) // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
+            win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
             cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
         }
         cy.screenshot(
@@ -261,21 +261,21 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
         ).then(() => {
             // Translate to the top of the page and then capture the dom
-            win.eval(`document.body.style.transform="translateY(0)"`)
+            win.eval(`document.body.style.transform="translateY(0)"`);
             captureDom(win);
 
             // Read the new image base64 to blob to be sent to AWS
             readImageAndBase64ToBlob();
 
             // Reset browser to initial state
-            win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`)
-            win.eval(`document.body.style.transform='${initialPageState.transform}'`)
+            win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+            win.eval(`document.body.style.transform='${initialPageState.transform}'`);
             cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
-        })
+        });
     }
     if (!vtConfFile.fail) {
         // Return the scroll bar after the sbvtCapture has completed
-        win.eval(`document.body.style.overflow='${initialPageState.overflow}'`)
+        win.eval(`document.body.style.overflow='${initialPageState.overflow}'`);
         cy.task('logger', {type: 'info', message: `After sbvtCapture cy.screenshot('${name}')`});
     }
 };
@@ -294,7 +294,7 @@ let sendImageApiJSON = () => {
         dom: JSON.stringify(dom),
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData)
-    }
+    };
     Object.assign(imagePostData, deviceInfoResponse);
     apiRes.screenshotResult = {
         imagePath: picProps.path,
@@ -304,7 +304,7 @@ let sendImageApiJSON = () => {
         },
         devicePixelRatio: imagePostData.devicePixelRatio,
         freezePageResult
-    }
+    };
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
@@ -319,10 +319,13 @@ let sendImageApiJSON = () => {
             console.log(`Error ${res.body.status}: ${res.body.message}`);
             cy.task('logger', {type: 'error', message: `'${imageName}': Error ${res.body.status} - ${res.body.message}`});
         }
-    })
+    });
 };
 let uploadToS3 = async (res) => {
-    if (vtConfFile.cypressVersion.split('.')[0] < 7 || (vtConfFile.cypressVersion.split('.')[0] <= 7 && vtConfFile.cypressVersion.split('.')[1] < 4)) {
+
+    /**
+     in CyV7.4.0 and below you cannot send blobs on cy.request, so leaving for now
+     if (vtConfFile.cypressVersion.split('.')[0] < 7 || (vtConfFile.cypressVersion.split('.')[0] <= 7 && vtConfFile.cypressVersion.split('.')[1] < 4)) {
         // Cypress version LESS THAN 7.4.0
         cy.task('logger', {type: 'trace', message: `Starting the axios S3 PUT now`});
         const axios = require("axios");
@@ -336,24 +339,25 @@ let uploadToS3 = async (res) => {
             console.log(err);
         }
     } else {
-        // Cypress version greater than or equal: 7.4.0
-        cy.task('logger', {type: 'trace', message: `Starting the cy.request S3 PUT now`});
-        cy.request({
-            method: "PUT",
-            url: res.body.uploadUrl,
-            headers: {"Content-Type": "application/octet-stream"},
-            failOnStatusCode: false,
-            body: blobData
-        }).then((res) => {
-            if (res.statusText === "OK") {
-                cy.task('logger', {type: 'trace', message: `Successful image PUT: ${res.statusText}`});
-            } else {
-                cy.task('logger', {type: 'error', message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`});
-            }
-            getImageById(); //only necessary for ~debugging, and only works in interactive mode
-        })
-    }
-}
+     **/
+
+    // Cypress version greater than or equal: 7.4.0
+    cy.task('logger', {type: 'trace', message: `Starting the cy.request S3 PUT now`});
+    cy.request({
+        method: "PUT",
+        url: res.body.uploadUrl,
+        headers: {"Content-Type": "application/octet-stream"},
+        failOnStatusCode: false,
+        body: blobData
+    }).then((res) => {
+        if (res.statusText === "OK") {
+            cy.task('logger', {type: 'trace', message: `Successful image PUT: ${res.statusText}`});
+        } else {
+            cy.task('logger', {type: 'error', message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`});
+        }
+        getImageById(); //only necessary for ~debugging, and only works in interactive mode
+    });
+};
 let readImageAndBase64ToBlob = () => {
     cy.readFile(picProps.path, "base64").then((file) => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
@@ -361,7 +365,7 @@ let readImageAndBase64ToBlob = () => {
     });
 };
 let captureDom = (win) => {
-    dom = JSON.parse(win.eval(toolkitScripts.domCapture))
+    dom = JSON.parse(win.eval(toolkitScripts.domCapture));
     if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) {
         cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
     }
@@ -373,7 +377,7 @@ let captureDom = (win) => {
     if (saveDOM) {
         apiRes.dom = dom;
         cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
-        cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom)
+        cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom);
     }
 };
 let getImageById = () => {

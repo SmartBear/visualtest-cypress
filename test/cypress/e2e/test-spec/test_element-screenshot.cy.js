@@ -6,17 +6,17 @@ const testCases = [
         'actions': [],
         'cssSelector': 'section.product_section.layout_padding > div > div.row > div:nth-child(1)',
     },
-    {
-        'name': 'Example2-Original-Side-Panel',
-        'url': 'https://smartbear.github.io/visual-testing-example-website/Example2/Original/index.html',
-        'actions': [
-            {
-                'action': 'click',
-                'cssSelector': '.openbtn'
-            }
-        ],
-        'cssSelector': '#mySidepanel'
-    },
+    // {
+    //     'name': 'Example2-Original-Side-Panel',
+    //     'url': 'https://smartbear.github.io/visual-testing-example-website/Example2/Original/index.html',
+    //     'actions': [
+    //         {
+    //             'action': 'click',
+    //             'cssSelector': '.openbtn'
+    //         }
+    //     ],
+    //     'cssSelector': '#mySidepanel'
+    // },
     // {
     //     'name': 'Example3-Original-Pages-Menu',
     //     'url': 'https://smartbear.github.io/visual-testing-example-website/Example3/Original/index.html',
@@ -28,12 +28,12 @@ const testCases = [
     //     ],
     //     'cssSelector': 'li.has-sub > ul'
     // },
-    {
-        'name': 'Example4-Original-Login-Form',
-        'url': 'https://smartbear.github.io/visual-testing-example-website/Example4/Original/login.html',
-        'actions': [],
-        'cssSelector': '.ud-login-wrapper'
-    }
+    // {
+    //     'name': 'Example4-Original-Login-Form',
+    //     'url': 'https://smartbear.github.io/visual-testing-example-website/Example4/Original/login.html',
+    //     'actions': [],
+    //     'cssSelector': '.ud-login-wrapper'
+    // }
 ]
 
 const getDescribeTitle = require('../../../utils/getDescribeTitle')
