@@ -1,0 +1,78 @@
+const testCases = [
+    {
+        'name': 'Example1-Original-NoOptions',
+        'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
+        'options': {}
+    },
+    {
+        'name': 'Example1-Original-Detailed',
+        'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
+        'options': {
+            'comparisonMode': 'detailed'
+        }
+    },
+    {
+        'name': 'Example1-Original-LayoutMedium',
+        'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
+        'options': {
+            'comparisonMode': 'layout',
+            'sensitivity': 'medium'
+        }
+    }
+];
+
+const getDescribeTitle = require('../../../utils/getDescribeTitle');
+const flattenDom = require('../../../utils/falttenDom');
+
+Cypress.on('uncaught:exception', () => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
+});
+
+const insertCustomFreezeScript = true;
+testCases.forEach(currentTestCase => {
+    let dataFromTest;
+    describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
+        it(`should take sbvtCapture`, () => {
+            cy.visit(currentTestCase.url).then(() => {
+                currentTestCase.options.saveDOM = true;
+                cy.wait(1500);
+                cy.window()
+                    .then((win) => {
+                        cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                            if (insertCustomFreezeScript) win.eval(str);
+                            cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
+                                dataFromTest = data;
+                            });
+                        });
+                    });
+            });
+        });
+
+        it(`apiPostResult should prove that layout mode is sent correctly`, () => {
+            const sensitivityMap = {
+                low: 0,
+                medium: 1,
+                high: 2
+            };
+
+            if (currentTestCase.options.comparisonMode) {
+                assert(dataFromTest.imageApiResult.comparisonMode === currentTestCase.options.comparisonMode, `Capture had comparisonMode: ${currentTestCase.options.comparisonMode}, but dataFromTest.imageApiResult.comparisonMode was: ${dataFromTest.imageApiResult.comparisonMode}`);
+                if (currentTestCase.options.sensitivity) {
+                    const expectedSensitivity = sensitivityMap[currentTestCase.options.sensitivity];
+                    const actualSensitivity = dataFromTest.imageApiResult.sensitivity;
+                    assert(actualSensitivity === expectedSensitivity, `Capture had sensitivity: [${currentTestCase.options.sensitivity} or mapped-out: ${sensitivityMap[currentTestCase.options.sensitivity]}], but dataFromTest.imageApiResult.sensitivity was: ${dataFromTest.imageApiResult.sensitivity}`);
+                } else {
+                    assert(dataFromTest.imageApiResult.sensitivity === null, `Capture had no sensitivity sent, so sensitivity should have been null, instead it was: ${dataFromTest.imageApiResult.sensitivity}`);
+
+                }
+            } else {
+                assert(dataFromTest.imageApiResult.sensitivity === null, `Capture had comparisonMode: ${dataFromTest.imageApiResult.sensitivity}, but no comparisonMode sent, so response should have been null`);
+            }
+        });
+
+    });
+});
+
+

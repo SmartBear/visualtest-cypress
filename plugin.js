@@ -16,6 +16,7 @@ logger.level = 'warn';// warn will be the default level for debug logs
 
 let usersCypress, env, host, webUrl, cdnUrl;
 
+
 try {
     const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
     usersCypress = JSON.parse(packageFile.toString());
