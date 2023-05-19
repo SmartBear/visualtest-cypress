@@ -6,5 +6,3 @@ workflows:
     jobs:
       - cypress/run:
           cypress-command: 'cd test && npx cypress run'
-          before_script:
-            - cd test
