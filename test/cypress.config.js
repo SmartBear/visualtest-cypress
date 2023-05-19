@@ -43,7 +43,7 @@ const printResults = (results) => {
         process.stdout.write(`\t`);
     }
     if (results.totalPassed) {
-        process.stdout.write(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}\t`));
+        console.log(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}\t`));
     }
 }
 

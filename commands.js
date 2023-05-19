@@ -14,9 +14,8 @@ const headers = {
     "sbvt-sdk-version": package_json.version
 };
 
-let apiRes;
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult;
+    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
@@ -69,6 +68,8 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
 let takeScreenshot = (element, name, modifiedOptions, win) => {
     let initialPageState;
     if (!vtConfFile.fail) {
+        if (modifiedOptions.comparisonMode) getComparisonMode(modifiedOptions.comparisonMode, modifiedOptions.sensitivity);
+
         // This is to let the fullpage load fully... https://smartbear.atlassian.net/jira/software/c/projects/SBVT/boards/815?modal=detail&selectedIssue=SBVT-1088
         modifiedOptions.lazyload ? modifiedOptions.lazyload = Number(modifiedOptions.lazyload) : null; // In case the user passes their number in as a 'string'
         if (typeof modifiedOptions.lazyload === 'number' && modifiedOptions.lazyload <= 10000 && modifiedOptions.lazyload >= 0) {
@@ -294,7 +295,10 @@ let sendImageApiJSON = () => {
         dom: JSON.stringify(dom),
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
+        comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
+        sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
+
     };
     Object.assign(imagePostData, deviceInfoResponse);
     // Overwrite because Cypress is more reliable
@@ -396,4 +400,29 @@ let getImageById = () => {
             console.log('Successfully uploaded:', res.body.items[0].imageName, responseObj);
             cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
         });
+};
+
+let getComparisonMode = (layoutMode, sensitivity) => {
+    layoutData = {};
+    if (layoutMode === 'detailed') {
+        layoutData.layoutMode = 'detailed';
+    } else if (layoutMode === 'layout') {
+        layoutData.layoutMode = layoutMode;
+        if (['low', 'medium', 'high'].includes(sensitivity)) {
+            // Map sensitivity value to the proper enum value
+            switch (sensitivity) {
+                case "low":
+                    layoutData.sensitivity = 0;
+                    break;
+                case "medium":
+                    layoutData.sensitivity = 1;
+                    break;
+                case "high":
+                    layoutData.sensitivity = 2;
+                    break;
+            }
+        } else {
+            throw new Error(`Since comparisonMode: "layout" on sbvtCapture: "${imageName}", sensitivity must be "low", "medium", or "high"`);
+        }
+    }
 };
