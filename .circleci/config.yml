@@ -40,12 +40,15 @@ workflows:
 #      - setup:
 #        - parameter:
 #          working_directory: ~/visualtest-cypress
+      - cypress/install:
+#            name: subfolder install and build
+            working_directory: ~/visualtest-cypress
+#            build: npm run build
       - cypress/run:
 #          start-command: 'npm run start'
           cypress-command:
             'npx cypress run'
 #            'npx cypress run --parallel --record --group all tests'
 #          parallelism: 4
-          working_directory: /path/to/project
 
 
