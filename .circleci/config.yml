@@ -60,7 +60,7 @@ orbs:
 workflows:
   use-my-orb:
     jobs:
-      - run: npm install
+#      - run: npm install
       - cypress/run:
 #          cypress-cache-key: >-
 #            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
