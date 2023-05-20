@@ -61,9 +61,9 @@ workflows:
   use-my-orb:
     jobs:
       - cypress/run:
-          cypress-cache-key: >-
-            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
-            }}
+#          cypress-cache-key: >-
+#            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
+#            }}
           cypress-command: npx cypress run
           working-directory: ~/visualtest-cypress/test
 
