@@ -32,6 +32,7 @@ version: 2.1
 orbs:
   cypress: cypress-io/cypress@3
 workflows:
+  working_directory: ~/visualtest-cypress/test
   build:
     jobs:
       - cypress/run:
@@ -39,5 +40,4 @@ workflows:
           cypress-command:
             'npx cypress run --parallel --record --group all tests'
           parallelism: 4
-          working_directory: ~/visualtest-cypress/test
 
