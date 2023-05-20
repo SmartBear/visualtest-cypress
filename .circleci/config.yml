@@ -18,27 +18,28 @@ jobs:
           path: ~/visualtest-cypress
 
 #       Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+
+#      - restore_cache:
+#          keys:
+#            - v1-dependencies-{{ checksum "package.json" }}
+#            # fallback to using the latest cache if no exact match is found
+#            - v1-dependencies-
 
       - run: npm install
 
       - run: npx cypress install
 
-      - run: sudo apt-get update
-
-      - run: sudo apt-get install libnss3
+#      - run: sudo apt-get update
+#
+#      - run: sudo apt-get install libnss3
 
 #      - run: sudo apt-get install -y libnss3
 
 
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+#      - save_cache:
+#          paths:
+#            - node_modules
+#          key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
       - run: npm test
