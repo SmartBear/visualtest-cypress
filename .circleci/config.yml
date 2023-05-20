@@ -28,27 +28,42 @@
 
 
 
-version: 2.1
+#version: 2.1
+#orbs:
+#  cypress: cypress-io/cypress@3
+#working_directory: ~/visualtest-cypress/test
+#workflows:
+#  build:
+#    jobs:
+##      - checkout:
+##        path: ~/visualtest-cypress
+##      - setup:
+##        - parameter:
+##          working_directory: ~/visualtest-cypress
+#      - cypress/install:
+#            name: sub-folder install and build
+#            working_directory: ~/visualtest-cypress
+#            build: npm run build
+#      - cypress/run:
+##          start-command: 'npm run start'
+#          cypress-command:
+#            'npx cypress run'
+##            'npx cypress run --parallel --record --group all tests'
+##          parallelism: 4
+
+
+
+
+version: '2.1'
 orbs:
   cypress: cypress-io/cypress@3
-working_directory: ~/visualtest-cypress/test
 workflows:
-  build:
+  use-my-orb:
     jobs:
-#      - checkout:
-#        path: ~/visualtest-cypress
-#      - setup:
-#        - parameter:
-#          working_directory: ~/visualtest-cypress
-      - cypress/install:
-            name: sub-folder install and build
-            working_directory: ~/visualtest-cypress
-            build: npm run build
       - cypress/run:
-#          start-command: 'npm run start'
-          cypress-command:
-            'npx cypress run'
-#            'npx cypress run --parallel --record --group all tests'
-#          parallelism: 4
-
+          cypress-cache-key: >-
+            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
+            }}
+          cypress-command: npx cypress run
+          working-directory: ~/visualtest-cypress/test
 
