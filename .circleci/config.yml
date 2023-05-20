@@ -35,11 +35,11 @@ working_directory: ~/visualtest-cypress/test
 workflows:
   build:
     jobs:
-      - checkout:
-        path: ~/visualtest-cypress
-#      - setup:
-#        - parameter:
-#          working_directory: ~/visualtest-cypress
+#      - checkout:
+#        path: ~/visualtest-cypress
+      - setup:
+        - parameter:
+          working_directory: ~/visualtest-cypress
       - cypress/run:
           start-command: 'npm run start'
           cypress-command:
