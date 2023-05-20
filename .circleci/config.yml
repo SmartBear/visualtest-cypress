@@ -41,9 +41,9 @@ workflows:
 #        - parameter:
 #          working_directory: ~/visualtest-cypress
       - cypress/install:
-#            name: subfolder install and build
+            name: sub-folder install and build
             working_directory: ~/visualtest-cypress
-#            build: npm run build
+            build: npm run build
       - cypress/run:
 #          start-command: 'npm run start'
           cypress-command:
