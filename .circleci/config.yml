@@ -60,14 +60,11 @@ orbs:
 workflows:
   use-my-orb:
     jobs:
-      - run:
-          steps:
-            - run:
-                name: Echo Current Working Directory
-                command: echo ${{ execution_directory }}
-            - cypress/run:
-                # cypress-cache-key: >-
-                #   cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json" }}
-                cypress-command: npx cypress run
-                working-directory: ~/visualtest-cyprrrress/test
+      - run: npm install
+      - cypress/run:
+#          cypress-cache-key: >-
+#            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
+#            }}
+          cypress-command: npx cypress run
+          working-directory: ~/visualtest-cyprrrress/test
 
