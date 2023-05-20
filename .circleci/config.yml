@@ -68,5 +68,5 @@ workflows:
 #            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
 #            }}
           cypress-command: npx cypress run
-          working-directory: ~/test/
+          working-directory: ~
 
