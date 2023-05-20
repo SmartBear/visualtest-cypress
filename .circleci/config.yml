@@ -14,16 +14,16 @@ orbs:
 #      - image: circleci/node:16.13
 #    working_directory: ~/visualtest-cypress/test
 
-  jobs:
-    - docker:
-        # specify the version you desire here
-        - image: circleci/node:16.13
-      working_directory: ~/visualtest-cypress/test
-    - cypress/run:
-        start-command: 'npm run start'
-        cypress-command:
-          'npx cypress run --parallel --record --group all tests'
-        parallelism: 4
+jobs:
+  - docker:
+      # specify the version you desire here
+      - image: circleci/node:16.13
+    working_directory: ~/visualtest-cypress/test
+  - cypress/run:
+      start-command: 'npm run start'
+      cypress-command:
+        'npx cypress run --parallel --record --group all tests'
+      parallelism: 4
 
 #    steps:
 #      - checkout:
