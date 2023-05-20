@@ -70,7 +70,7 @@ workflows:
 #            }}
           cypress-command: npx cypress run
 
-#      - cypress/install:
-#          working-directory: ~/visualtest-cypress
+      - cypress/install:
+          working-directory: ~/visualtest-cypress
 
 
