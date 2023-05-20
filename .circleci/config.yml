@@ -1,30 +1,32 @@
-#version: 2.1
-#
-#orbs:
-#  cypress: cypress-io/cypress@3
-#
-#jobs:
-#  build:
-#    docker:
-#      # specify the version you desire here
-#      - image: circleci/node:16.13
-#    working_directory: ~/visualtest-cypress/test
-#    steps:
-#      - checkout:
-#          path: ~/visualtest-cypress
-##      - restore_cache:
-##          keys:
-##            - v1-dependencies-{{ checksum "package.json" }}
-##            # fallback to using the latest cache if no exact match is found
-##            - v1-dependencies-
-#      - run: npm install
-#
-#      - run: npx cypress install
-##      - save_cache:
-##          paths:
-##            - node_modules
-##          key: v1-dependencies-{{ checksum "package.json" }}
-#      - run: npm test
+version: 2.1
+
+orbs:
+  cypress: cypress-io/cypress@3
+
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:16.13
+    working_directory: ~/visualtest-cypress/test
+    steps:
+      - checkout:
+          path: ~/visualtest-cypress
+#      - restore_cache:
+#          keys:
+#            - v1-dependencies-{{ checksum "package.json" }}
+#            # fallback to using the latest cache if no exact match is found
+#            - v1-dependencies-
+      - run: pwd
+
+      - run: npm install
+
+      - run: npx cypress install
+#      - save_cache:
+#          paths:
+#            - node_modules
+#          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm test
 
 
 
@@ -54,17 +56,17 @@
 
 
 
-version: '2.1'
-orbs:
-  cypress: cypress-io/cypress@3
-workflows:
-  use-my-orb:
-    jobs:
-#      - run: npm install
-      - cypress/run:
-#          cypress-cache-key: >-
-#            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
-#            }}
-          cypress-command: npx cypress run
-          working-directory: ~/visualtest-cyprrrress/test
+#version: '2.1'
+#orbs:
+#  cypress: cypress-io/cypress@3
+#workflows:
+#  use-my-orb:
+#    jobs:
+##      - run: npm install
+#      - cypress/run:
+##          cypress-cache-key: >-
+##            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
+##            }}
+#          cypress-command: npx cypress run
+#          working-directory: ~/visualtest-cyprrrress/test
 
