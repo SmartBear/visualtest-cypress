@@ -33,6 +33,7 @@ orbs:
   cypress: cypress-io/cypress@3
 workflows:
   build:
+    working_directory: ~/visualtest-cypress/test
     jobs:
       - cypress/run:
           start-command: 'npm run start'
