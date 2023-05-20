@@ -46,4 +46,6 @@ workflows:
             'npx cypress run'
 #            'npx cypress run --parallel --record --group all tests'
 #          parallelism: 4
+          working_directory: /path/to/project
+
 
