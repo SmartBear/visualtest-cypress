@@ -62,11 +62,13 @@ orbs:
 workflows:
   use-my-orb:
     jobs:
-#      - run: npm install
+
+      - cypress/install:
+          working-directory: ~/visualtest-cypress
       - cypress/run:
 #          cypress-cache-key: >-
 #            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
 #            }}
           cypress-command: npx cypress run
-          working-directory: ~
+
 
