@@ -7,14 +7,18 @@ orbs:
   # to lock the version and prevent unexpected CI changes
   cypress: cypress-io/cypress@3
 
-jobs:
-  build:
-    docker:
-      # specify the version you desire here
-      - image: circleci/node:16.13
-    working_directory: ~/visualtest-cypress/test
+#jobs:
+#  build:
+#    docker:
+#      # specify the version you desire here
+#      - image: circleci/node:16.13
+#    working_directory: ~/visualtest-cypress/test
 
   jobs:
+    - docker:
+        # specify the version you desire here
+        - image: circleci/node:16.13
+      working_directory: ~/visualtest-cypress/test
     - cypress/run:
         start-command: 'npm run start'
         cypress-command:
