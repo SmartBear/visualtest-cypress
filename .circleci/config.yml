@@ -1,8 +1,115 @@
-version: 2.1
-orbs:
-  cypress: cypress-io/cypress@3
-workflows:
-  test:
-    jobs:
-      - cypress/run:
-          cypress-command: 'cd test && npx cypress run'
+## This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
+#version: 2.1
+#
+## Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
+## See: https://circleci.com/docs/2.0/orb-intro/
+##orbs:
+##  node: circleci/node@4.7
+#
+#jobs:
+#  - build:
+#      version: '16.10'
+#      pkg-manager: npm
+#      steps:
+#        - run:
+#            name: Install Xvfb
+#            command: sudo apt-get update && sudo apt-get install -y xvfb
+#        - run:
+#            name: testing circleCI
+#            command: echo "Starting, CircleCI?!?!!"
+#  - test:
+#        - steps:
+#            name: running the complete Cypress tests
+#            command: cd .. && npm run quick-test
+#
+## Invoke jobs via workflows
+## See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+#workflows:
+#  build_and_test:
+#    jobs:
+#      - build
+#      - test:
+#          requires:
+#            - build
+#
+
+
+
+#
+#version: 2.1
+#
+## Define the jobs we want to run for this project
+#jobs:
+#  build:
+#    docker:
+#      - image: cimg/base:2023.03
+#    steps:
+#      - checkout
+#      - run: echo "this is the build job"
+#  test:
+#    docker:
+#      - image: cimg/base:2023.03
+#    steps:
+#      - checkout
+#      - run: echo "this is the test job"
+#
+## Orchestrate our job run sequence
+#workflows:
+#  build_and_test:
+#    jobs:
+#      - build
+#      - test:
+#          requires:
+#            - build
+
+
+
+
+#version: 2.1
+#orbs:
+#  cypress: cypress-io/cypress@3
+#workflows:
+#  test:
+#    working_directory: ~/visualtest-cypress/test
+#    jobs:
+#      - cypress/run:
+#          cypress-command: 'cd test && npx cypress run'
+
+
+
+
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:7.10
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/visualtest-cypress/test
+
+    steps:
+      - checkout:
+          path: ~/visualtest-cypress
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # run tests!
+      - run: npm test
+
+
