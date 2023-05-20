@@ -104,6 +104,9 @@ jobs:
 
       - run: npm install
 
+      - run: sudo apt-get install -y libnss3
+
+
       - save_cache:
           paths:
             - node_modules
