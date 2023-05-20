@@ -41,8 +41,9 @@ workflows:
 #        - parameter:
 #          working_directory: ~/visualtest-cypress
       - cypress/run:
-          start-command: 'npm run start'
+#          start-command: 'npm run start'
           cypress-command:
-            'npx cypress run --parallel --record --group all tests'
-          parallelism: 4
+            'npx cypress run'
+#            'npx cypress run --parallel --record --group all tests'
+#          parallelism: 4
 
