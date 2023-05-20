@@ -2,7 +2,7 @@
 #
 #orbs:
 #  cypress: cypress-io/cypress@3
-
+#
 #jobs:
 #  build:
 #    docker:
@@ -35,6 +35,8 @@ working_directory: ~/visualtest-cypress/test
 workflows:
   build:
     jobs:
+      - checkout:
+        path: ~/visualtest-cypress
       - cypress/run:
           start-command: 'npm run start'
           cypress-command:
