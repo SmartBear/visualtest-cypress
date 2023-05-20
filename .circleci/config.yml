@@ -71,6 +71,6 @@ workflows:
           cypress-command: npx cypress run
 
 #      - cypress/install:
-          working-directory: ~/project/test
+#          working-directory: ~/project/test
 
 
