@@ -7,39 +7,39 @@ orbs:
   # to lock the version and prevent unexpected CI changes
   cypress: cypress-io/cypress@3
 
-#jobs:
-#  build:
-#    docker:
-#      # specify the version you desire here
-#      - image: circleci/node:16.13
-#    working_directory: ~/visualtest-cypress/test
-
 jobs:
-  - docker:
+  build:
+    docker:
       # specify the version you desire here
       - image: circleci/node:16.13
     working_directory: ~/visualtest-cypress/test
-  - cypress/run:
-      start-command: 'npm run start'
-      cypress-command:
-        'npx cypress run --parallel --record --group all tests'
-      parallelism: 4
 
-#    steps:
-#      - checkout:
-#          path: ~/visualtest-cypress
-##      - restore_cache:
-##          keys:
-##            - v1-dependencies-{{ checksum "package.json" }}
-##            # fallback to using the latest cache if no exact match is found
-##            - v1-dependencies-
-#      - run: npm install
-#
-#      - run: npx cypress install
-##      - save_cache:
-##          paths:
-##            - node_modules
-##          key: v1-dependencies-{{ checksum "package.json" }}
-#      - run: npm test
+#jobs:
+#  - docker:
+#      # specify the version you desire here
+#      - image: circleci/node:16.13
+#    working_directory: ~/visualtest-cypress/test
+#  - cypress/run:
+#      start-command: 'npm run start'
+#      cypress-command:
+#        'npx cypress run --parallel --record --group all tests'
+#      parallelism: 4
+
+    steps:
+      - checkout:
+          path: ~/visualtest-cypress
+#      - restore_cache:
+#          keys:
+#            - v1-dependencies-{{ checksum "package.json" }}
+#            # fallback to using the latest cache if no exact match is found
+#            - v1-dependencies-
+      - run: npm install
+
+      - run: npx cypress install
+#      - save_cache:
+#          paths:
+#            - node_modules
+#          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm test
 
 
