@@ -60,6 +60,7 @@ orbs:
 workflows:
   use-my-orb:
     jobs:
+      - run: echo pwd
       - cypress/run:
 #          cypress-cache-key: >-
 #            cypress-cache-{{ arch }}-{{ checksum "libs/shared-ui/package.json"
