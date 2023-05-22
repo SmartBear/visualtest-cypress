@@ -300,6 +300,8 @@ let sendImageApiJSON = () => {
         headless: Cypress.browser.isHeadless
 
     };
+    cy.task('logger', {type: 'fatal', message: deviceInfoResponse});
+
     Object.assign(imagePostData, deviceInfoResponse);
     // Overwrite because Cypress is more reliable
     imagePostData.browserVersion = Cypress.browser.majorVersion;
