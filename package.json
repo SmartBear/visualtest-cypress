@@ -33,8 +33,5 @@
     "plugin.js",
     "commands.js",
     "LICENSE"
-  ],
-  "devDependencies": {
-    "cypress": "^12.12.0"
-  }
+  ]
 }
