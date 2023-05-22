@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx cypress run --spec 'cypress/e2e/test-spec/test_*' -q --headed",
-    "quick-test": "npx cypress run --spec 'cypress/e2e/test-spec/quick-test_v*' -q -e PROJECT_TOKEN=zEvNOYn2/Bk6MdIzzh+0=_dev"
+    "quick-test": "npx cypress run --spec 'cypress/e2e/test-spec/quick-test_ele*' -q -e PROJECT_TOKEN=zEvNOYn2/Bk6MdIzzh+0=_dev"
   },
   "keywords": [],
   "author": "",
