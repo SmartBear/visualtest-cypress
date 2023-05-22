@@ -8,6 +8,8 @@ jobs:
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
       fail-fast: true # https://github.com/cypress-io/github-action/issues/48
+      matrix:
+        containers: [ 1, 2 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,8 +28,9 @@ jobs:
         with:
           quiet: true
           working-directory: ./test
-          spec: cypress/e2e/test-spec/quick-test_view*
+          spec: cypress/e2e/test-spec/quick-test_*
           record: true
+          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
