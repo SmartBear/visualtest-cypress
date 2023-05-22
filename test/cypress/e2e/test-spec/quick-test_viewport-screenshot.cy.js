@@ -1,17 +1,17 @@
 const testCases = [
-    // {
-    //     'name': 'Example1-Original-Top-Viewport',
-    //     'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
-    //     'options': {'viewport': true}
-    // },
-    // {
-    //     'name': 'Example1-Original-Scrolled-1-Viewport',
-    //     'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
-    //     'options': {'viewport': true},
-    //     'scrollViewport': {
-    //         'script': 'window.scrollTo(0, window.innerHeight)', //scroll viewport down
-    //     }
-    // },
+    {
+        'name': 'Example1-Original-Top-Viewport',
+        'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
+        'options': {'viewport': true}
+    },
+    {
+        'name': 'Example1-Original-Scrolled-1-Viewport',
+        'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
+        'options': {'viewport': true},
+        'scrollViewport': {
+            'script': 'window.scrollTo(0, window.innerHeight)', //scroll viewport down
+        }
+    },
     {
         'name': 'Example1-Original-Scrolled-2-Viewport',
         'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
