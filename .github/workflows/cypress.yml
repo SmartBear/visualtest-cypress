@@ -27,9 +27,11 @@ jobs:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/quick-test_view*
+          record: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_TOKEN: zEvNOYn2/Bk6MdIzzh+0=_dev
-
+          CYPRESS_PROJECT_ID: cqqg8w
+          CYPRESS_RECORD_KEY: 4d7728f9-0c3a-455d-928b-1ab4eaea41b5
 
