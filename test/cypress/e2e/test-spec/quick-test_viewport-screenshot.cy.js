@@ -60,6 +60,7 @@ testCases.forEach(currentTestCase => {
                             cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
                                 dataFromTest = data;
                             })
+                            cy.screenshot('test for dashboard')
                         })
                     })
 
