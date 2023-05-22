@@ -18,6 +18,10 @@ jobs:
         run: npm install
         working-directory: ./test
 
+      - name: running quick-test
+        run: npm test
+        working-directory: ./test
+
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v4
@@ -26,7 +30,7 @@ jobs:
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
           run: npm test
           working-directory: ./test
-          wait-on: 'http://localhost:3000' # Waits for above
+#          wait-on: 'http://localhost:3000' # Waits for above
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
           record: true
