@@ -5,6 +5,7 @@ const generateReports = require("./utils/generateReports")
 
 
 module.exports = defineConfig({
+    projectId: "x6we8y",
     // viewportWidth: 1920,
     // viewportHeight: 1080,
     reporterOptions: {
