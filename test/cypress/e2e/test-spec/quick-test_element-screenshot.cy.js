@@ -81,7 +81,7 @@ testCases.forEach(currentTestCase => {
             assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
             assert(dataFromTest.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
             assert(dataFromTest.dom.dom.length >= 1, 'DOM elements missing');
-            assert(dataFromTest.imageApiResult.imageType === 'ELEMENTTTTTT', `DOM screenshotType invalid: ${dataFromTest.imageApiResult.imageType}`);
+            assert(dataFromTest.imageApiResult.imageType === 'element', `DOM screenshotType invalid: ${dataFromTest.imageApiResult.imageType}`);
         })
     })
 })

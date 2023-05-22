@@ -304,9 +304,6 @@ let sendImageApiJSON = () => {
     // Overwrite because Cypress is more reliable
     imagePostData.browserVersion = Cypress.browser.majorVersion;
 
-    cy.task('logger', {type: 'fatal', message: `
-    browserVersion: ${imagePostData.browserVersion}, ${imagePostData.osName}`});
-
     apiRes.screenshotResult = {
         imagePath: picProps.path,
         imageSize: {
