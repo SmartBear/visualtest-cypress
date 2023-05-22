@@ -21,6 +21,20 @@ jobs:
         run: npm install
         working-directory: ./test
 
+      - name: Cypress tests
+        jobs:
+          cypress-run:
+            runs-on: ubuntu-22.04
+            steps:
+              - name: Checkout
+                uses: actions/checkout@v3
+
+              - name: Cypress run with env
+                uses: cypress-io/github-action@v5
+                env:
+                  CYPRESS_host: api.dev.local
+                  CYPRESS_port: 4222
+
 
 
 #      - name: Cypress run
@@ -68,17 +82,3 @@ jobs:
 #                  spec: cypress/e2e/test-spec/quick-test_view*
 
 
-      - name: Cypress tests
-        on: push
-        jobs:
-          cypress-run:
-            runs-on: ubuntu-22.04
-            steps:
-              - name: Checkout
-                uses: actions/checkout@v3
-
-              - name: Cypress run with env
-                uses: cypress-io/github-action@v5
-                env:
-                  CYPRESS_host: api.dev.local
-                  CYPRESS_port: 4222
