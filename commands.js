@@ -15,7 +15,7 @@ const headers = {
 };
 
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData;
+    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData, userAgentFromBrowser;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
@@ -278,6 +278,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Return the scroll bar after the sbvtCapture has completed
         win.eval(`document.body.style.overflow='${initialPageState.overflow}'`);
         cy.task('logger', {type: 'info', message: `After sbvtCapture cy.screenshot('${name}')`});
+        userAgentFromBrowser = win.eval(`window.navigator.userAgent`);
+
     }
 };
 let sendImageApiJSON = () => {
@@ -300,7 +302,7 @@ let sendImageApiJSON = () => {
         headless: Cypress.browser.isHeadless
 
     };
-    cy.task('logger', {type: 'fatal', message: deviceInfoResponse});
+    cy.task('logger', {type: 'fatal', message: userAgentFromBrowser});
 
     Object.assign(imagePostData, deviceInfoResponse);
     // Overwrite because Cypress is more reliable
