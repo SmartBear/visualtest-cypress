@@ -303,6 +303,7 @@ let sendImageApiJSON = () => {
 
     };
     cy.task('logger', {type: 'fatal', message: userAgentFromBrowser});
+    cy.task('logger', {type: 'error', message: deviceInfoResponse});
 
     Object.assign(imagePostData, deviceInfoResponse);
     // Overwrite because Cypress is more reliable
