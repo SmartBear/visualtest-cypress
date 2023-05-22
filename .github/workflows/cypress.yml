@@ -45,24 +45,40 @@ jobs:
 
 
 
+#      - name: Cypress tests
+#        on: push
+#        jobs:
+#          cypress-run:
+#            runs-on: ubuntu-latest
+#            steps:
+##              - name: Checkout
+##                uses: actions/checkout@v3
+#
+#              - name: Cypress run with env
+#                uses: cypress-io/github-action@v5
+#                with:
+#                  record: true
+#                  working-directory: ./test
+#                  env:
+#                    PROJECT_TOKEN: zEvNOYn2/Bk6MdIzzh+0=_dev
+#                    # pass the Cypress Cloud record key as an environment variable
+#                    CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+#                    # pass GitHub token to allow accurately detecting a build vs a re-run build
+#                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#                  spec: cypress/e2e/test-spec/quick-test_view*
+
+
       - name: Cypress tests
         on: push
         jobs:
           cypress-run:
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
             steps:
-#              - name: Checkout
-#                uses: actions/checkout@v3
+              - name: Checkout
+                uses: actions/checkout@v3
 
               - name: Cypress run with env
                 uses: cypress-io/github-action@v5
-                with:
-                  record: true
-                  working-directory: ./test
-                  env:
-                    PROJECT_TOKEN: zEvNOYn2/Bk6MdIzzh+0=_dev
-                    # pass the Cypress Cloud record key as an environment variable
-                    CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-                    # pass GitHub token to allow accurately detecting a build vs a re-run build
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  spec: cypress/e2e/test-spec/quick-test_view*
+                env:
+                  CYPRESS_host: api.dev.local
+                  CYPRESS_port: 4222
