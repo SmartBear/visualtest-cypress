@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: true # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        containers: [ 1, 2 ]
+        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -37,4 +37,5 @@ jobs:
           PROJECT_TOKEN: zEvNOYn2/Bk6MdIzzh+0=_dev
           CYPRESS_PROJECT_ID: cqqg8w
           CYPRESS_RECORD_KEY: 4d7728f9-0c3a-455d-928b-1ab4eaea41b5
+          TEST_RUN_NAME: 3-parallel
 
