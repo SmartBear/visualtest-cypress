@@ -88,7 +88,7 @@ cy.sbvtCapture('Clipping the homepage viewport', {
 
 ## Requirements
 
-- Cypress v7.0.0+ (Recommend v10.10.0+)
+- Cypress v7.4.0+ (Recommend v10.10.0+)
 
 ## Manual Setup
 
