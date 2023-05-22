@@ -22,7 +22,7 @@ jobs:
         working-directory: ./test
 
       - name: running quick-test
-        run: npm quick-test
+        run: npm run quick-test
         working-directory: ./test
 
       - name: Cypress run
