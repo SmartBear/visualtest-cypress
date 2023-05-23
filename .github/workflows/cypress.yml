@@ -32,6 +32,7 @@ jobs:
           spec: cypress/e2e/test-spec/quick-test_*
 #          record: true
 #          parallel: true
+          headed: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
