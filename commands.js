@@ -303,6 +303,7 @@ let sendImageApiJSON = () => {
 
     };
     cy.task('logger', {type: 'fatal', message: userAgentFromBrowser});
+    cy.task('logger', {type: 'fatal', message: `headless: ${Cypress.browser.isHeadless}`});
     cy.task('logger', {type: 'error', message: deviceInfoResponse});
 
     Object.assign(imagePostData, deviceInfoResponse);
