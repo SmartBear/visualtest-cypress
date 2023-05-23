@@ -297,6 +297,9 @@ function makeGlobalRunHooks() {
                 return null;
             },
             async getOsVersion() {
+                console.log('the os.release is: ', os.release());
+                console.log('the os.platform is: ', os.platform());
+                console.log('the os.version is: ', os.version());
                 return os.release();
             },
             getToolkit() {
