@@ -8,7 +8,7 @@ const cwd = process.cwd();
 const pluginRequire = `\nrequire('@smartbear/visualtest-cypress')(module)`;
 const commandsImport = `\nimport '@smartbear/visualtest-cypress/commands'`;
 const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n}`;
-const jsonData = `"chromeWebSecurity": false`;
+// const jsonData = `"chromeWebSecurity": false`;
 //TODO add try catch
 const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
 const usersCypress = JSON.parse(packageFile.toString());
@@ -51,7 +51,7 @@ let checkCypressVersion = () => {
             console.log(chalk.bgRedBright('cypress.json not found. This is required for Cypress < 10'))
             process.stdout.write('Please run: ');
             console.log(chalk.magenta.underline('npx cypress open\n'));
-            console.log(chalk.bgRedBright('\n Then, include the below line in your cypress.json file'))
+            console.log(chalk.bgRedBright('\n Then include the below line in your cypress.json file'))
             console.log(chalk.magenta(jsonData))
             console.log(chalk.dim(`Read about it here: https://docs.cypress.io/guides/guides/web-security\n`))
         }
