@@ -385,6 +385,7 @@ function makePluginExport() {
         if (pluginModule.exports.e2e) {
             pluginModule.exports.e2e.setupNodeEvents = setupNodeEvents;
         } else {
+            //todo this is broken, if user puts the require above in the cypress.config.js file, it hits here and then throws error
             pluginModule.exports = setupNodeEvents;
         }
     };
