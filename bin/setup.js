@@ -14,13 +14,18 @@ const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('c
 const usersCypress = JSON.parse(packageFile.toString());
 let error = false;
 
-let checkForOlderVersion = () => {
+let cypressVersionAbove10; //boolean true if above version 10
+let checkCypressVersion = () => {
+    //checks if the user's version is supported, and if it above or below Cypress version 10 (due to different naming conventions)
     if (usersCypress.version.split('.')[0] < 7 || usersCypress.version.split('.')[0] <= 7 && usersCypress.version.split('.')[1] < 4) {
         // Note as of now this is not supported because cy.request cannot send blobs in previous versions
         console.log(chalk.redBright(`Detected Cypress ${usersCypress.version}`));
         console.log(chalk.green(`Only Cypress 7.4.0+ is supported`));
         error = true;
     }
+    cypressVersionAbove10 = usersCypress.version.split('.')[0] >= 10;
+    checkForTypeScript(cypressVersionAbove10)
+
     /**
     if we decide to support older versions commenting out for now
 
@@ -53,6 +58,23 @@ let checkForOlderVersion = () => {
     }
      **/
 };
+
+let fileExtension; // this for either '.js' or '.ts'
+const checkForTypeScript = (version10) => {
+    try {
+        try {
+            fs.readFileSync(version10 ? `${process.cwd()}/cypress/support/e2e.js` : `${process.cwd()}/cypress/support/index.js`, 'utf-8')
+            fileExtension = ".js"
+        } catch (error) {
+            fs.readFileSync(version10 ? `${process.cwd()}/cypress/support/e2e.ts` : `${process.cwd()}/cypress/support/index.ts`, 'utf-8')
+            fileExtension = ".ts"
+            console.log(chalk.yellow('TypeScript detected - this currently in beta.'));
+        }
+    } catch (error) {
+        // error handled later
+    }
+}
+
 let setupVTConf = () => {
     const filePath = `${process.cwd()}/visualTest.config.js`;
 
@@ -80,16 +102,14 @@ let setupVTConf = () => {
         console.log(chalk.green(' in visualTest.config.js'));
     }
 };
+
 let setupCommands = () => {
-    let filePath;
-    if (usersCypress.version.split('.')[0] >= 10) {
-        filePath = `${process.cwd()}/cypress/support/e2e.js`;
-    } else {
-        filePath = `${process.cwd()}/cypress/support/index.js`;
-    }
+    let aboveVersion10 = usersCypress.version.split('.')[0] >= 10;
+    const supportPath = aboveVersion10 ? `${process.cwd()}/cypress/support/e2e` : `${process.cwd()}/cypress/support/index`;
+
     let fileContent;
     try {
-        fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = fs.readFileSync(`${supportPath}${fileExtension}`, 'utf-8');
     } catch (err) {
         error = true;
         console.log(chalk.red(`Cypress e2e.js file not found, this is most likely due to Cypress not being setup yet, please run: `));
@@ -103,20 +123,17 @@ let setupCommands = () => {
     if (fileContent.toString().includes(commandsImport)) {
         console.log(chalk.blue(`Commands already installed.`));
     } else {
-        fs.writeFileSync(filePath, fileContent.replace(/([\s\S])$/, `$1${commandsImport}`));
+        fs.writeFileSync(`${supportPath}${fileExtension}`, fileContent.replace(/([\s\S])$/, `$1${commandsImport}`));
         console.log(chalk.green(`Commands installed.`));
     }
 };
 let setupPlugin = () => {
-    let filePath;
-    if (usersCypress.version.split('.')[0] >= 10) {
-        filePath = path.resolve(process.cwd(), 'cypress.config.js');
-    } else {
-        filePath = `${process.cwd()}/cypress/plugins/index.js`;
-    }
+    let aboveVersion10 = usersCypress.version.split('.')[0] >= 10;
+    const supportPath = aboveVersion10 ? path.resolve(process.cwd(), 'cypress.config') : `${process.cwd()}/cypress/plugins/index`;
+
     let fileContent;
     try {
-        fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = fs.readFileSync(`${supportPath}${fileExtension}`, 'utf-8');
     } catch (err) {
         error = true;
         console.log(chalk.red(`Cypress cypress.config.js file not found, this is most likely due to Cypress not being setup yet, please run: `));
@@ -130,12 +147,12 @@ let setupPlugin = () => {
     if (fileContent.toString().includes(pluginRequire)) {
         console.log(chalk.blue(`Plugin already installed.`));
     } else {
-        fs.writeFileSync(filePath, fileContent.replace(/([\s\S])$/, `$1${pluginRequire}`));
+        fs.writeFileSync(`${supportPath}${fileExtension}`, fileContent.replace(/([\s\S])$/, `$1${pluginRequire}`));
         console.log(chalk.green(`Plugin installed.`));
     }
 };
 
-if (!error) checkForOlderVersion();
+checkCypressVersion();
 if (!error) setupCommands();
 if (!error) setupPlugin();
 if (!error) setupVTConf();
