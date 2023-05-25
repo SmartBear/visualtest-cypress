@@ -382,9 +382,7 @@ function makePluginExport() {
                 return origOn.call(this, eventName, handler);
             }
         };
-        console.log('before: ', pluginModule.exports);
         if (pluginModule.exports.e2e) {
-            console.log('in the if');
             pluginModule.exports.e2e.setupNodeEvents = setupNodeEvents;
         } else if (pluginModule.exports.default.e2e) {
             logger.info(`in pluginModule.exports.default.e2e, due to cypress.config having 'export default defineConfig' - most likely TS `)
