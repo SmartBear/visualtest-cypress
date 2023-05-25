@@ -90,7 +90,8 @@ let setupVTConf = () => {
                 console.log(chalk.blue(`projectToken found.`));
             }
         } else { //vtConf boilerplate does NOT look good
-            fs.writeFileSync(filePath, fileContent.replace(/([\s\S])$/, `$1${vtConfContent}`));
+            fs.appendFileSync(filePath, vtConfContent);
+
             console.log(chalk.underline.yellow('Please enter your projectToken in visualTest.config.js.'));
         }
     } else { //file does not exist, so create the file and import boilerplate
@@ -123,7 +124,8 @@ let setupCommands = () => {
     if (fileContent.toString().includes(commandsImport)) {
         console.log(chalk.blue(`Commands already installed.`));
     } else {
-        fs.writeFileSync(`${supportPath}${fileExtension}`, fileContent.replace(/([\s\S])$/, `$1${commandsImport}`));
+        fs.appendFileSync(`${supportPath}${fileExtension}`, commandsImport);
+
         console.log(chalk.green(`Commands installed.`));
     }
 };
@@ -147,12 +149,36 @@ let setupPlugin = () => {
     if (fileContent.toString().includes(pluginRequire)) {
         console.log(chalk.blue(`Plugin already installed.`));
     } else {
-        fs.writeFileSync(`${supportPath}${fileExtension}`, fileContent.replace(/([\s\S])$/, `$1${pluginRequire}`));
+        fs.appendFileSync(`${supportPath}${fileExtension}`, pluginRequire);
+
         console.log(chalk.green(`Plugin installed.`));
     }
 };
 
+const setupTypeScriptIndexFile = () => {
+    const filePath = path.join(process.cwd(), 'cypress', 'support', 'index.d.ts');
+    const importStatement = "import '@smartbear/visualtest-cypress';\n";
+
+    let fileContent;
+    try {
+            fileContent = fs.readFileSync(filePath, 'utf-8');
+    } catch (err) {
+        // okay if this file was not found
+    }
+
+    if (fileContent && fileContent.toString().includes(importStatement)) {
+        console.log(chalk.blue(`TypeScript import statement found.`));
+    } else {
+        fs.appendFileSync(filePath, importStatement);
+        // fs.writeFileSync(`${filePath}`, fileContent.replace(/([\s\S])$/, `$1\n${importStatement}`));
+        process.stdout.write(chalk.green(`TypeScript import statement added.`));
+        console.log(chalk.dim(`\t Filepath: cypress/support/index.d.ts`));
+    }
+}
+
 checkCypressVersion();
 if (!error) setupCommands();
 if (!error) setupPlugin();
+if (!error && fileExtension === '.ts') setupTypeScriptIndexFile();
 if (!error) setupVTConf();
+
