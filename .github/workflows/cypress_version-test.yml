@@ -10,7 +10,7 @@ jobs:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [ 1 ]
-        cypress-verrrsion: [6.4.0, 7.0.0, 7.1.0, 12.0.0]
+        cypress-version: [6.4.0, 7.0.0, 7.1.0, 12.0.0]
     #        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout
