@@ -1,4 +1,4 @@
-name: TypeScript Tests
+name: typescript
 on: [push]
 jobs:
   cypress-run:
@@ -29,6 +29,12 @@ jobs:
         run: npx visualtest-setup
         working-directory: ./test/typescript-test
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
@@ -43,5 +49,5 @@ jobs:
           #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
-          TEST_RUN_NAME: "${{ github.workflow }}—${{ github.ref }}"
+          TEST_RUN_NAME: "${{ github.workflow }}—${{ extract_branch }}"
 
