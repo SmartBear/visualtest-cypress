@@ -34,7 +34,7 @@ jobs:
       - name: Verify console logs
         run: |
           echo "print the files found..."
-          echo ls
+          ls
           # Read the contents of the log file
           logs=$(cat visualtest-logs.txt)
 
