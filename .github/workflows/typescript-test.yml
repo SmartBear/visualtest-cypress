@@ -34,6 +34,25 @@ jobs:
           echo "::set-output name=VISUALTEST_SETUP_LOG::$(cat visualtest-setup.log)"
         working-directory: ./test/typescript-test
 
+      - name: Assert visualtest setup logs
+        run: |
+          expectedLogs="Commands installed.
+          Plugin installed.
+          TypeScript import statement added.  Filepath: cypress/support/index.d.ts
+          visualTest.config.js has been created.
+          Please enter your projectToken in visualTest.config.js"
+          
+          actualLogs=$(cat visualtest-setup.log)
+          
+          if [ "$expectedLogs" = "$actualLogs" ]; then
+          echo "Console logs match the expected output."
+          else
+          echo "Console logs do not match the expected output."
+          exit 1
+          fi
+
+
+
       - name: Assert visualtest-setup Using Jest
         run: |
           echo "above the first line"
