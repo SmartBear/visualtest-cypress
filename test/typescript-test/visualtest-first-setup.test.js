@@ -15,7 +15,7 @@
 // });
 
 
-const fs = require('fs-extra');
+const fs = require('fs');
 
 test('Check visualtest-log.txt', () => {
     const logFile = 'visualtest-log.txt';
