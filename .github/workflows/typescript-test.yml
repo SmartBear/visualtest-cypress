@@ -39,7 +39,7 @@ jobs:
           npm install --save-dev jest
           echo "global.process = {stdout: {write: jest.fn()}};" > jest.setup.js
           echo "console.log = jest.fn();" >> jest.setup.js
-          echo "module.exports = require('./visualtest-setup.test.js');" > jest.test.js
+          echo "module.exports = require('./visualtest-first-setup.test.js');" > jest.test.js
           npx jest --verbose
         working-directory: ./test/typescript-test
 
