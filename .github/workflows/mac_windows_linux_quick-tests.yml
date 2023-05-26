@@ -1,4 +1,4 @@
-name: Quick Tests
+name: quick-test
 on: [push]
 jobs:
   cypress-run:
