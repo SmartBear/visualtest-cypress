@@ -36,14 +36,18 @@ jobs:
 
       - name: Assert visualtest setup logs
         run: |
-          echo ${{ steps.set-test-run-name.outputs.VISUALTEST_SETUP_LOG }}
+          echo "this is a test"
+          echo "this is a test"
           expectedLogs="Commands installed.
           Plugin installed.
           TypeScript import statement added.  Filepath: cypress/support/index.d.ts
           visualTest.config.js has been created.
           Please enter your projectToken in visualTest.config.js"
           
-          actualLogs=${{ steps.set-test-run-name.outputs.VISUALTEST_SETUP_LOG }}
+          actualLogs=$(cat visualtest-setup.log)
+          
+          echo "try printing"
+          echo $(cat visualtest-setup.log)
           
           if [ "$expectedLogs" = "$actualLogs" ]; then
           echo "Console logs match the expected output."
