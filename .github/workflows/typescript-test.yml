@@ -32,7 +32,11 @@ jobs:
         working-directory: ./test/typescript-test
 
       - name: Verify console logs
-        run: npx jest
+        run: |
+          echo "printing out the logs from npx visualtest-setup:"
+          cat visualtest-logs.txt
+          npx jest
+
         working-directory: ./test/typescript-test
 
 
