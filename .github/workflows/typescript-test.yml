@@ -36,10 +36,14 @@ jobs:
 
       - name: Assert visualtest-setup Using Jest
         run: |
-          npm install --save-dev jest
+          echo "above the first line"
           echo "global.process = {stdout: {write: jest.fn()}};" > jest.setup.js
+          echo "above the second line"
           echo "console.log = jest.fn();" >> jest.setup.js
+          echo "above the third line"
           echo "module.exports = require('./visualtest-first-setup.test.js');" > jest.test.js
+          echo "above the last line"
+        
           npx jest --verbose
         working-directory: ./test/typescript-test
 
