@@ -14,16 +14,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Remove "refs/heads/" from github.ref
-        id: branch_name
-        run: echo "::set-output name=branch_name::${{ github.ref }}" | sed 's/refs\/heads\///'
+      - name: Extract Branch Name and Set Test Run Name
+        id: set-test-run-name
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
+          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME"
 
-      - name: Display expression result
-        run: echo "${{ github.workflow }}—${{ steps.branch_name.outputs.stdout }}"
-
-#      - name: Display branchName
-#        run: |
-#        echo ${{ steps.branch_name.outputs.branch_name }}"
+      - name: Use Test Run Name
+        run: |
+          echo "Test Run Name: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}"
+      
 
       - name: Install root dependencies
         run: npm install
