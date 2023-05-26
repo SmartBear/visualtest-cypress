@@ -29,6 +29,9 @@ jobs:
         run: npm install
         working-directory: ./test
 
+      - name: Uninstall Cypress
+        run: npm uninstall cypress
+
       - name: Install Cypress
         run: npm install cypress@${{ matrix.cypress-version }}
 
