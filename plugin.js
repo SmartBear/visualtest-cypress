@@ -385,7 +385,7 @@ function makePluginExport() {
         if (pluginModule.exports.e2e) {
             pluginModule.exports.e2e.setupNodeEvents = setupNodeEvents;
         } else if (pluginModule.exports.default.e2e) {
-            logger.info(`in pluginModule.exports.default.e2e, due to cypress.config having 'export default defineConfig' - most likely TS `)
+            logger.info(`in pluginModule.exports.default.e2e, due to cypress.config having 'export default defineConfig' - most likely TS `);
             pluginModule.exports.default.e2e.setupNodeEvents = setupNodeEvents;
         }
     };

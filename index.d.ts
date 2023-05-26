@@ -1,4 +1,3 @@
-
 declare namespace Cypress {
 
     interface Chainable<Subject> {
@@ -36,14 +35,3 @@ declare namespace Cypress {
         }): Chainable<any>;
     }
 }
-
-// declare namespace Cypress {
-//     interface Chainable<Subject> {
-//         /**
-//          * Create several Todo items via UI
-//          * @example
-//          * cy.downloadFile('http://demourl','example','demo.pdf')
-//          */
-//         sbvtCapture(imageName: string): Chainable<any>
-//     }
-// }
