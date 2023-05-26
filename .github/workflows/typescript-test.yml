@@ -23,17 +23,17 @@ jobs:
 
       - name: Install typescript-test dependencies
         run: npm install
-        working-directory: ./typescript-test #
+        working-directory: ./test/typescript-test
 
       - name: Setup visualtest
         run: npx visualtest-setup
-        working-directory: ./typescript-test #
+        working-directory: ./test/typescript-test
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./typescript-test #
+          working-directory: ./test/typescript-test
           spec: cypress/e2e/*
         #          record: true
         #          parallel: true

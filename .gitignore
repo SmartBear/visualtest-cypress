@@ -11,13 +11,8 @@ test/cypress/e2e/*
 !test/cypress/e2e/test-spec/
 test/mochawesome-report
 
-#test/typescript-test/node_modules
-#test/typescript-test/cypress/screenshots
-#test/typescript-test/cypress/dom
-#test/typescript-test/cypress/videos
+test/typescript-test/node_modules
+test/typescript-test/cypress/screenshots
+test/typescript-test/cypress/dom
+test/typescript-test/cypress/videos
 
-
-typescript-test/node_modules
-typescript-test/cypress/screenshots
-typescript-test/cypress/dom
-typescript-test/cypress/videos

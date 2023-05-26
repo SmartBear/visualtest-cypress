@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@smartbear/visualtest-cypress": "file:..",
+    "@smartbear/visualtest-cypress": "file:../..",
     "cypress": "^12.12.0",
     "typescript": "^5.0.4"
   }
