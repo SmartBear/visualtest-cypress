@@ -35,14 +35,14 @@ test('Check visualtest-first-log.txt', () => {
 
 test('Check visualtest-second-log.txt', () => {
     const fileContents = fs.readFileSync('visualtest-second-logs.txt', 'utf-8');
-    const lines = fileContents.split('\n');
-    const modifiedContents = lines.join('\n');
+    // const lines = fileContents.split('\n');
+    // const modifiedContents = lines.join('\n');
 
     // Perform your comparison against the modified contents
-    expect(modifiedContents).toContain('TypeScript detected - this currently in beta.');
-    expect(modifiedContents).toContain('Commands already installed.');
-    expect(modifiedContents).toContain('Plugin already installed.');
-    expect(modifiedContents).toContain('visualTest.config.js found.');
-    expect(modifiedContents).toContain('Please enter your projectToken in visualTest.config.js');
+    expect(fileContents).toContain('TypeScript detected - this currently in beta.');
+    expect(fileContents).toContain('Commands already installed.');
+    expect(fileContents).toContain('Plugin already installed.');
+    expect(fileContents).toContain('visualTest.config.js found.');
+    expect(fileContents).toContain('Please enter your projectToken in visualTest.config.js');
 });
 

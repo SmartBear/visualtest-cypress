@@ -35,15 +35,9 @@ jobs:
         run: npx visualtest-setup > visualtest-second-logs.txt
         working-directory: ./test/typescript-test
 
-      - name: Verify console logs
-        run: |
-          echo "printing out current directories:"
-          ls
-          echo "printing out the logs from npx visualtest-setup:"
-          cat visualtest-second-logs.txt
-          npx jest
+      - name: Verify npx visualtest-setup
+        run: npx jest
         working-directory: ./test/typescript-test
-
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
