@@ -1,5 +1,5 @@
 name: os
-on: [push]
+on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ${{ matrix.os }}
