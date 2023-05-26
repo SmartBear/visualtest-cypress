@@ -19,8 +19,8 @@ jobs:
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
         run: |
-          $branchName = $Env:GITHUB_REF -split '/' | Select-Object -Last 1
-          Write-Host "::set-output name=TEST_RUN_NAME::${Env:GITHUB_WORKFLOW}—$branchName"
+          BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
+          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}_$BRANCH_NAME"
       
 
       - name: Install root dependencies
