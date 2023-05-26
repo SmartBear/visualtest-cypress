@@ -29,10 +29,11 @@ jobs:
         run: npm install
         working-directory: ./test
 
-      - name: Uninstall Cypress
-        run: npm uninstall cypress
+      - name: Clear Cypress cache
+        run: |
+          sudo rm -rf $HOME/.cache/Cypress
 
-      - name: Install Cypress
+      - name: "Install Cypress Version:${{ matrix.cypress-version }}"
         run: npm install cypress@${{ matrix.cypress-version }}
 
       - name: Cypress run
