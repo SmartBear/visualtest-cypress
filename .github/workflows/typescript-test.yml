@@ -14,9 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Extract branch name
-        id: extract_branch_name
-        run: echo ${github.ref##*/}
+      - name: Remove "refs/heads/" from github.ref
+        run: echo "${{ github.ref }}" | sed 's/refs\/heads\///'
+        id: branch_name
+
+      - name: Display expression result
+        run: echo "${{ github.workflow }}—${{ steps.branch_name.outputs.stdout }}"
 
       - name: Install root dependencies
         run: npm install
