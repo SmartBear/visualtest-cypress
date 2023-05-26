@@ -42,7 +42,7 @@ jobs:
           visualTest.config.js has been created.
           Please enter your projectToken in visualTest.config.js"
           
-          actualLogs=$(cat visualtest-setup.log)
+          actualLogs=${{ steps.set-test-run-name.outputs.VISUALTEST_SETUP_LOG }}
           
           if [ "$expectedLogs" = "$actualLogs" ]; then
           echo "Console logs match the expected output."
