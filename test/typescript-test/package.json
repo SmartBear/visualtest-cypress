@@ -1,0 +1,17 @@
+{
+  "name": "typescript-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@smartbear/visualtest-cypress": "file:..",
+    "cypress": "^12.12.0",
+    "typescript": "^5.0.4"
+  }
+}

@@ -1,4 +1,4 @@
-name: Cypress Tests
+name: Cypress Quick Tests
 on: [push]
 jobs:
   cypress-run:
@@ -10,7 +10,6 @@ jobs:
       fail-fast: true # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [ 1 ]
-#        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,25 +17,31 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
-      - name: Install test dependencies
+#      - name: Install test dependencies
+#        run: npm install
+#        working-directory: ./test
+
+      - name: Install typescript-test dependencies
         run: npm install
-        working-directory: ./test
+        working-directory: ./test/typescript-test
 
-
+      - name: Setup visualtest
+        run: npx visualtest-setup
+        working-directory: ./test/typescript-test
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test
-          spec: cypress/e2e/test-spec/quick-test_*
-#          record: true
-#          parallel: true
+          working-directory: ./test/typescript-test
+          spec: cypress/e2e/*
+        #          record: true
+        #          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: github-actions-test
 
