@@ -1,4 +1,4 @@
-name: Cypress Quick Tests
+name: TypeScript Tests
 on: [push]
 jobs:
   cypress-run:
