@@ -17,10 +17,6 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
-#      - name: Install test dependencies
-#        run: npm install
-#        working-directory: ./test
-
       - name: Install typescript-test dependencies
         run: npm install
         working-directory: ./test/typescript-test
@@ -44,5 +40,5 @@ jobs:
           #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
-          TEST_RUN_NAME: "${{ github.workflow }}—${{ github.head.ref }}"
+          TEST_RUN_NAME: "${{ github.workflow }}—${{ github.ref##*/ }}"
 
