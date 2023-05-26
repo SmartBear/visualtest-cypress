@@ -17,9 +17,9 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
-#      - name: Install test dependencies
-#        run: npm install
-#        working-directory: ./test
+      - name: Install test dependencies
+        run: npm install
+        working-directory: ./test
 
       - name: Install typescript-test dependencies
         run: npm install
