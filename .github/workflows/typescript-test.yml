@@ -36,6 +36,7 @@ jobs:
 
       - name: Assert visualtest setup logs
         run: |
+          echo ${{ steps.set-test-run-name.outputs.VISUALTEST_SETUP_LOG }}
           expectedLogs="Commands installed.
           Plugin installed.
           TypeScript import statement added.  Filepath: cypress/support/index.d.ts
