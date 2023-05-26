@@ -2,9 +2,10 @@ const fs = require('fs');
 
 describe('Visual Test Setup', () => {
     test('Console logs', () => {
-        const expectedLogs = `Commands installed.
+        const expectedLogs = `TypeScript detected - this currently in beta.
+Commands installed.
 Plugin installed.
-TypeScript import statement added.  Filepath: cypress/support/index.d.ts
+TypeScript import statement added.\tFilepath: cypress/support/index.d.ts
 visualTest.config.js has been created.
 Please enter your projectToken in visualTest.config.js`;
 
