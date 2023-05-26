@@ -35,6 +35,9 @@ jobs:
         run: |
           echo "print the files found..."
           ls
+          cat visualtest-logs.txt
+          
+          echo "okay now the trouble code"
           # Read the contents of the log file
           logs=$(cat visualtest-logs.txt)
 
