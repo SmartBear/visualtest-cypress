@@ -51,5 +51,5 @@ jobs:
           #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
-          TEST_RUN_NAME: "${{ github.workflow }}—"
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
 
