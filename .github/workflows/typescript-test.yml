@@ -28,7 +28,11 @@ jobs:
         working-directory: ./test/typescript-test
 
       - name: Setup visualtest
-        run: npx visualtest-setup > visualtest-logs.txt
+        run: npx visualtest-setup > visualtest-first-logs.txt
+        working-directory: ./test/typescript-test
+
+      - name: Setup visualtest for second time
+        run: npx visualtest-setup > visualtest-second-logs.txt
         working-directory: ./test/typescript-test
 
       - name: Verify console logs
@@ -36,9 +40,8 @@ jobs:
           echo "printing out current directories:"
           ls
           echo "printing out the logs from npx visualtest-setup:"
-          cat visualtest-logs.txt
+          cat visualtest-second-logs.txt
           npx jest
-
         working-directory: ./test/typescript-test
 
 

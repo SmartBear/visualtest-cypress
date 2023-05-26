@@ -17,10 +17,10 @@
 
 const fs = require('fs');
 
-test('Check visualtest-log.txt', () => {
+test('Check visualtest-first-log.txt', () => {
 
     // Read the contents of the log file
-    const fileContents = fs.readFileSync('visualtest-logs.txt', 'utf-8');
+    const fileContents = fs.readFileSync('visualtest-first-logs.txt', 'utf-8');
 
     // Split the contents into an array of lines
     const lines = fileContents.split('\n');
