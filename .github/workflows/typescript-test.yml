@@ -21,9 +21,9 @@ jobs:
       - name: Display expression result
         run: echo "${{ github.workflow }}—${{ steps.branch_name.outputs.stdout }}"
 
-      - name: Display branchName
-        run: |
-        echo "Branch name: ${{ steps.branch_name.outputs.branch_name }}"
+#      - name: Display branchName
+#        run: |
+#        echo ${{ steps.branch_name.outputs.branch_name }}"
 
       - name: Install root dependencies
         run: npm install
@@ -51,5 +51,5 @@ jobs:
           #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
-          TEST_RUN_NAME: "${{ github.workflow }}—${{ branch_name.outputs.stdout }}"
+          TEST_RUN_NAME: "${{ github.workflow }}—"
 
