@@ -33,6 +33,8 @@ jobs:
 
       - name: Verify console logs
         run: |
+          echo "printing out current directories:"
+          ls
           echo "printing out the logs from npx visualtest-setup:"
           cat visualtest-logs.txt
           npx jest
