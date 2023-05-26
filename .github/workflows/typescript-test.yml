@@ -32,25 +32,9 @@ jobs:
         working-directory: ./test/typescript-test
 
       - name: Verify console logs
-        run: |
-          echo "print the files found..."
-          ls
-          cat visualtest-logs.txt
-          
-          echo "okay now the trouble code"
-          # Read the contents of the log file
-          logs=$(cat visualtest-logs.txt)
-
-          # Check if the logs contain a specific string or pattern
-          if [[ $logs =~ "expected log string" ]]; then
-            echo "Log string found!"
-          else
-            echo "Log string not found."
-            exit 1  # Consider failing the workflow if the log is not found
-          fi
+        run: npx jest
         working-directory: ./test/typescript-test
 
-      
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
