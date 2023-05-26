@@ -45,6 +45,8 @@ jobs:
             echo "Log string not found."
             exit 1  # Consider failing the workflow if the log is not found
           fi
+        working-directory: ./test/typescript-test
+
       
 
       - name: Cypress run
