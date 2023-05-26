@@ -1,5 +1,5 @@
 name: os
-on: [pull_request]
+on: [commit]
 jobs:
   cypress-run:
     runs-on: ${{ matrix.os }}
@@ -29,6 +29,10 @@ jobs:
 
       - name: Install test dependencies
         run: npm install
+        working-directory: ./test
+
+      - name: Install Cypress
+        run: npm install cypress@latest
         working-directory: ./test
 
       - name: Cypress run

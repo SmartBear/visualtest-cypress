@@ -1,5 +1,5 @@
 name: typescript
-on: [pull_request]
+on: [commit]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -25,6 +25,10 @@ jobs:
 
       - name: Install typescript-test dependencies
         run: npm install
+        working-directory: ./test/typescript-test
+
+      - name: Install Cypress
+        run: npm install cypress@latest
         working-directory: ./test/typescript-test
 
       - name: Setup visualtest
