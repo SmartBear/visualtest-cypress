@@ -1,5 +1,5 @@
 name: typescript
-on: [commit]
+on: [push]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
