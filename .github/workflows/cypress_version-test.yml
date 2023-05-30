@@ -1,4 +1,4 @@
-name: version
+name: cypress-version-check
 on: [push]
 jobs:
   cypress-run:

@@ -383,10 +383,15 @@ function makePluginExport() {
             }
         };
         if (pluginModule.exports.e2e) {
+            logger.info(`in pluginModule.exports.e2e - most likely newer version of Cypress (+10) `);
             pluginModule.exports.e2e.setupNodeEvents = setupNodeEvents;
-        } else if (pluginModule.exports.default.e2e) {
+        }
+        else if (pluginModule.exports.default && pluginModule.exports.default.e2e) {
             logger.info(`in pluginModule.exports.default.e2e, due to cypress.config having 'export default defineConfig' - most likely TS `);
             pluginModule.exports.default.e2e.setupNodeEvents = setupNodeEvents;
+        } else {
+            logger.info(`in pluginModule.exports - most likely older version of Cypress (-10) `);
+            pluginModule.exports = setupNodeEvents;
         }
     };
 }

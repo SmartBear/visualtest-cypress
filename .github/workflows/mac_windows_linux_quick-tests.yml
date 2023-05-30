@@ -1,4 +1,4 @@
-name: os
+name: mac-and-windows-check
 on: [push]
 jobs:
   cypress-run:
