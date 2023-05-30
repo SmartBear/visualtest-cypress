@@ -10,8 +10,8 @@ jobs:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [ 1 ]
-#        cypress-version: [9.0.0, 10.11.0, 11.2.0]
-        cypress-version: [11.2.0]
+        cypress-version: [10.11.0, 11.2.0]
+#        cypress-version: [11.2.0]
     #        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout
@@ -29,6 +29,11 @@ jobs:
       - name: Clear Cypress cache
         run: |
           sudo rm -rf $HOME/.cache/Cypress
+          
+
+#       ************
+#      VERSION 10 and above
+#       ************
 
       - name: Install test dependencies
         run: npm install
@@ -36,9 +41,19 @@ jobs:
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
 
       - name: Setup visualtest
-        run: npx visualtest-setup > visualtest-above10-first-logs.txt
-        working-directory: ./test/version-control-test/above10
+        run: npx visualtest-setup > visualtest-first-logs.txt
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
+        working-directory: ./test/version-control-test/above10
+
+      - name: Setup visualtest for second time
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
+        run: npx visualtest-setup > visualtest-second-logs.txt
+        working-directory: ./test/version-control-test/above10
+
+      - name: Verify npx visualtest-setup
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
+        run: npx jest
+        working-directory: ./test/version-control-test/above10
 
       - name: "Install Cypress Version: ${{ matrix.cypress-version }}"
         run: npm install cypress@${{ matrix.cypress-version }}
@@ -46,7 +61,7 @@ jobs:
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
 
       - name: Cypress run
-#        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
         uses: cypress-io/github-action@v5
         with:
           quiet: true
