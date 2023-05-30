@@ -37,7 +37,7 @@ jobs:
 
       - name: Setup visualtest
         run: npx visualtest-setup > visualtest-above10-first-logs.txt
-        working-directory: ./test/typescript-test/above10
+        working-directory: ./test/version-control-test/above10
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
 
       - name: "Install Cypress Version: ${{ matrix.cypress-version }}"
