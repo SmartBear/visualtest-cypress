@@ -45,7 +45,7 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test/version-control-test
+          working-directory: ./test/version-control-test/above10
           spec: cypress/e2e/*
         #          record: true
         #          parallel: true

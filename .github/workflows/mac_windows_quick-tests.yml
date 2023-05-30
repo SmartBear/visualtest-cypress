@@ -1,5 +1,5 @@
 name: mac-and-windows-check
-on: [merge]
+on: [pull_request]
 
 jobs:
   cypress-run:
