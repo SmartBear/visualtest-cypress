@@ -32,7 +32,7 @@ jobs:
           
 
 #       ************
-#      VERSION 10 and above
+#      VERSION 10 and ABOVE
 #       ************
 
       - name: Install test dependencies
@@ -78,3 +78,48 @@ jobs:
           TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
 
 
+      #       ************
+      #      VERSION 7-9
+      #       ************
+
+      - name: Install test dependencies
+        run: npm install
+        working-directory: ./test/version-control-test/below10
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+
+      - name: Setup visualtest
+        run: npx visualtest-setup > visualtest-first-logs.txt
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        working-directory: ./test/version-control-test/below10
+
+      - name: Setup visualtest for second time
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        run: npx visualtest-setup > visualtest-second-logs.txt
+        working-directory: ./test/version-control-test/below10
+
+      - name: Verify npx visualtest-setup
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        run: npx jest
+        working-directory: ./test/version-control-test/below10
+
+      - name: "Install Cypress Version: ${{ matrix.cypress-version }}"
+        run: npm install cypress@${{ matrix.cypress-version }}
+        working-directory: ./test/version-control-test/below10
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+
+      - name: Cypress run
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        uses: cypress-io/github-action@v5
+        with:
+          quiet: true
+          working-directory: ./test/version-control-test/below10
+          spec: cypress/e2e/*
+        #          record: true
+        #          parallel: true
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
