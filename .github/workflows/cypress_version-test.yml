@@ -79,7 +79,7 @@ jobs:
 
 
       #       ************
-      #      VERSION 7-9
+      #      CYPRESS VERSIONS 7-9
       #       ************
 
       - name: Install test dependencies
@@ -113,7 +113,7 @@ jobs:
         with:
           quiet: true
           working-directory: ./test/version-control-test/below10
-          spec: cypress/e2e/*
+          spec: cypress/integration/*
         #          record: true
         #          parallel: true
 
