@@ -1,19 +1,28 @@
-name: Cypress Tests
+name: os
 on: [push]
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
-      fail-fast: true # https://github.com/cypress-io/github-action/issues/48
+      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [ 1 ]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 #        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      #doesn't work on windows
+#      - name: Extract Branch Name and Set Test Run Name
+#        id: set-test-run-name
+#        run: |
+#          BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
+#          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME"
+
 
       - name: Install root dependencies
         run: npm install
@@ -22,7 +31,9 @@ jobs:
         run: npm install
         working-directory: ./test
 
-
+      - name: Install Cypress
+        run: npm install cypress@latest
+        working-directory: ./test
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
@@ -38,5 +49,6 @@ jobs:
 #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
-          TEST_RUN_NAME: github-actions-test
+          TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
+
 

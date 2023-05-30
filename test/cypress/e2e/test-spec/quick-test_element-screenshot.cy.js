@@ -51,6 +51,8 @@ testCases.forEach(currentTestCase => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}
                 currentTestCase.options.saveDOM = true;
+                currentTestCase.options.comparisonMode = 'layout'
+                currentTestCase.options.sensitivity = 'low'
                 cy.wait(1500);
                 if (currentTestCase.actions && currentTestCase.actions.length > 0) {
                     if (currentTestCase.actions[0].action === 'click') {
@@ -66,6 +68,7 @@ testCases.forEach(currentTestCase => {
                         .then((win) => {
                             cy.readFile("./exampleFreezeCarousel.js").then((str) => {
                                 if (insertCustomFreezeScript) win.eval(str);
+
                                 cy.get(currentTestCase.cssSelector).sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
                                     dataFromTest = data;
                                 })

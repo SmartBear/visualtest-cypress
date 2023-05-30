@@ -1,0 +1,61 @@
+name: typescript
+on: [push]
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
+    # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
+    # Also see warning here https://github.com/cypress-io/github-action#parallel
+    strategy:
+      fail-fast: true # https://github.com/cypress-io/github-action/issues/48
+      matrix:
+        containers: [ 1 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Extract Branch Name and Set Test Run Name
+        id: set-test-run-name
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
+          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME" 
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install typescript-test dependencies
+        run: npm install
+        working-directory: ./test/typescript-test
+
+      - name: Install Cypress
+        run: npm install cypress@latest
+        working-directory: ./test/typescript-test
+
+      - name: Setup visualtest
+        run: npx visualtest-setup > visualtest-first-logs.txt
+        working-directory: ./test/typescript-test
+
+      - name: Setup visualtest for second time
+        run: npx visualtest-setup > visualtest-second-logs.txt
+        working-directory: ./test/typescript-test
+
+      - name: Verify npx visualtest-setup
+        run: npx jest
+        working-directory: ./test/typescript-test
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+        with:
+          quiet: true
+          working-directory: ./test/typescript-test
+          spec: cypress/e2e/*
+        #          record: true
+        #          parallel: true
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
+
