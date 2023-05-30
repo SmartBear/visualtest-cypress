@@ -41,11 +41,11 @@ jobs:
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
 
       - name: Cypress run
-        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
+#        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') }}
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test/version-control-test/above10
+          working-directory: ./test/version-control-test
           spec: cypress/e2e/*
         #          record: true
         #          parallel: true
