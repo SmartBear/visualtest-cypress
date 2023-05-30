@@ -29,21 +29,24 @@ jobs:
       - name: Install test dependencies
         run: npm install
         working-directory: ./test/version-control-test/above10
-        if: ${{ startsWith(matrix.cypress-version, '10') }}
+        if: ${{ int(split(matrix.cypress-version, '.')[0]) >= 10 }}
 
 #      - name: Clear Cypress cache
 #        run: |
 #          sudo rm -rf $HOME/.cache/Cypress
 
-      - name: "Install Cypress Version:${{ matrix.cypress-version }}"
+      - name: "Install Cypress Version: ${{ matrix.cypress-version }}"
         run: npm install cypress@${{ matrix.cypress-version }}
+        working-directory: ./test/version-control-test/above10
+        if: ${{ int(split(matrix.cypress-version, '.')[0]) >= 10 }}
 
       - name: Cypress run
+        if: ${{ int(split(matrix.cypress-version, '.')[0]) >= 10 }}
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test
-          spec: cypress/e2e/test-spec/quick-test_*
+          working-directory: ./test/version-control-test/above10
+          spec: cypress/e2e/*
         #          record: true
         #          parallel: true
 
