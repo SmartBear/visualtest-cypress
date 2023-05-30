@@ -19,5 +19,4 @@ import './commands'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-
 import '@smartbear/visualtest-cypress/commands'

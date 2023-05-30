@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cypress": "^7.4.0",
-    "@smartbear/visualtest-cypress": "file:../.."
+    "@smartbear/visualtest-cypress": "file:../../..",
+    "cypress": "^7.4.0"
   }
 }

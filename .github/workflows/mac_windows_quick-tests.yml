@@ -10,7 +10,7 @@ jobs:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [ 1 ]
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest]
 #        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout

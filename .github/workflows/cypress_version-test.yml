@@ -27,7 +27,7 @@ jobs:
 
       - name: Install test dependencies
         run: npm install
-        working-directory: ./test
+        working-directory: ./test/version-control-test/
 
       - name: Clear Cypress cache
         run: |
