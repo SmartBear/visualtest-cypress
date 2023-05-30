@@ -1,5 +1,5 @@
 name: typescript-check
-on: [push]
+on: [merge]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
