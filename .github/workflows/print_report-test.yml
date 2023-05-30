@@ -42,7 +42,10 @@ jobs:
           TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
 
       - name: Display cypress-run-logs.txt
-        run: cat cypress-run-logs.txt
+        run: |
+          echo "here is the ls: "
+          ls
+          cat cypress-run-logs.txt
         working-directory: ./test
 
 
