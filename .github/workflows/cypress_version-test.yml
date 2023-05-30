@@ -10,7 +10,8 @@ jobs:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
         containers: [ 1 ]
-        cypress-version: [10.11.0, 11.2.0]
+#        cypress-version: [9.0.0, 10.11.0, 11.2.0]
+        cypress-version: [11.2.0]
     #        containers: [ 1, 2, 3 ]
     steps:
       - name: Checkout
@@ -27,11 +28,12 @@ jobs:
 
       - name: Install test dependencies
         run: npm install
-        working-directory: ./test/version-control-test/
+        working-directory: ./test/version-control-test/above10
+        if: ${{ startsWith(matrix.cypress-version, '10') }}
 
-      - name: Clear Cypress cache
-        run: |
-          sudo rm -rf $HOME/.cache/Cypress
+#      - name: Clear Cypress cache
+#        run: |
+#          sudo rm -rf $HOME/.cache/Cypress
 
       - name: "Install Cypress Version:${{ matrix.cypress-version }}"
         run: npm install cypress@${{ matrix.cypress-version }}

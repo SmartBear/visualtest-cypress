@@ -20,3 +20,8 @@ test/typescript-test/cypress/videos
 test/version-control-test/below10/cypress/screenshots
 test/version-control-test/below10/cypress/dom
 test/verison-control-test/below10/cypress/videos/
+
+/test/verison-control-test/above10/node_modules/
+test/version-control-test/above10/cypress/screenshots
+test/version-control-test/above10/cypress/dom
+test/verison-control-test/above10/cypress/videos/
