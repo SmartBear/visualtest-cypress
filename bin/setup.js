@@ -71,6 +71,10 @@ const checkForTypeScript = (version10) => {
             console.log(chalk.yellow('TypeScript detected - this currently in beta.'));
         }
     } catch (error) {
+        //TODO look into logging later
+        // logger.debug('Issue with finding file extension, defaulting to ".js".')
+        // logger.debug('Most likely the Cypress project is not set up yet')
+        fileExtension = ".js"
         // error handled later
     }
 }

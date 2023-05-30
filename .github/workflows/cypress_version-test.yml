@@ -1,5 +1,6 @@
-name: version
-on: [push]
+name: cypress-version-check
+#on: [push]
+on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -9,9 +10,8 @@ jobs:
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        containers: [ 1 ]
-        cypress-version: [10.11.0, 11.2.0]
-    #        containers: [ 1, 2, 3 ]
+        cypress-version: [7.4.0, 7.7.0, 8.7.0, 9.7.0, 10.11.0, 11.2.0, 12.13.0]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,23 +25,48 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
-      - name: Install test dependencies
-        run: npm install
-        working-directory: ./test
-
       - name: Clear Cypress cache
         run: |
           sudo rm -rf $HOME/.cache/Cypress
+          
 
-      - name: "Install Cypress Version:${{ matrix.cypress-version }}"
+#       ************
+#      VERSION 10 and ABOVE
+#       ************
+
+      - name: Install test dependencies
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') }}
+        working-directory: ./test/version-control-test/above10
+        run: npm install
+
+      - name: "Install Cypress Version: ${{ matrix.cypress-version }}"
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') }}
+        working-directory: ./test/version-control-test/above10
         run: npm install cypress@${{ matrix.cypress-version }}
 
+      - name: Setup visualtest
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') }}
+        working-directory: ./test/version-control-test/above10
+        run: npx visualtest-setup > visualtest-first-logs.txt
+
+      - name: Setup visualtest for second time
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') }}
+        working-directory: ./test/version-control-test/above10
+        run: npx visualtest-setup > visualtest-second-logs.txt
+
+      - name: Verify npx visualtest-setup
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') }}
+        working-directory: ./test/version-control-test/above10
+        run: npx jest
+
+
       - name: Cypress run
+        if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') }}
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test
-          spec: cypress/e2e/test-spec/quick-test_*
+          working-directory: ./test/version-control-test/above10
+          spec: cypress/e2e/*
         #          record: true
         #          parallel: true
 
@@ -53,3 +78,49 @@ jobs:
           TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
 
 
+      #       ************
+      #      CYPRESS VERSIONS 7-9
+      #       ************
+
+      - name: Install test dependencies
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        working-directory: ./test/version-control-test/below10
+        run: npm install
+
+      - name: "Install Cypress Version: ${{ matrix.cypress-version }}"
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        working-directory: ./test/version-control-test/below10
+        run: npm install cypress@${{ matrix.cypress-version }}
+
+      - name: Setup visualtest
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        working-directory: ./test/version-control-test/below10
+        run: npx visualtest-setup > visualtest-first-logs.txt
+
+      - name: Setup visualtest for second time
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        working-directory: ./test/version-control-test/below10
+        run: npx visualtest-setup > visualtest-second-logs.txt
+
+      - name: Verify npx visualtest-setup
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        working-directory: ./test/version-control-test/below10
+        run: npx jest
+
+
+      - name: Cypress run
+        if: ${{ startsWith(matrix.cypress-version, '7') || startsWith(matrix.cypress-version, '8') || startsWith(matrix.cypress-version, '9') }}
+        uses: cypress-io/github-action@v5
+        with:
+          quiet: true
+          working-directory: ./test/version-control-test/below10
+          spec: cypress/integration/*
+        #          record: true
+        #          parallel: true
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
