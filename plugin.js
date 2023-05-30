@@ -301,58 +301,53 @@ function makeGlobalRunHooks() {
             },
             getToolkit() {
                 return domToolKit;
-            }
-        },
-        'after:run':
-            async () => {
-                if (configFile.fail === false) {
-                    try {
-                        const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
-
-                        const imageCount = imageResponse.data.page.totalItems;
-
-                        // TODO Errors can be caught here when this equals 0...
-
-                        function sleep(ms) {
-                            return new Promise(resolve => setTimeout(resolve, ms));
-                        }
-
-                        // just a delay, for issue with logging not removing the last log properly (race-condition with logs)
-                        if (['info', 'debug', 'trace'].includes(logger.level)) await sleep(1000);
-
-                        process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
-                        console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
-
-
-                        let comparisonResponse;
-                        let comparisonTotal = 0;
-                        for (let i = 0; comparisonTotal !== imageCount && i < 40; i++) { //wait 10 seconds before timeout
-                            if (i > 0) {//don't wait the first iteration
-                                await sleep(250);
-                                process.stdout.write("\r\x1b[K"); //remove last log
-                            }
-                            const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "....";
-                            process.stdout.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`));
-                            comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
-                            comparisonTotal = comparisonResponse.data.comparisons.complete;
-                        }
-                        process.stdout.write("\r\x1b[K"); //remove last log
-                        let comparisonResult = comparisonResponse.data.comparisons;
-
-                        if (comparisonResult.status.new_image) console.log(chalk.yellow(`\t${comparisonResult.status.new_image} new base ${comparisonResult.status.new_image === 1 ? 'image' : 'images'}`));
-                        if (comparisonResult.status.unreviewed) console.log(chalk.red(`\t${comparisonResult.status.unreviewed} image comparison ${comparisonResult.status.unreviewed === 1 ? 'failure' : 'failures'} to review`));
-                        if (comparisonResult.status.passed) console.log(chalk.green(`\t${comparisonResult.status.passed} image ${comparisonResult.status.passed === 1 ? 'comparison' : 'comparisons'} passed`));
-                        if (comparisonTotal !== imageCount) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
-
-                    } catch (error) {
-                        console.error(error);
-                    }
-                } else if (configFile.fail === true) {
-                    logger.fatal('There were issues with VisualTest. Check above logs.');
-                } else {
-                    console.log('There were no VisualTest captures taken.');
-                }
             },
+            async printReportTask() {
+                try {
+                    const imageResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}/images`);
+
+                    const imageCount = imageResponse.data.page.totalItems;
+
+                    // TODO Errors can be caught here when this equals 0...
+
+                    function sleep(ms) {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
+
+                    // just a delay, for issue with logging not removing the last log properly (race-condition with logs)
+                    if (['info', 'debug', 'trace'].includes(logger.level)) await sleep(1000);
+
+                    process.stdout.write(`View your ${imageCount} ${(imageCount === 1 ? 'capture' : 'captures')} here: `);
+                    console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
+
+
+                    let comparisonResponse;
+                    let comparisonTotal = 0;
+                    for (let i = 0; comparisonTotal !== imageCount && i < 40; i++) { //wait 10 seconds before timeout
+                        if (i > 0) {//don't wait the first iteration
+                            await sleep(250);
+                            process.stdout.write("\r\x1b[K"); //remove last log
+                        }
+                        const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "....";
+                        process.stdout.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`));
+                        comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
+                        comparisonTotal = comparisonResponse.data.comparisons.complete;
+                    }
+                    process.stdout.write("\r\x1b[K"); //remove last log
+                    let comparisonResult = comparisonResponse.data.comparisons;
+
+                    if (comparisonResult.status.new_image) console.log(chalk.yellow(`\t${comparisonResult.status.new_image} new base ${comparisonResult.status.new_image === 1 ? 'image' : 'images'}`));
+                    if (comparisonResult.status.unreviewed) console.log(chalk.red(`\t${comparisonResult.status.unreviewed} image comparison ${comparisonResult.status.unreviewed === 1 ? 'failure' : 'failures'} to review`));
+                    if (comparisonResult.status.passed) console.log(chalk.green(`\t${comparisonResult.status.passed} image ${comparisonResult.status.passed === 1 ? 'comparison' : 'comparisons'} passed`));
+                    if (comparisonTotal !== imageCount) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
+
+                    return null;
+                } catch (error) {
+                    console.error(error);
+                    return null;
+                }
+            }
+        }
     };
 }
 
