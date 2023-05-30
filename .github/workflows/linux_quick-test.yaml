@@ -1,6 +1,6 @@
-name: typescript-check
-#on: [push]
-on: [pull_request]
+name: linux-quick-check
+on: [push]
+#on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -9,8 +9,7 @@ jobs:
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
       fail-fast: true # https://github.com/cypress-io/github-action/issues/48
-      matrix:
-        containers: [ 1 ]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,37 +18,25 @@ jobs:
         id: set-test-run-name
         run: |
           BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
-          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME" 
+          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME"
 
       - name: Install root dependencies
         run: npm install
 
-      - name: Install typescript-test dependencies
+      - name: Install test dependencies
         run: npm install
-        working-directory: ./test/typescript-test
+        working-directory: ./test
 
       - name: Install Cypress
         run: npm install cypress@latest
-        working-directory: ./test/typescript-test
-
-      - name: Setup visualtest
-        run: npx visualtest-setup > visualtest-first-logs.txt
-        working-directory: ./test/typescript-test
-
-      - name: Setup visualtest for second time
-        run: npx visualtest-setup > visualtest-second-logs.txt
-        working-directory: ./test/typescript-test
-
-      - name: Verify npx visualtest-setup
-        run: npx jest
-        working-directory: ./test/typescript-test
+        working-directory: ./test
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test/typescript-test
-          spec: cypress/e2e/*
+          working-directory: ./test
+          spec: cypress/e2e/test-spec/quick-test_*
         #          record: true
         #          parallel: true
 

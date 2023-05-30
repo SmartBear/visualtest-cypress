@@ -1,6 +1,6 @@
 name: mac-and-windows-check
-on: [push]
-#on: [pull_request]
+#on: [push]
+on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ${{ matrix.os }}
