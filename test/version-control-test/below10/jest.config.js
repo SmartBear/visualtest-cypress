@@ -2,6 +2,6 @@
 module.exports = {
     // Other Jest configuration options...
     testPathIgnorePatterns: [
-        './cypress/integration/test.spec.js'
+        './cypress/integration/version-control-test.spec.js'
     ]
 };

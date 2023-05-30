@@ -1,13 +1,12 @@
 const testCases = [
     {
-        'name': 'Example1-Original-BrowserTest',
+        'name': 'VersionTest',
         'url': 'https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html',
         'options': {}
     }
 ];
 
-const getDescribeTitle = require('../../../utils/getDescribeTitle');
-const flattenDom = require('../../../utils/falttenDom');
+const getDescribeTitle = require('../../../../utils/getDescribeTitle');
 
 Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from
@@ -25,10 +24,11 @@ testCases.forEach(currentTestCase => {
                 cy.wait(1500);
                 cy.window()
                     .then((win) => {
-                        cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                        cy.readFile("../../exampleFreezeCarousel.js").then((str) => {
                             if (insertCustomFreezeScript) win.eval(str);
-                            cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
+                            cy.sbvtCapture(`${Cypress.version}-${currentTestCase.name}`, currentTestCase.options).then((data) => {
                                 dataFromTest = data;
+                                console.log("dataFromTest: ", dataFromTest);
                             });
                         });
                     });
@@ -50,6 +50,10 @@ testCases.forEach(currentTestCase => {
 
             if (Cypress.browser.displayName.toLowerCase() === "electron") Cypress.browser.displayName = "chrome" //electron is basically chrome
             assert(dataFromTest.imageApiResult.browserName === Cypress.browser.displayName.toLowerCase(), `Browser running and browser name sent on image do not match up - received: ${dataFromTest.imageApiResult.browserName}, running: ${Cypress.browser.displayName}`);
+        });
+
+        it(`imageName should prove it is getting proper Cypress version`, () => {
+            expect(dataFromTest.imageApiResult.imageName).to.include(Cypress.version);
         });
 
     });
