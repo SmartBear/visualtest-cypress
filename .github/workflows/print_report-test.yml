@@ -25,7 +25,7 @@ jobs:
         run: npm install cypress@latest
         working-directory: ./test
 
-      - name: Cypress run > cypress-run-logs.txt
+      - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
           quiet: true
@@ -40,12 +40,4 @@ jobs:
           #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
-
-      - name: Display cypress-run-logs.txt
-        run: |
-          echo "here is the ls: "
-          ls
-          cat cypress-run-logs.txt
-        working-directory: ./test
-
 
