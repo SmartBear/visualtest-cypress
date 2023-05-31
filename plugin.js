@@ -302,39 +302,38 @@ function makeGlobalRunHooks() {
             getToolkit() {
                 return domToolKit;
             },
-            async printReportTask() {
+            async getTestRunResults(timeoutMinutes = 3) {
                 try {
                     let comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
-
-                    process.stdout.write(`View your ${comparisonResponse.data.comparisons.total} ${(comparisonResponse.data.comparisons.total === 1 ? 'capture' : 'captures')} here: `);
-                    console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
 
                     function sleep(ms) {
                         return new Promise(resolve => setTimeout(resolve, ms));
                     }
 
                     let i = 0;
-                    while (comparisonResponse.data.comparisons.pending > 0 && i < 720) {
-                        //timeout after 3 minutes
-                        if (i > 0) {
-                            await sleep(250);
-                            process.stdout.write("\r\x1b[K");
-                        }
-
-                        const state = i % 5 === 0 ? "" : i % 5 === 1 ? "." : i % 5 === 2 ? ".." : i % 5 === 3 ? "..." : "....";
-                        process.stdout.write(chalk.magenta(`\tloading the VisualTest comparison data${state}`));
-
+                    while (comparisonResponse.data.comparisons.pending > 0 && i < (timeoutMinutes * 60) * 4) {
+                        //default timeout after 3 minutes
+                        if (i > 0) await sleep(250);
                         comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
                         i++;
                     }
-                    process.stdout.write("\r\x1b[K"); //remove last log
-
-                    // if (comparisonResponse.data.comparisons.base_image) console.log(chalk.yellow(`\t${comparisonResponse.data.comparisons.base_image} new base ${comparisonResponse.data.comparisons.base_image === 1 ? 'image' : 'images'}`));
-                    if (comparisonResponse.data.comparisons.aggregate.failed) console.log(chalk.red(`\t${comparisonResponse.data.comparisons.aggregate.failed} image comparison ${comparisonResponse.data.comparisons.aggregate.failed === 1 ? 'failure' : 'failures'} to review`));
-                    if (comparisonResponse.data.comparisons.aggregate.passed) console.log(chalk.green(`\t${comparisonResponse.data.comparisons.aggregate.passed} image ${comparisonResponse.data.comparisons.aggregate.passed === 1 ? 'comparison' : 'comparisons'} passed`));
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
                     return comparisonResponse.data.comparisons.aggregate;
+                } catch (error) {
+                    console.error(error);
+                    return error;
+                }
+            },
+            printReport(comparisonResponse) {
+                try {
+                    process.stdout.write(`View your ${comparisonResponse.failed + comparisonResponse.passed} ${(comparisonResponse.failed + comparisonResponse.passed === 1 ? 'capture' : 'captures')} here: `);
+                    console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
+
+                    if (comparisonResponse.failed) console.log(chalk.red(`\t${comparisonResponse.failed} image comparison ${comparisonResponse.failed === 1 ? 'failure' : 'failures'} to review`));
+                    if (comparisonResponse.passed) console.log(chalk.green(`\t${comparisonResponse.passed} image ${comparisonResponse.passed === 1 ? 'comparison' : 'comparisons'} passed`));
+
+                    return comparisonResponse;
                 } catch (error) {
                     console.error(error);
                     return error;

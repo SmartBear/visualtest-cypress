@@ -427,5 +427,11 @@ let getComparisonMode = (layoutMode, sensitivity) => {
 };
 
 Cypress.Commands.add('sbvtPrintReport', options => {
-    cy.task('printReportTask');
+    let results;
+    cy.task('getTestRunResults')
+        .then(data => {
+            cy.task('printReport', data)
+            results = data
+    })
+    return results
 });
