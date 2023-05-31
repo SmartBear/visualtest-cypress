@@ -401,7 +401,6 @@ let getImageById = () => {
             cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
         });
 };
-
 let getComparisonMode = (layoutMode, sensitivity) => {
     layoutData = {};
     if (layoutMode === 'detailed') {
@@ -426,3 +425,13 @@ let getComparisonMode = (layoutMode, sensitivity) => {
         }
     }
 };
+
+Cypress.Commands.add('sbvtPrintReport', options => {
+    let results;
+    cy.task('getTestRunResults')
+        .then(data => {
+            cy.task('printReport', data)
+            results = data
+    })
+    return results
+});
