@@ -304,7 +304,8 @@ function makeGlobalRunHooks() {
             },
             async getTestRunResults(timeoutMinutes = 3) {
                 try {
-                    let comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
+                    let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`
+                    let comparisonResponse = await axios.get(testRunUrl);
 
                     function sleep(ms) {
                         return new Promise(resolve => setTimeout(resolve, ms));
@@ -313,8 +314,7 @@ function makeGlobalRunHooks() {
                     let i = 0;
                     while (comparisonResponse.data.comparisons.pending > 0 && i < (timeoutMinutes * 60) * 4) {
                         //default timeout after 3 minutes
-                        if (i > 0) await sleep(250);
-                        comparisonResponse = await axios.get(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`);
+                        comparisonResponse = await axios.get(testRunUrl);
                         i++;
                     }
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
