@@ -44,7 +44,7 @@ testCases.forEach(currentTestCase => {
 
                 cy.window()
                     .then((win) => {
-                        cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                        cy.readFile("./utils/exampleFreezeCarousel.js").then((str) => {
                             if (insertCustomFreezeScript) win.eval(str);
                             const viewportHeight = win.eval('window.innerHeight')
                             if (currentTestCase.scrollViewport) {

@@ -96,7 +96,7 @@ resolutions.forEach(widthHeight => {
                     cy.wait(1500);
                     cy.window()
                         .then((win) => {
-                            cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                            cy.readFile("./utils/exampleFreezeCarousel.js").then((str) => {
                                 if (insertCustomFreezeScript) win.eval(str);
                                 cy.sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
                                     dataFromTest = data;

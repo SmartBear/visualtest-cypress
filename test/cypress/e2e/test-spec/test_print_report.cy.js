@@ -14,7 +14,7 @@ describe('print-report-check', () => {
 
             cy.window()
                 .then((win) => {
-                    cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                    cy.readFile("./utils/exampleFreezeCarousel.js").then((str) => {
                         if (insertCustomFreezeScript) win.eval(str);
                         cy.sbvtCapture("report-test-1",
                             {
