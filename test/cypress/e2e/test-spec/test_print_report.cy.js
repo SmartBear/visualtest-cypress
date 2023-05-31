@@ -8,6 +8,7 @@ const insertCustomFreezeScript = true;
 let dataFromTest;
 let scrolledTo;
 describe('print-report-check', () => {
+    let reportData;
     it(`should take sbvtCapture`, () => {
         cy.visit("https://smartbear.github.io/visual-testing-example-website/Example1/Original/index.html").then(() => {
 
@@ -27,11 +28,19 @@ describe('print-report-check', () => {
                             {
                                 capture: "viewport"
                             });
-                        cy.sbvtPrintReport()
+                        cy.task('printReportTask').then((printReportResponse) => {
+                            cy.task('log', {message: `comparisonResponse.data.comparisons.aggregate: ${JSON.stringify(printReportResponse)}`});
+
+                            reportData = printReportResponse
+
+                        })
                     });
                 });
 
         });
     });
+    it(`Print report should equal 3`, () => {
+        assert((reportData.passed + reportData.failed) === 3, `issue with cy.task('printReportTask'), (${reportData.passed} + ${reportData.failed}) !== 3`);
+    })
 
 });

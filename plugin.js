@@ -334,10 +334,10 @@ function makeGlobalRunHooks() {
                     if (comparisonResponse.data.comparisons.aggregate.passed) console.log(chalk.green(`\t${comparisonResponse.data.comparisons.aggregate.passed} image ${comparisonResponse.data.comparisons.aggregate.passed === 1 ? 'comparison' : 'comparisons'} passed`));
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
-                    return null;
+                    return comparisonResponse.data.comparisons.aggregate;
                 } catch (error) {
                     console.error(error);
-                    return null;
+                    return error;
                 }
             }
         }
