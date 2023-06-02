@@ -323,7 +323,6 @@ function makeGlobalRunHooks() {
                 };
             },
             async copy({path, imageName, imageType}) {
-                console.log('inside plugins, the path is: ', path);
                 if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`) //copy the final image to debug folder
                 return null
             },
