@@ -54,7 +54,7 @@ resolutions.forEach(widthHeight => {
                 cy.viewport(parseInt(width), parseInt(height))
                 cy.visit(currentTestCase.url).then(() => {
                     currentTestCase.options ? '' : currentTestCase.options = {}
-                    currentTestCase.options. true;
+                    
                     cy.wait(1500);
                     if (currentTestCase.actions && currentTestCase.actions.length > 0) {
                         if (currentTestCase.actions[0].action === 'click') {

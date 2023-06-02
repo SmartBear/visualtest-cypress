@@ -50,7 +50,7 @@ testCases.forEach(currentTestCase => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}
-                currentTestCase.options. true;
+                
                 currentTestCase.options.comparisonMode = 'layout'
                 currentTestCase.options.sensitivity = 'low'
                 cy.wait(1500);
