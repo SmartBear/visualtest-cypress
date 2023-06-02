@@ -10,9 +10,9 @@ const Jimp = require("jimp");
 const os = require('os');
 const pino = require('pino')
 
-const targetArray =   [{ target: 'pino-pretty', level: 'warn' }] //to log below warn uncomment two lines below
+const targetArray =   [{ target: 'pino-pretty', level: 'trace' }] //to log below warn uncomment two lines below
 let logger = pino(pino.transport({targets: targetArray}))
-// logger.level = 'trace' // uncomment if you want to log below 'info'
+logger.level = 'trace' // uncomment if you want to log below 'info'
 
 let usersCypress, env, host, webUrl, cdnUrl, debugFolderPath;
 const sessionId = uuidv4();
@@ -153,13 +153,13 @@ function makeGlobalRunHooks() {
                             logger.warn(`debug already set true, path: ${debugFolderPath}`)
                         } else {
                             debugFolderPath = getDebugFolderPath()
+                            logger.warn(`"DEBUG=TRUE" found in env flag from Cypress. Writing to: ${debugFolderPath}`);
                             configFile.debug = debugFolderPath //overwrite 'true' to the folder path for passing to commands.js
                             fs.mkdirSync(debugFolderPath, { recursive: true });
 
                             targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${debugFolderPath}/debug.log` }});
                             logger = pino(pino.transport({targets: targetArray}))
                             logger.level = 'trace' //required to overwrite default 'info'
-                            logger.info('"DEBUG=TRUE" found in env flag from Cypress');
                         }
                     }
 
