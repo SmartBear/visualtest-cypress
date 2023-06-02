@@ -77,6 +77,7 @@ let configFile = (() => {
                 targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${debugFolderPath}/debug.log` }});
                 logger = pino(pino.transport({targets: targetArray}))
                 logger.level = 'trace' //required to overwrite default 'info'
+                logger.info('"debug: true" found in visualtest.config.js');
             }
 
             if (config.projectToken) {
@@ -146,6 +147,20 @@ function makeGlobalRunHooks() {
                     } catch (error) {
                         //In case of an error do not want to throw an error
                         logger.info("FOR BitBar——issue creating the sessionId file: %o", error);
+                    }
+                    if (fromCommands.envFromCypress.debug) {
+                        if (debugFolderPath) {
+                            logger.warn(`debug already set true, path: ${debugFolderPath}`)
+                        } else {
+                            debugFolderPath = getDebugFolderPath()
+                            configFile.debug = debugFolderPath //overwrite 'true' to the folder path for passing to commands.js
+                            fs.mkdirSync(debugFolderPath, { recursive: true });
+
+                            targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${debugFolderPath}/debug.log` }});
+                            logger = pino(pino.transport({targets: targetArray}))
+                            logger.level = 'trace' //required to overwrite default 'info'
+                            logger.info('"DEBUG=TRUE" found in env flag from Cypress');
+                        }
                     }
 
                     if (fromCommands.envFromCypress.projectToken) {
