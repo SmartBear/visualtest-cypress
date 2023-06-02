@@ -1,6 +1,6 @@
 const axios = require('axios').default;
 const {v4: uuidv4} = require('uuid');
-const fs = require("fs");
+const fs = require("fs-extra");
 const package_json = require('./package.json');
 const cwd = process.cwd();
 const path = require("path");
@@ -14,7 +14,7 @@ const targetArray =   [{ target: 'pino-pretty', level: 'warn' }] //to log below 
 let logger = pino(pino.transport({targets: targetArray}))
 // logger.level = 'trace' // uncomment if you want to log below 'info'
 
-let usersCypress, env, host, webUrl, cdnUrl;
+let usersCypress, env, host, webUrl, cdnUrl, debugFolderPath;
 const sessionId = uuidv4();
 
 try {
@@ -57,7 +57,7 @@ let getDebugFolderPath = () => {
     const seconds = currentDate.getSeconds().toString().padStart(2, '0');
 
     const formattedString = `${month}-${day}_${hours}-${minutes}-${seconds}`;
-    return `sbvt_debug/${formattedString}_${sessionId}`
+    return debugFolderPath = `sbvt_debug/${formattedString}_${sessionId}`
 };
 
 let configFile = (() => {
@@ -263,12 +263,20 @@ function makeGlobalRunHooks() {
                 const bottomImagePath = `${folderPath}/${files.length - 1}.png`;
                 const bottomImage = await Jimp.read(bottomImagePath);
                 logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`);
-                // bottomImage.resize(viewportWidth, Jimp.AUTO) //resize (causes issue with retina display)
+
+                if (configFile.debug) {
+                    //copy last image before cropping or deletion
+                    const lastImageFileName = path.parse(path.basename(bottomImagePath)).name; //get the last image name without extension
+                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullpage/${lastImageFileName}-raw.png`)
+                }
+
                 if (viewportHeight - toBeCropped !== 0) {
+                    // cropping last image
                     bottomImage.crop(0, 0, viewportWidth, viewportHeight - toBeCropped);
                     logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`);
-                    bottomImage.write(`${folderPath}/${files.length - 1}.png`); //overwrite the file
+                    await bottomImage.writeAsync(`${folderPath}/${files.length - 1}.png`); //overwrite the file
                 } else {
+                    //deleting last image
                     logger.info(`stopped the cropping because: viewportHeight-toBeCropped = 0, removing the image at: ${bottomImagePath}`);
                     fs.unlinkSync(bottomImagePath);
                     files = fs.readdirSync(folderPath); //reading this folder again since an image has been deleted
@@ -282,13 +290,15 @@ function makeGlobalRunHooks() {
                 }
 
                 // remove the old viewport images
+                if (configFile.debug) await fs.copy(folderPath, `${debugFolderPath}/${imageName}-fullpage`)
                 const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
-                fs.rmSync(deleteFolder, {recursive: true, force: true}); // comment this out to check viewports before stitched together
+                fs.rmSync(deleteFolder, {recursive: true, force: true}); // comment this out to check viewports before stitched together, can be sync
                 logger.debug(`removed the folder at: ${deleteFolder}`);
 
                 // write the new image to the users screenshot folder
                 const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf(path.sep))}/${imageName}.png`;
-                newImage.write(userPath);
+                await newImage.writeAsync(userPath)
+                if (configFile.debug) fs.copy(userPath, `${debugFolderPath}/${imageName}-fullpage/${imageName}.png`) //copy the final image to debug folder
                 logger.debug(`new stitched image has been written at: ${userPath}`);
                 return {
                     height: newImage.bitmap.height,
