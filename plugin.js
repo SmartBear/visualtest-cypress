@@ -10,9 +10,9 @@ const Jimp = require("jimp");
 const os = require('os');
 const pino = require('pino')
 
-const targetArray =   [{ target: 'pino-pretty', level: 'trace' }] //to log below warn uncomment two lines below
+const targetArray =   [{ target: 'pino-pretty', level: 'warn' }] //to log below warn uncomment two lines below
 let logger = pino(pino.transport({targets: targetArray}))
-logger.level = 'trace' // uncomment if you want to log below 'info'
+// logger.level = 'trace' // uncomment if you want to log below 'info'
 
 let usersCypress, env, host, webUrl, cdnUrl, debugFolderPath;
 const sessionId = uuidv4();
