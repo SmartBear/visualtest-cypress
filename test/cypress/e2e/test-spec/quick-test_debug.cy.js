@@ -60,7 +60,7 @@ describe('debug folder test', () => {
     // JS_SCROLL debug check
     it(`Should check JS_SCROLL-fullpage dom capture`, () => {
 
-        cy.exec(`ls ${directoryPath}/debug-default-fullpage-fullpage`).then((result) => {
+        cy.exec(`ls ${directoryPath}/`).then((result) => {
             const fileList = result.stdout;
 
             cy.task('logger', {type: 'warn', message: result});
