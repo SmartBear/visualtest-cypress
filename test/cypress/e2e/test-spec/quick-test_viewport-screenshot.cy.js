@@ -38,7 +38,7 @@ testCases.forEach(currentTestCase => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 if (currentTestCase.options.viewport) currentTestCase.options.capture = 'viewport'
-                currentTestCase.options.saveDOM = true;
+                currentTestCase.options.debug = true;
 
                 cy.wait(1500);
 
