@@ -42,7 +42,7 @@ resolutions.forEach(widthHeight => {
                 cy.viewport(parseInt(width), parseInt(height))
                 cy.visit(currentTestCase.url).then(() => {
                     if (currentTestCase.options.viewport) currentTestCase.options.capture = 'viewport'
-                    currentTestCase.options.debug = true;
+                    currentTestCase.options. true;
 
                     cy.wait(1500);
 

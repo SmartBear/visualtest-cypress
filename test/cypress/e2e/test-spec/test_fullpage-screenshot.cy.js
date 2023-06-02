@@ -92,7 +92,7 @@ resolutions.forEach(widthHeight => {
             it(`should take sbvtCapture`, () => {
                 cy.viewport(parseInt(width), parseInt(height))
                 cy.visit(currentTestCase.url).then(() => {
-                    currentTestCase.options.debug = true;
+                    currentTestCase.options. true;
                     cy.wait(1500);
                     cy.window()
                         .then((win) => {

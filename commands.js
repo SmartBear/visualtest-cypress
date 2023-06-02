@@ -39,8 +39,9 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
         .then(win => {
             userAgentData = win.eval(toolkitScripts.userAgent);
             const envFromCypress = {
-                testRunName: Cypress.env('TEST_RUN_NAME'),
-                projectToken: Cypress.env('PROJECT_TOKEN')
+                testRunName: Cypress.env('TEST_RUN_NAME') || Cypress.env('test_run_name'),
+                projectToken: Cypress.env('PROJECT_TOKEN') || Cypress.env('project_token'),
+                debug: Cypress.env('DEBUG') || Cypress.env('debug')
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data

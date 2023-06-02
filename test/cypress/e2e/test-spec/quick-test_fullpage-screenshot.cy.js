@@ -88,7 +88,7 @@ testCases.forEach(currentTestCase => {
     describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
-                currentTestCase.options.debug = true;
+                currentTestCase.options. true;
                 cy.wait(1500);
                 cy.window()
                     .then((win) => {
