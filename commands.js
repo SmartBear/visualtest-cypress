@@ -15,7 +15,7 @@ const headers = {
 };
 
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData;
+    fullpageData, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
@@ -96,7 +96,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             // Put the ignoredElements that the user gave us on the browsers window for the domCapture script to read them
             win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`);
         }
-        modifiedOptions.saveDOM === true ? saveDOM = name : saveDOM = false;
         modifiedOptions.freezePage !== false ? runFreezePage = true : runFreezePage = false;
         if (!modifiedOptions.lazyload && runFreezePage) {
             cy.task('logger', {type: 'debug', message: `running freezePage at the beginning.`});
@@ -381,11 +380,11 @@ let captureDom = (win) => {
     const megabytes = ((new TextEncoder().encode(JSON.stringify(dom)).byteLength) / 1048576);
     cy.task('logger', {type: "info", message: `${imageName} dom size: ${megabytes.toFixed(4)} MB`});
 
-    // Return and write the dom if the "saveDOM: true" flag is thrown
-    if (saveDOM) {
+    if (vtConfFile.debug) {
+        // Return and write the dom if the "debug: true" flag is thrown
         apiRes.dom = dom;
-        cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
-        cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom);
+        cy.task('logger', {type: 'info', message: `dom has been saved to: "./${vtConfFile.debug}/${imageName}.json"`});
+        cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
 let getImageById = () => {

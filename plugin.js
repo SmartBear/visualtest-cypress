@@ -57,7 +57,7 @@ let getDebugFolderPath = () => {
     const seconds = currentDate.getSeconds().toString().padStart(2, '0');
 
     const formattedString = `${month}-${day}_${hours}-${minutes}-${seconds}`;
-    return debugFolderPath = `sbvt_debug/${formattedString}_${sessionId}`
+    return `sbvt_debug/${formattedString}_${sessionId}`
 };
 
 let configFile = (() => {
@@ -70,13 +70,13 @@ let configFile = (() => {
             config = {...require(fullPath)}; //write the VT config file into config object
 
             if (config.debug) {
-                const filePath = getDebugFolderPath()
-                fs.mkdirSync(filePath, { recursive: true });
+                debugFolderPath = getDebugFolderPath()
+                config.debug = debugFolderPath //overwrite 'true' to the folder path for passing to commands.js
+                fs.mkdirSync(debugFolderPath, { recursive: true });
 
-                targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${filePath}/debug.log` }});
+                targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${debugFolderPath}/debug.log` }});
                 logger = pino(pino.transport({targets: targetArray}))
                 logger.level = 'trace' //required to overwrite default 'info'
-
             }
 
             if (config.projectToken) {
@@ -339,6 +339,7 @@ function makeGlobalRunHooks() {
                     while (comparisonResponse.data.comparisons.pending > 0 && i < (timeoutMinutes * 60) * 4) {
                         //default timeout after 3 minutes
                         comparisonResponse = await axios.get(testRunUrl);
+                        await sleep(250)
                         i++;
                     }
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
