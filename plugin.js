@@ -148,13 +148,13 @@ function makeGlobalRunHooks() {
                         //In case of an error do not want to throw an error
                         logger.info("FOR BitBar——issue creating the sessionId file: %o", error);
                     }
-                    console.log("fromCommands.envFromCypress: ",fromCommands.envFromCypress); //todo remove testing guthub actions
-                    if (fromCommands.envFromCypress.debug) {
+                    if (fromCommands.envFromCypress.debug || process.env.DEBUG) {
+                        logger.warn(`debug flag found on ${fromCommands.envFromCypress.debug ? `CLI ENV` : `process.env` }`)
                         if (debugFolderPath) {
-                            logger.warn(`debug already set true, path: ${debugFolderPath}`)
+                            logger.warn(`debug ALREADY set true, path: ${debugFolderPath}`)
                         } else {
                             debugFolderPath = getDebugFolderPath()
-                            logger.warn(`"DEBUG=TRUE" found in env flag from Cypress. Writing to: ${debugFolderPath}`);
+                            logger.info(`debug logs started: ${debugFolderPath}`);
                             configFile.debug = debugFolderPath //overwrite 'true' to the folder path for passing to commands.js
                             fs.mkdirSync(debugFolderPath, { recursive: true });
 
