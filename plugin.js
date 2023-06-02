@@ -148,6 +148,7 @@ function makeGlobalRunHooks() {
                         //In case of an error do not want to throw an error
                         logger.info("FOR BitBar——issue creating the sessionId file: %o", error);
                     }
+                    console.log("fromCommands.envFromCypress: ",fromCommands.envFromCypress); //todo remove testing guthub actions
                     if (fromCommands.envFromCypress.debug) {
                         if (debugFolderPath) {
                             logger.warn(`debug already set true, path: ${debugFolderPath}`)
@@ -320,6 +321,11 @@ function makeGlobalRunHooks() {
                     width: newImage.bitmap.width,
                     path: userPath
                 };
+            },
+            async copy({path, imageName, imageType}) {
+                console.log('inside plugins, the path is: ', path);
+                if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`) //copy the final image to debug folder
+                return null
             },
             async logger({type, message}) { //this task is for printing logs to node console from the custom command
                 type === 'fatal' ? logger.fatal(message) :
