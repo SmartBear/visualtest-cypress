@@ -8,10 +8,10 @@ const chalk = require('chalk');
 require('dotenv').config();
 const Jimp = require("jimp");
 const os = require('os');
-const pino = require('pino')
+const pino = require('pino');
 
-const targetArray =   [{ target: 'pino-pretty', level: 'warn' }] //to log below warn uncomment two lines below
-let logger = pino(pino.transport({targets: targetArray}))
+const targetArray = [{target: 'pino-pretty', level: 'warn'}]; //to log below warn uncomment two lines below
+let logger = pino(pino.transport({targets: targetArray}));
 // logger.level = 'trace' // uncomment if you want to log below 'info'
 
 let usersCypress, env, host, webUrl, cdnUrl, debugFolderPath;
@@ -57,7 +57,7 @@ let getDebugFolderPath = () => {
     const seconds = currentDate.getSeconds().toString().padStart(2, '0');
 
     const formattedString = `${month}-${day}_${hours}-${minutes}-${seconds}`;
-    return `sbvt_debug/${formattedString}_${sessionId}`
+    return `sbvt_debug/${formattedString}_${sessionId}`;
 };
 
 let configFile = (() => {
@@ -70,13 +70,13 @@ let configFile = (() => {
             config = {...require(fullPath)}; //write the VT config file into config object
 
             if (config.debug) {
-                debugFolderPath = getDebugFolderPath()
-                config.debug = debugFolderPath //overwrite 'true' to the folder path for passing to commands.js
-                fs.mkdirSync(debugFolderPath, { recursive: true });
+                debugFolderPath = getDebugFolderPath();
+                config.debug = debugFolderPath; //overwrite 'true' to the folder path for passing to commands.js
+                fs.mkdirSync(debugFolderPath, {recursive: true});
 
-                targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${debugFolderPath}/debug.log` }});
-                logger = pino(pino.transport({targets: targetArray}))
-                logger.level = 'trace' //required to overwrite default 'info'
+                targetArray.push({target: './debug-pino-transport.js', level: 'trace', options: {destination: `${debugFolderPath}/debug.log`}});
+                logger = pino(pino.transport({targets: targetArray}));
+                logger.level = 'trace'; //required to overwrite default 'info'
                 logger.info('"debug: true" found in visualtest.config.js');
             }
 
@@ -149,18 +149,18 @@ function makeGlobalRunHooks() {
                         logger.info("FOR BitBar——issue creating the sessionId file: %o", error);
                     }
                     if (fromCommands.envFromCypress.debug || process.env.DEBUG) {
-                        logger.warn(`debug flag found on ${fromCommands.envFromCypress.debug ? `CLI ENV` : `process.env` }`)
+                        logger.warn(`debug flag found on ${fromCommands.envFromCypress.debug ? `CLI ENV` : `process.env`}`);
                         if (debugFolderPath) {
-                            logger.warn(`debug ALREADY set true, path: ${debugFolderPath}`)
+                            logger.warn(`debug ALREADY set true, path: ${debugFolderPath}`);
                         } else {
-                            debugFolderPath = getDebugFolderPath()
+                            debugFolderPath = getDebugFolderPath();
                             logger.info(`debug logs started: ${debugFolderPath}`);
-                            configFile.debug = debugFolderPath //overwrite 'true' to the folder path for passing to commands.js
-                            fs.mkdirSync(debugFolderPath, { recursive: true });
+                            configFile.debug = debugFolderPath; //overwrite 'true' to the folder path for passing to commands.js
+                            fs.mkdirSync(debugFolderPath, {recursive: true});
 
-                            targetArray.push({ target: './debug-pino-transport.js', level: 'trace', options: { destination: `${debugFolderPath}/debug.log` }});
-                            logger = pino(pino.transport({targets: targetArray}))
-                            logger.level = 'trace' //required to overwrite default 'info'
+                            targetArray.push({target: './debug-pino-transport.js', level: 'trace', options: {destination: `${debugFolderPath}/debug.log`}});
+                            logger = pino(pino.transport({targets: targetArray}));
+                            logger.level = 'trace'; //required to overwrite default 'info'
                         }
                     }
 
@@ -283,7 +283,7 @@ function makeGlobalRunHooks() {
                 if (configFile.debug) {
                     //copy last image before cropping or deletion
                     const lastImageFileName = path.parse(path.basename(bottomImagePath)).name; //get the last image name without extension
-                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-raw.png`)
+                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-raw.png`);
                 }
 
                 if (viewportHeight - toBeCropped !== 0) {
@@ -306,15 +306,15 @@ function makeGlobalRunHooks() {
                 }
 
                 // remove the old viewport images
-                if (configFile.debug) await fs.copy(folderPath, `${debugFolderPath}/${imageName}-fullPage`)
+                if (configFile.debug) await fs.copy(folderPath, `${debugFolderPath}/${imageName}-fullPage`);
                 const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
                 fs.rmSync(deleteFolder, {recursive: true, force: true}); // comment this out to check viewports before stitched together, can be sync
                 logger.debug(`removed the folder at: ${deleteFolder}`);
 
                 // write the new image to the users screenshot folder
                 const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf(path.sep))}/${imageName}.png`;
-                await newImage.writeAsync(userPath)
-                if (configFile.debug) fs.copy(userPath, `${debugFolderPath}/${imageName}-fullPage/${imageName}.png`) //copy the final image to debug folder
+                await newImage.writeAsync(userPath);
+                if (configFile.debug) fs.copy(userPath, `${debugFolderPath}/${imageName}-fullPage/${imageName}.png`); //copy the final image to debug folder
                 logger.debug(`new stitched image has been written at: ${userPath}`);
                 return {
                     height: newImage.bitmap.height,
@@ -323,8 +323,8 @@ function makeGlobalRunHooks() {
                 };
             },
             async copy({path, imageName, imageType}) {
-                if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`) //copy the final image to debug folder
-                return null
+                if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`); //copy the final image to debug folder
+                return null;
             },
             async logger({type, message}) { //this task is for printing logs to node console from the custom command
                 type === 'fatal' ? logger.fatal(message) :
@@ -348,7 +348,7 @@ function makeGlobalRunHooks() {
             },
             async getTestRunResults(timeoutMinutes = 3) {
                 try {
-                    let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`
+                    let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`;
                     let comparisonResponse = await axios.get(testRunUrl);
 
                     function sleep(ms) {
@@ -359,7 +359,7 @@ function makeGlobalRunHooks() {
                     while (comparisonResponse.data.comparisons.pending > 0 && i < (timeoutMinutes * 60) * 4) {
                         //default timeout after 3 minutes
                         comparisonResponse = await axios.get(testRunUrl);
-                        await sleep(250)
+                        await sleep(250);
                         i++;
                     }
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
@@ -417,8 +417,7 @@ function makePluginExport() {
         if (pluginModule.exports.e2e) {
             logger.info(`in pluginModule.exports.e2e - most likely newer version of Cypress (+10) `);
             pluginModule.exports.e2e.setupNodeEvents = setupNodeEvents;
-        }
-        else if (pluginModule.exports.default && pluginModule.exports.default.e2e) {
+        } else if (pluginModule.exports.default && pluginModule.exports.default.e2e) {
             logger.info(`in pluginModule.exports.default.e2e, due to cypress.config having 'export default defineConfig' - most likely TS `);
             pluginModule.exports.default.e2e.setupNodeEvents = setupNodeEvents;
         } else {

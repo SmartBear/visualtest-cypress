@@ -116,7 +116,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
             imageType = 'element'
         ).then(() => {
-            if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
+            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             captureDom(win);
             readImageAndBase64ToBlob();
         });
@@ -128,7 +128,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             name,
             modifiedOptions,
         ).then(() => {
-            if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
+            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             captureDom(win);
             readImageAndBase64ToBlob();
         });
@@ -265,7 +265,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             name,
             modifiedOptions,
         ).then(() => {
-            if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
+            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             // Translate to the top of the page and then capture the dom
             win.eval(`document.body.style.transform="translateY(0)"`);
             captureDom(win);
@@ -401,8 +401,8 @@ let getImageById = () => {
     })
         .then((res) => {
             let responseObj = {};
-            responseObj.testRunId = vtConfFile.testRunId
-            responseObj.imageId = res.body.items[0].imageId
+            responseObj.testRunId = vtConfFile.testRunId;
+            responseObj.imageId = res.body.items[0].imageId;
             responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
             console.log('Successfully uploaded:', res.body.items[0].imageName, responseObj);
             cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
@@ -437,8 +437,8 @@ Cypress.Commands.add('sbvtPrintReport', options => {
     let results;
     cy.task('getTestRunResults')
         .then(data => {
-            cy.task('printReport', data)
-            results = data
-    })
-    return results
+            cy.task('printReport', data);
+            results = data;
+        });
+    return results;
 });
