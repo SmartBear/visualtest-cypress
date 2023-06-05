@@ -116,6 +116,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
             imageType = 'element'
         ).then(() => {
+            cy.task('logger', {type: 'error', message: `picProps.path: ${picProps.path}, imageName: ${imageName}, imageType: ${imageType}`});
+
             if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
             captureDom(win);
             readImageAndBase64ToBlob();
