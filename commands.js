@@ -262,11 +262,13 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
             cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
         }
+
+        // Old/default Cypress screenshot / JS_SCROLL screenshot
         cy.screenshot(
             name,
             modifiedOptions,
         ).then(() => {
-            cy.task('logger', {type: 'error', message: `picProps.path: ${picProps.path}, imageName: ${imageName}, imageType: ${imageType}`});
+            cy.task('logger', {type: 'error', message: `JS_SCROLL picProps.path: ${picProps.path}, imageName: ${imageName}, imageType: ${imageType}`});
             if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
             // Translate to the top of the page and then capture the dom
             win.eval(`document.body.style.transform="translateY(0)"`);
