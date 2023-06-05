@@ -10,7 +10,7 @@ Cypress.on('uncaught:exception', () => {
 
 describe('debug folder test', () => {
     let url = "https://smartbear.github.io/visual-testing-example-website/Example4/Original/login.html"
-    it(`should take sbvtCapture`, () => {
+    it(`should take all the sbvtCaptures`, () => {
         cy.visit(url).then(() => {
             cy.sbvtCapture("debug-viewport",
                 {
@@ -38,17 +38,19 @@ describe('debug folder test', () => {
 
     //log file check
     it(`Should check for logs`, () => {
+        cy.exec(`ls ${directoryPath}/`).then((result) => {
+            const fileList = result.stdout;
+            cy.task('logger', {type: 'warn', message: `this is before log check`});
+            cy.task('logger', {type: 'warn', message: result.stdout});
+        });
         cy.readFile(`${directoryPath}/debug.log`).then((logFile) => {
-            // cy.task('log', {message: logFile.length});
-            assert(logFile.length > 8000, `length not greater than 8000, the logFile.length was: ${logFile.length}, this seems too small, it was 8465 when I tested myself `)
+           assert(logFile.length > 8000, `length not greater than 8000, the logFile.length was: ${logFile.length}, this seems too small, it was 8465 when I tested myself `)
         });
     })
 
     //viewport image debug check
     it(`Should check viewport dom capture`, () => {
         cy.readFile(`${directoryPath}/debug-viewport-viewport/debug-viewport.json`).then((jsonFile) => {
-            // cy.task('log', {type: 'warn', message: jsonFile});
-
             assert(jsonFile.error === false, 'DOM capture has an error');
             assert(jsonFile.url === url, 'Urls did not match');
         });
@@ -59,22 +61,7 @@ describe('debug folder test', () => {
 
     // JS_SCROLL debug check
     it(`Should check JS_SCROLL-fullpage dom capture`, () => {
-
-        cy.exec(`ls ${directoryPath}/`).then((result) => {
-            const fileList = result.stdout;
-
-            cy.task('logger', {type: 'warn', message: result});
-            cy.task('logger', {type: 'warn', message: result.stdout});
-
-            // Perform assertions on the file list
-            // expect(fileList).to.contain('file1.txt');
-            // expect(fileList).to.contain('file2.jpg');
-            // ...
-        });
-
         cy.readFile(`${directoryPath}/debug-default-fullpage-fullpage/debug-default-fullpage.json`).then((jsonFile) => {
-            // cy.task('log', {type: 'warn', message: jsonFile});
-
             assert(jsonFile.error === false, 'DOM capture has an error');
             assert(jsonFile.url === url, 'Urls did not match');
         });
@@ -86,8 +73,6 @@ describe('debug folder test', () => {
     // element capture test
     it(`Should check element dom capture`, () => {
         cy.readFile(`${directoryPath}/debug-element-element/debug-element.json`).then((jsonFile) => {
-            // cy.task('log', {type: 'warn', message: jsonFile});
-
             assert(jsonFile.error === false, 'DOM capture has an error');
             assert(jsonFile.url === url, 'Urls did not match');
         });
@@ -100,8 +85,6 @@ describe('debug folder test', () => {
     // sbvtCapture fullpage
     it(`Should check fullpage dom capture`, () => {
         cy.readFile(`${directoryPath}/debug-fullpage-fullpage/debug-fullpage.json`).then((jsonFile) => {
-            // cy.task('log', {type: 'warn', message: jsonFile});
-
             assert(jsonFile.error === false, 'DOM capture has an error');
             assert(jsonFile.url === url, 'Urls did not match');
         });
