@@ -10,6 +10,7 @@ test/cypress/videos
 test/cypress/e2e/*
 !test/cypress/e2e/test-spec/
 test/mochawesome-report
+test/sbvt_debug
 
 test/typescript-test/node_modules
 test/typescript-test/cypress/screenshots

@@ -12,6 +12,7 @@
     "axios": "^1.4.0",
     "chalk": "^4.1.2",
     "dotenv": "^16.1.4",
+    "fs-extra": "^11.1.1",
     "jimp": "^0.22.8",
     "pino": "^8.14.1",
     "pino-pretty": "^10.0.0",
@@ -33,6 +34,7 @@
     "package.json",
     "plugin.js",
     "commands.js",
-    "LICENSE"
+    "LICENSE",
+    "debug-pino-transport.js"
   ]
 }

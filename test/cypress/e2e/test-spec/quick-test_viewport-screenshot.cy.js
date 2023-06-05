@@ -38,13 +38,13 @@ testCases.forEach(currentTestCase => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 if (currentTestCase.options.viewport) currentTestCase.options.capture = 'viewport'
-                currentTestCase.options.saveDOM = true;
+                
 
                 cy.wait(1500);
 
                 cy.window()
                     .then((win) => {
-                        cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                        cy.readFile("./utils/exampleFreezeCarousel.js").then((str) => {
                             if (insertCustomFreezeScript) win.eval(str);
                             const viewportHeight = win.eval('window.innerHeight')
                             if (currentTestCase.scrollViewport) {
