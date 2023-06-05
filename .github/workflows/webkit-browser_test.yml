@@ -27,31 +27,23 @@ jobs:
 
       - name: Install test dependencies
         run: npm install
-        working-directory: ./test
+        working-directory: ./test/webkit-test
 
       - name: Install webkit
         if: ${{ startsWith(matrix.browser, 'webkit') }}
         run: npm install playwright-webkit
-        working-directory: ./test
-
-      - name: Install Chrome Beta
-        if: ${{ startsWith(matrix.browser, 'chrome') }}
-        run: |
-          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
-          sudo apt-get update
-          sudo apt-get install google-chrome-beta
+        working-directory: ./test/webkit-test
 
       - name: Install Cypress
         run: npm install cypress@latest
-        working-directory: ./test
+        working-directory: ./test/webkit-test
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
           quiet: true
-          working-directory: ./test
-          spec: cypress/e2e/test-spec/quick-test_*
+          working-directory: ./test/webkit-test
+          spec: cypress/e2e/*
           browser: ${{ matrix.browser }}
         #          record: true
         #          parallel: true
