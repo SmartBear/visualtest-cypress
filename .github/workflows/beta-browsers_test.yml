@@ -19,10 +19,12 @@ jobs:
       - name: Install Firefox Beta
         if: ${{ startsWith(matrix.browser, 'firefox') }}
         run: |
-          curl -L -o firefox.tar.bz2 'https://download.mozilla.org/?product=firefox-beta-latest&os=linux64&lang=en-US'
-          tar xjf firefox.tar.bz2
-          sudo mv firefox /opt/firefox-beta
-          echo 'export PATH="/opt/firefox-beta:$PATH"' >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget -O firefox.tar.bz2 'https://download.mozilla.org/?product=firefox-beta-latest&os=linux64&lang=en-US'
+          tar xvjf firefox.tar.bz2 -C $HOME
+          echo 'export PATH="$HOME/firefox:$PATH"' >> $HOME/.bashrc
+          source $HOME/.bashrc
 
       - name: Install Chrome Beta
         if: ${{ startsWith(matrix.browser, 'chrome') }}
