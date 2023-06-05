@@ -3,14 +3,14 @@ on: [push]
 #on: [pull_request]
 jobs:
   cypress-run:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        browser: [ firefox, chrome, 'chrome:beta', edge ]
+        browser: [ firefox, chrome, 'chrome:beta', edge, webkit ]
 
     steps:
       - name: Checkout code
@@ -27,6 +27,11 @@ jobs:
 
       - name: Install test dependencies
         run: npm install
+        working-directory: ./test
+
+      - name: Install webkit
+        if: ${{ startsWith(matrix.browser, 'webkit') }}
+        run: npm install playwright-webkit
         working-directory: ./test
 
       - name: Install Chrome Beta

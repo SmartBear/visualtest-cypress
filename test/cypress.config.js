@@ -5,6 +5,7 @@ const generateReports = require("./utils/generateReports")
 
 
 module.exports = defineConfig({
+    experimentalWebKitSupport: true,
     // viewportWidth: 1920,
     // viewportHeight: 1080,
     reporterOptions: {
@@ -17,7 +18,6 @@ module.exports = defineConfig({
     video: false,
     e2e: {
         setupNodeEvents(on) {
-
             on('before:run', (results) => {
                 if (results.config.reporter === "mochawesome") {
                     deletePastReports()
