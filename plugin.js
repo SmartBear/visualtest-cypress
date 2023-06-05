@@ -283,7 +283,7 @@ function makeGlobalRunHooks() {
                 if (configFile.debug) {
                     //copy last image before cropping or deletion
                     const lastImageFileName = path.parse(path.basename(bottomImagePath)).name; //get the last image name without extension
-                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullpage/${lastImageFileName}-raw.png`)
+                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-raw.png`)
                 }
 
                 if (viewportHeight - toBeCropped !== 0) {
@@ -306,7 +306,7 @@ function makeGlobalRunHooks() {
                 }
 
                 // remove the old viewport images
-                if (configFile.debug) await fs.copy(folderPath, `${debugFolderPath}/${imageName}-fullpage`)
+                if (configFile.debug) await fs.copy(folderPath, `${debugFolderPath}/${imageName}-fullPage`)
                 const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
                 fs.rmSync(deleteFolder, {recursive: true, force: true}); // comment this out to check viewports before stitched together, can be sync
                 logger.debug(`removed the folder at: ${deleteFolder}`);
@@ -314,7 +314,7 @@ function makeGlobalRunHooks() {
                 // write the new image to the users screenshot folder
                 const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf(path.sep))}/${imageName}.png`;
                 await newImage.writeAsync(userPath)
-                if (configFile.debug) fs.copy(userPath, `${debugFolderPath}/${imageName}-fullpage/${imageName}.png`) //copy the final image to debug folder
+                if (configFile.debug) fs.copy(userPath, `${debugFolderPath}/${imageName}-fullPage/${imageName}.png`) //copy the final image to debug folder
                 logger.debug(`new stitched image has been written at: ${userPath}`);
                 return {
                     height: newImage.bitmap.height,

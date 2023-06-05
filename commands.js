@@ -259,6 +259,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
             cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
         }
+
+        // Old/default Cypress screenshot / JS_SCROLL screenshot
         cy.screenshot(
             name,
             modifiedOptions,
@@ -301,11 +303,11 @@ let sendImageApiJSON = () => {
         comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
         sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
-
     };
+
     Object.assign(imagePostData, deviceInfoResponse);
-    // Overwrite because Cypress is more reliable
-    imagePostData.browserVersion = Cypress.browser.majorVersion;
+
+    imagePostData.browserVersion = Cypress.browser.majorVersion;  // Overwrite because Cypress is more reliable
 
     apiRes.screenshotResult = {
         imagePath: picProps.path,
