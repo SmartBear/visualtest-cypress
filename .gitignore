@@ -16,6 +16,11 @@ test/typescript-test/cypress/screenshots
 test/typescript-test/cypress/dom
 test/typescript-test/cypress/videos
 
+test/webkit-test/node_modules
+test/webkit-test/cypress/screenshots
+test/webkit-test/cypress/dom
+test/webkit-test/cypress/videos
+
 test/version-control-test/below10/node_modules/
 test/version-control-test/below10/cypress/screenshots
 test/version-control-test/below10/cypress/dom
