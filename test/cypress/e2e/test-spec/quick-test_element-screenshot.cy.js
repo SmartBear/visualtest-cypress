@@ -48,6 +48,8 @@ testCases.forEach(currentTestCase => {
     let dataFromTest;
     describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
         it(`should take sbvtCapture`, () => {
+            cy.task('logger', {type: 'error', message: `The available browsers are: ${JSON.stringify(Cypress.browser)}')`});
+
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}
                 currentTestCase.options.saveDOM = true;
