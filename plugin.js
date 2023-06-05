@@ -190,6 +190,7 @@ function makeGlobalRunHooks() {
                             osPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
                         }
                         const str = fromCommands.userAgentData.browserName;
+                        logger.fatal(`browser from plugins.js is: ${fromCommands.userAgentData.browserName}`)
                         const browserPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
 
                         const browserMajorVersion = fromCommands.userAgentData.browserVersion.split('.');
