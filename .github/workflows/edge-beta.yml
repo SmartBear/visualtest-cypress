@@ -16,14 +16,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Edge Beta
-        if: ${{ startsWith(matrix.browser, 'edge') }}
+
+      - name: Download Edge Beta Installer
         run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
-          sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" > /etc/apt/sources.list.d/microsoft-edge-beta.list'
-          apt update
-          apt install microsoft-edge-beta
+          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2096148" -OutFile "MicrosoftEdgeBetaInstaller.exe"
+
+      - name: Install Edge Beta
+        run: |
+          .\MicrosoftEdgeBetaInstaller.exe /silent
+
+#      - name: Install Edge Beta
+#        if: ${{ startsWith(matrix.browser, 'edge') }}
+#        run: |
+#          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+#          install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+#          sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" > /etc/apt/sources.list.d/microsoft-edge-beta.list'
+#          apt update
+#          apt install microsoft-edge-beta
 
 
 #      - name: Extract Branch Name and Set Test Run Name
