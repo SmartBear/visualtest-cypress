@@ -2,12 +2,6 @@ name: browser-type-check
 on: [push]
 #on: [pull_request]
 jobs:
-  install-edge-beta:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: browser-actions/setup-edge@v1
-        with:
-          edge-version: beta
   cypress-run:
     runs-on: ubuntu-latest
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
@@ -22,14 +16,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-#      - name: Install Edge Beta
-#        if: ${{ startsWith(matrix.browser, 'edge') }}
-#        run: |
-#          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-#          sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
-#          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" > /etc/apt/sources.list.d/microsoft-edge-beta.list'
-#          sudo apt update
-#          sudo apt install microsoft-edge-beta
+      - name: Install Edge Beta
+        if: ${{ startsWith(matrix.browser, 'edge') }}
+        run: |
+          sudo apt update
+          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+          sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
+          sudo rm microsoft.gpg
+          sudo apt install microsoft-edge-stable
 
       - name: Install Chrome Beta
         if: ${{ startsWith(matrix.browser, 'chrome') }}
