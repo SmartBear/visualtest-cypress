@@ -3,7 +3,7 @@ on: [push]
 #on: [pull_request]
 jobs:
   cypress-run:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
@@ -20,8 +20,8 @@ jobs:
         if: ${{ startsWith(matrix.browser, 'edge') }}
         run: |
           curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-          echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge-beta.list
+          sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" > /etc/apt/sources.list.d/microsoft-edge-beta.list'
           sudo apt update
           sudo apt install microsoft-edge-beta
 
