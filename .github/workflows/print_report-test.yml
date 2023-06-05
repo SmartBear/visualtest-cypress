@@ -1,5 +1,6 @@
 name: print-report-check
-on: [push]
+#on: [push]
+on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ${{ matrix.os }}
@@ -40,4 +41,6 @@ jobs:
           #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
+          DEBUG: TRUE
+
 

@@ -15,7 +15,7 @@ const headers = {
 };
 
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, saveDOM, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData;
+    fullpageData, imageType, runFreezePage, platformVersion, freezePageResult, apiRes, layoutData;
 
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
@@ -39,8 +39,9 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
         .then(win => {
             userAgentData = win.eval(toolkitScripts.userAgent);
             const envFromCypress = {
-                testRunName: Cypress.env('TEST_RUN_NAME'),
-                projectToken: Cypress.env('PROJECT_TOKEN')
+                testRunName: Cypress.env('TEST_RUN_NAME') || Cypress.env('test_run_name'),
+                projectToken: Cypress.env('PROJECT_TOKEN') || Cypress.env('project_token'),
+                debug: Cypress.env('DEBUG') || Cypress.env('debug')
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
@@ -96,7 +97,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             // Put the ignoredElements that the user gave us on the browsers window for the domCapture script to read them
             win.eval(`window.sbvt = { ignoreElements: ${JSON.stringify(modifiedOptions.ignoreElements)} }`);
         }
-        modifiedOptions.saveDOM === true ? saveDOM = name : saveDOM = false;
         modifiedOptions.freezePage !== false ? runFreezePage = true : runFreezePage = false;
         if (!modifiedOptions.lazyload && runFreezePage) {
             cy.task('logger', {type: 'debug', message: `running freezePage at the beginning.`});
@@ -116,6 +116,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
             imageType = 'element'
         ).then(() => {
+            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             captureDom(win);
             readImageAndBase64ToBlob();
         });
@@ -127,6 +128,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             name,
             modifiedOptions,
         ).then(() => {
+            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             captureDom(win);
             readImageAndBase64ToBlob();
         });
@@ -257,10 +259,13 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
             cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
         }
+
+        // Old/default Cypress screenshot / JS_SCROLL screenshot
         cy.screenshot(
             name,
             modifiedOptions,
         ).then(() => {
+            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             // Translate to the top of the page and then capture the dom
             win.eval(`document.body.style.transform="translateY(0)"`);
             captureDom(win);
@@ -298,11 +303,11 @@ let sendImageApiJSON = () => {
         comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
         sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
-
     };
+
     Object.assign(imagePostData, deviceInfoResponse);
-    // Overwrite because Cypress is more reliable
-    imagePostData.browserVersion = Cypress.browser.majorVersion;
+
+    imagePostData.browserVersion = Cypress.browser.majorVersion;  // Overwrite because Cypress is more reliable
 
     apiRes.screenshotResult = {
         imagePath: picProps.path,
@@ -381,11 +386,11 @@ let captureDom = (win) => {
     const megabytes = ((new TextEncoder().encode(JSON.stringify(dom)).byteLength) / 1048576);
     cy.task('logger', {type: "info", message: `${imageName} dom size: ${megabytes.toFixed(4)} MB`});
 
-    // Return and write the dom if the "saveDOM: true" flag is thrown
-    if (saveDOM) {
+    if (vtConfFile.debug) {
+        // Return and write the dom if the "debug: true" flag is thrown
         apiRes.dom = dom;
-        cy.task('logger', {type: 'info', message: `dom has been saved to: "./cypress/dom/${saveDOM}.json"`});
-        cy.writeFile(`./cypress/dom/${saveDOM}.json`, dom);
+        cy.task('logger', {type: 'info', message: `dom has been saved to: "./${vtConfFile.debug}/${imageName}.json"`});
+        cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
 let getImageById = () => {
@@ -396,7 +401,9 @@ let getImageById = () => {
     })
         .then((res) => {
             let responseObj = {};
-            responseObj.testRunId = vtConfFile.testRunId, responseObj.imageId = res.body.items[0].imageId, responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
+            responseObj.testRunId = vtConfFile.testRunId;
+            responseObj.imageId = res.body.items[0].imageId;
+            responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
             console.log('Successfully uploaded:', res.body.items[0].imageName, responseObj);
             cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
         });
@@ -430,8 +437,8 @@ Cypress.Commands.add('sbvtPrintReport', options => {
     let results;
     cy.task('getTestRunResults')
         .then(data => {
-            cy.task('printReport', data)
-            results = data
-    })
-    return results
+            cy.task('printReport', data);
+            results = data;
+        });
+    return results;
 });

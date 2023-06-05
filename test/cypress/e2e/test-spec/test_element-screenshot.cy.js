@@ -54,7 +54,7 @@ resolutions.forEach(widthHeight => {
                 cy.viewport(parseInt(width), parseInt(height))
                 cy.visit(currentTestCase.url).then(() => {
                     currentTestCase.options ? '' : currentTestCase.options = {}
-                    currentTestCase.options.saveDOM = true;
+                    
                     cy.wait(1500);
                     if (currentTestCase.actions && currentTestCase.actions.length > 0) {
                         if (currentTestCase.actions[0].action === 'click') {
@@ -68,7 +68,7 @@ resolutions.forEach(widthHeight => {
                     } else {
                         cy.window()
                             .then((win) => {
-                                cy.readFile("./exampleFreezeCarousel.js").then((str) => {
+                                cy.readFile("./utils/exampleFreezeCarousel.js").then((str) => {
                                     if (insertCustomFreezeScript) win.eval(str);
                                     cy.get(currentTestCase.cssSelector).sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
                                         dataFromTest = data;

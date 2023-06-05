@@ -20,11 +20,11 @@ testCases.forEach(currentTestCase => {
     describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
-                currentTestCase.options.saveDOM = true;
+                
                 cy.wait(1500);
                 cy.window()
                     .then((win) => {
-                        cy.readFile("../../exampleFreezeCarousel.js").then((str) => {
+                        cy.readFile("../../utils/exampleFreezeCarousel.js").then((str) => {
                             if (insertCustomFreezeScript) win.eval(str);
                             cy.sbvtCapture(`${Cypress.version}-${currentTestCase.name}`, currentTestCase.options).then((data) => {
                                 dataFromTest = data;
