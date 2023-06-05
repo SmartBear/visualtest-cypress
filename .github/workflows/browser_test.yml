@@ -9,7 +9,7 @@ jobs:
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
       matrix:
-        browser: [ firefox ]
+        browser: [ firefox, chrome ]
 
     steps:
       - name: Checkout code

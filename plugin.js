@@ -118,6 +118,7 @@ function makeGlobalRunHooks() {
     return {
         'task': {
             async postTestRunId(fromCommands) { //cy.task('postTestRunId') to run this code
+                logger.fatal(`browser from plugins.js is: ${fromCommands.userAgentData.browserName}`)
                 if (!configFile.testRunId && !configFile.fail) {//all this only needs to run once
                     const sessionId = uuidv4();
                     try {
@@ -190,7 +191,6 @@ function makeGlobalRunHooks() {
                             osPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
                         }
                         const str = fromCommands.userAgentData.browserName;
-                        logger.fatal(`browser from plugins.js is: ${fromCommands.userAgentData.browserName}`)
                         const browserPrettyName = str.charAt(0).toUpperCase() + str.slice(1);
 
                         const browserMajorVersion = fromCommands.userAgentData.browserVersion.split('.');
