@@ -10,11 +10,19 @@ jobs:
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        browser: [ 'chrome:beta' ]
+        browser: [ 'chrome:beta', 'firefox:beta' ]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install Firefox Beta
+        if: ${{ startsWith(matrix.browser, 'firefox') }}
+        run: |
+          curl -L -o firefox.tar.bz2 'https://download.mozilla.org/?product=firefox-beta-latest&os=linux64&lang=en-US'
+          tar xjf firefox.tar.bz2
+          sudo mv firefox /opt/firefox-beta
+          echo 'export PATH="/opt/firefox-beta:$PATH"' >> $GITHUB_ENV
 
       - name: Install Chrome Beta
         if: ${{ startsWith(matrix.browser, 'chrome') }}
