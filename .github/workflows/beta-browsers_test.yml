@@ -2,6 +2,12 @@ name: browser-type-check
 on: [push]
 #on: [pull_request]
 jobs:
+  install-edge-beta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: browser-actions/setup-edge@v1
+        with:
+          edge-version: beta
   cypress-run:
     runs-on: ubuntu-latest
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
@@ -25,13 +31,13 @@ jobs:
           sudo apt update
           sudo apt install microsoft-edge-beta
 
-      - name: Install Chrome Beta
-        if: ${{ startsWith(matrix.browser, 'chrome') }}
-        run: |
-          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
-          sudo apt-get update
-          sudo apt-get install google-chrome-beta
+#      - name: Install Chrome Beta
+#        if: ${{ startsWith(matrix.browser, 'chrome') }}
+#        run: |
+#          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+#          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
+#          sudo apt-get update
+#          sudo apt-get install google-chrome-beta
 
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
