@@ -21,7 +21,7 @@ describe('debug folder test', () => {
                     scrollMethod: "JS_SCROLL"
                 });
             cy.get(".ud-login-wrapper").sbvtCapture('debug-element');
-            // cy.sbvtCapture("debug-fullpage");
+            cy.sbvtCapture("debug-fullpage");
         });
     });
     let directoryPath;
@@ -61,13 +61,13 @@ describe('debug folder test', () => {
 
     // JS_SCROLL debug check
     it(`Should check JS_SCROLL-fullpage dom capture`, () => {
-        cy.readFile(`${directoryPath}/debug-default-fullpage-fullpage/debug-default-fullpage.json`).then((jsonFile) => {
+        cy.readFile(`${directoryPath}/debug-default-fullpage-fullPage/debug-default-fullpage.json`).then((jsonFile) => {
             assert(jsonFile.error === false, 'DOM capture has an error');
             assert(jsonFile.url === url, 'Urls did not match');
         });
     })
     it(`Should check JS_SCROLL-fullpage image capture`, () => {
-        cy.readFile(`${directoryPath}/debug-viewport-viewport/debug-viewport.png`)
+        cy.readFile(`${directoryPath}/debug-default-fullpage-fullPage/debug-default-fullpage.png`)
     })
 
     // element capture test
