@@ -301,11 +301,11 @@ let sendImageApiJSON = () => {
         comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
         sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
-
     };
+
     Object.assign(imagePostData, deviceInfoResponse);
-    // Overwrite because Cypress is more reliable
-    imagePostData.browserVersion = Cypress.browser.majorVersion;
+
+    imagePostData.browserVersion = Cypress.browser.majorVersion;  // Overwrite because Cypress is more reliable
 
     apiRes.screenshotResult = {
         imagePath: picProps.path,
@@ -316,6 +316,8 @@ let sendImageApiJSON = () => {
         devicePixelRatio: imagePostData.devicePixelRatio,
         freezePageResult
     };
+    cy.task('logger', {type: "fatal", message: `imagePostData.imageType: ${imagePostData.imageType}, imageName: ${imageName}`});
+
     cy.request({
         method: "POST",
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
