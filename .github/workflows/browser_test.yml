@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        browser: [ firefox, chrome ]
+        browser: [ firefox, chrome, edge ]
 
     steps:
       - name: Checkout code
