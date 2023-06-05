@@ -283,7 +283,7 @@ function makeGlobalRunHooks() {
                 if (configFile.debug) {
                     //copy last image before cropping or deletion
                     const lastImageFileName = path.parse(path.basename(bottomImagePath)).name; //get the last image name without extension
-                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-raw.png`);
+                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-before-cropped-bottom.png`);
                 }
 
                 if (viewportHeight - toBeCropped !== 0) {
