@@ -49,12 +49,13 @@ testCases.forEach(currentTestCase => {
     describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
         it(`should take sbvtCapture`, () => {
 
-            cy.exec(`ls`).then((result) => {
-                const fileList = result.stdout;
-                cy.task('logger', {type: 'warn', message: `this is before log check`});
-                cy.task('logger', {type: 'warn', message: result.stdout});
-            });
-            cy.task('logger', {type: 'error', message: `The browsers is: ${(Cypress.browser)}')`});
+            // cy.exec(`ls`).then((result) => {
+            //     const fileList = result.stdout;
+            //     cy.task('logger', {type: 'warn', message: `this is before log check`});
+            //     cy.task('logger', {type: 'warn', message: result.stdout});
+            // });
+
+            cy.task('logger', {type: 'error', message: `The browsers is: ${(Cypress.browser.name)}')`});
 
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}

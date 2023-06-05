@@ -7,9 +7,10 @@ jobs:
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
-#    strategy:
-#      matrix:
-#        browser: [ firefox, chrome ]
+    strategy:
+      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
+      matrix:
+        browser: [ firefox, chrome ]
 
     steps:
       - name: Checkout code
@@ -38,7 +39,7 @@ jobs:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/quick-test_*
-          browser: firefox
+          browser: ${{ matrix.browser }}
         #          record: true
         #          parallel: true
 
