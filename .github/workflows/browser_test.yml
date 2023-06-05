@@ -1,6 +1,6 @@
-name: linux-quick-check
-#on: [push]
-on: [pull_request]
+name: browser-type-check
+on: [push]
+#on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -8,10 +8,14 @@ jobs:
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
-      fail-fast: true # https://github.com/cypress-io/github-action/issues/48
+      matrix:
+        browser: [ firefox ]
 
     steps:
-      - name: Checkout
+      - name: Set up Chrome Beta
+        uses: browser-actions/setup-chrome@latest-beta
+
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Extract Branch Name and Set Test Run Name
@@ -37,6 +41,7 @@ jobs:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/quick-test_*
+          browser: ${{ matrix.cypress-version }}
         #          record: true
         #          parallel: true
 
