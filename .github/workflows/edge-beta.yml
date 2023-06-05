@@ -19,7 +19,7 @@ jobs:
 
       - name: Download Edge Beta Installer
         run: |
-          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2096148" -OutFile "MicrosoftEdgeBetaInstaller.exe"
+          curl -L -o MicrosoftEdgeBetaInstaller.exe https://example.com/path/to/MicrosoftEdgeBetaInstaller.exe
 
       - name: Install Edge Beta
         run: |
