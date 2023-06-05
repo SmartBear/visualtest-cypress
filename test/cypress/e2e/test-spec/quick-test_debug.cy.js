@@ -84,12 +84,12 @@ describe('debug folder test', () => {
 
     // sbvtCapture fullpage
     it(`Should check fullpage dom capture`, () => {
-        cy.readFile(`${directoryPath}/debug-fullpage-fullpage/debug-fullpage.json`).then((jsonFile) => {
+        cy.readFile(`${directoryPath}/debug-fullpage-fullPage/debug-fullpage.json`).then((jsonFile) => {
             assert(jsonFile.error === false, 'DOM capture has an error');
             assert(jsonFile.url === url, 'Urls did not match');
         });
     })
     it(`Should check fullpage image capture`, () => {
-        cy.readFile(`${directoryPath}/debug-fullpage-fullpage/debug-fullpage.png`)
+        cy.readFile(`${directoryPath}/debug-fullpage-fullPage/debug-fullpage.png`)
     })
 });
