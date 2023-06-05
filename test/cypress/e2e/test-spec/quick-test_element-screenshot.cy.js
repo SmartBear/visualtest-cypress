@@ -55,7 +55,7 @@ testCases.forEach(currentTestCase => {
             //     cy.task('logger', {type: 'warn', message: result.stdout});
             // });
 
-            cy.task('logger', {type: 'error', message: `The browsers is: ${(Cypress.browser.name)}`});
+            cy.task('logger', {type: 'error', message: `The browsers is: ${JSON.stringify(Cypress.browser)}`});
 
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}

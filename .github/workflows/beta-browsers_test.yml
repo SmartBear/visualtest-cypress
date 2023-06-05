@@ -1,6 +1,6 @@
 name: browser-type-check
-#on: [push]
-on: [pull_request]
+on: [push]
+#on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ubuntu-22.04
@@ -10,11 +10,19 @@ jobs:
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        browser: [ firefox, chrome, edge ]
+        browser: [ chrome-beta ]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install Chrome Beta
+        if: ${{ matrix.browser === chrome-beta }}
+        run: |
+          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
+          sudo apt-get update
+          sudo apt-get install google-chrome-beta
 
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
