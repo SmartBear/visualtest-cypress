@@ -130,6 +130,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             name,
             modifiedOptions,
         ).then(() => {
+            cy.task('logger', {type: 'error', message: `picProps.path: ${picProps.path}, imageName: ${imageName}, imageType: ${imageType}`});
             if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
             captureDom(win);
             readImageAndBase64ToBlob();
@@ -265,6 +266,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             name,
             modifiedOptions,
         ).then(() => {
+            cy.task('logger', {type: 'error', message: `picProps.path: ${picProps.path}, imageName: ${imageName}, imageType: ${imageType}`});
             if (vtConfFile.debug) cy.task('copy', { path: picProps.path, imageName, imageType });
             // Translate to the top of the page and then capture the dom
             win.eval(`document.body.style.transform="translateY(0)"`);
