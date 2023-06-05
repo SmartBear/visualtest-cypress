@@ -22,22 +22,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Edge Beta
-        if: ${{ startsWith(matrix.browser, 'edge') }}
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
-          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" > /etc/apt/sources.list.d/microsoft-edge-beta.list'
-          sudo apt update
-          sudo apt install microsoft-edge-beta
-
-#      - name: Install Chrome Beta
-#        if: ${{ startsWith(matrix.browser, 'chrome') }}
+#      - name: Install Edge Beta
+#        if: ${{ startsWith(matrix.browser, 'edge') }}
 #        run: |
-#          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-#          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
-#          sudo apt-get update
-#          sudo apt-get install google-chrome-beta
+#          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+#          sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+#          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge-beta stable main" > /etc/apt/sources.list.d/microsoft-edge-beta.list'
+#          sudo apt update
+#          sudo apt install microsoft-edge-beta
+
+      - name: Install Chrome Beta
+        if: ${{ startsWith(matrix.browser, 'chrome') }}
+        run: |
+          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
+          sudo apt-get update
+          sudo apt-get install google-chrome-beta
 
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
