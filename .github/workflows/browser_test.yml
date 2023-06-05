@@ -12,9 +12,6 @@ jobs:
         browser: [ firefox ]
 
     steps:
-      - name: Set up Chrome Beta
-        uses: browser-actions/setup-chrome@latest-beta
-
       - name: Checkout code
         uses: actions/checkout@v3
 
