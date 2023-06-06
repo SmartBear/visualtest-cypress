@@ -1,0 +1,47 @@
+name: npm-package-check
+on: [push]
+#on: [pull_request]
+jobs:
+  cypress-run:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest, macos-latest ]
+        browser: [ firefox, chrome ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install test dependencies
+        run: npm install
+        working-directory: ./test/npm-package-test
+
+      - name: Install Cypress
+        run: npm install cypress@latest
+        working-directory: ./test/npm-package-test
+
+      - name: Install Visual Test from NPM
+        run: npm install @smartbear/visualtest-cypress@latest
+        working-directory: ./test/npm-package-test
+
+      - name: Setup Visual Test from NPM
+        run: npx visualtest-setup
+        working-directory: ./test/npm-package-test
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+        with:
+          quiet: true
+          working-directory: ./test/npm-package-test
+          spec: cypress/e2e/*
+          browser: ${{ matrix.browser }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
+          DEBUG: TRUE
+
+

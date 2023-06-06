@@ -1,4 +1,4 @@
-describe('template spec', () => {
+describe('tests a few captures on safari', () => {
   it('passes', () => {
     cy.visit('https://example.cypress.io')
     cy.sbvtCapture('webkit-fullpage')
@@ -6,5 +6,6 @@ describe('template spec', () => {
       capture: 'viewport'
     })
     cy.get('.banner').sbvtCapture('webkit-element')
+    cy.sbvtPrintReport()
   })
 })
