@@ -438,7 +438,7 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
     let results;
     cy.task('getTestRunResult')
         .then(data => {
-            delete data.other
+            delete data.other;
             results = data;
         });
     return results;

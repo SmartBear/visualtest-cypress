@@ -379,7 +379,8 @@ function makeGlobalRunHooks() {
                     if (comparisonResponse.passed) console.log(chalk.green(`\t${comparisonResponse.passed} image ${comparisonResponse.passed === 1 ? 'comparison' : 'comparisons'} passed`));
 
                     // return comparisonResponse; // no need to return data on this call
-                    return null
+                    return null;
+
                 } catch (error) {
                     console.error(error);
                     return error;
