@@ -22,6 +22,11 @@ test/webkit-test/cypress/screenshots
 test/webkit-test/cypress/dom
 test/webkit-test/cypress/videos
 
+test/npm-package-test/node_modules
+test/npm-package-test/cypress/screenshots
+test/npm-package-test/cypress/dom
+test/npm-package-test/cypress/videos
+
 test/version-control-test/below10/node_modules/
 test/version-control-test/below10/cypress/screenshots
 test/version-control-test/below10/cypress/dom
