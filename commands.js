@@ -434,14 +434,12 @@ let getComparisonMode = (layoutMode, sensitivity) => {
 };
 
 Cypress.Commands.add('sbvtGetTestRunResult', () => {
-    //returns the testRun data as an object (removes other, sends only passed & failed)
-    let results;
-    cy.task('getTestRunResult')
+    //returns the testRun data aggregate as an object (removes other, sends only passed & failed)
+    return cy.task('getTestRunResult')
         .then(data => {
-            delete data.other;
-            results = data;
+            delete data.aggregate.other
+            return data.aggregate
         });
-    return results;
 });
 
 
