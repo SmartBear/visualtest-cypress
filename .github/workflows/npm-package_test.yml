@@ -1,6 +1,10 @@
 name: npm-package-check
-on: [push]
+#on: [push]
 #on: [pull_request]
+on:
+  release:
+    types: [published]
+
 jobs:
   cypress-run:
     runs-on: ${{ matrix.os }}
@@ -18,7 +22,7 @@ jobs:
         run: npm install
         working-directory: ./test/npm-package-test
 
-      - name: Install Cypress
+      - name: Install Latest Cypress
         run: npm install cypress@latest
         working-directory: ./test/npm-package-test
 
