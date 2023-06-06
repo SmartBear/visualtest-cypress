@@ -9,5 +9,10 @@ describe('template spec', () => {
     })
     // @ts-ignore
     cy.get('.banner').sbvtCapture('webkit-element')
+    cy.sbvtPrintReport()
+    cy.sbvtGetTestRunResult()
+        .then((data) => {
+          cy.task('log', {message: `sbvtGetTestRunResult printed using log task: ${JSON.stringify(data)}`});
+        })
   })
 })

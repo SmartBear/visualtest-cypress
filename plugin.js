@@ -346,7 +346,7 @@ function makeGlobalRunHooks() {
             getToolkit() {
                 return domToolKit;
             },
-            async getTestRunResults(timeoutMinutes = 3) {
+            async getTestRunResult(timeoutMinutes = 3) {
                 try {
                     let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`;
                     let comparisonResponse = await axios.get(testRunUrl);
@@ -378,7 +378,8 @@ function makeGlobalRunHooks() {
                     if (comparisonResponse.failed) console.log(chalk.red(`\t${comparisonResponse.failed} image comparison ${comparisonResponse.failed === 1 ? 'failure' : 'failures'} to review`));
                     if (comparisonResponse.passed) console.log(chalk.green(`\t${comparisonResponse.passed} image ${comparisonResponse.passed === 1 ? 'comparison' : 'comparisons'} passed`));
 
-                    return comparisonResponse;
+                    // return comparisonResponse; // no need to return data on this call
+                    return null
                 } catch (error) {
                     console.error(error);
                     return error;
