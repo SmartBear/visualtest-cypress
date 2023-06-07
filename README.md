@@ -35,13 +35,13 @@ Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
 For example, this will run regression tests against **Fullpage Home Capture** in that project
 
 ```javascript
-cy.sbvtCapture('Fullpage Home Capture')
+cy.sbvtCapture('Home Page')
 ```
 
 To override project settings — take a capture with layout mode on low sensitivity
 
 ```javascript
-cy.sbvtCapture('layout test', {
+cy.sbvtCapture('Home Page', {
     comparisonMode: 'layout', // if 'layout', then sensitivity is requried, OR 'detailed' with no sensitivity
     sensitivity: "low" // 'medium', or 'high'
 })
@@ -50,7 +50,7 @@ cy.sbvtCapture('layout test', {
 For lazy-loaded websites use:
 
 ```javascript
-cy.sbvtCapture('lazyloaded capture', {
+cy.sbvtCapture('Home Page', {
     lazyload: 250 //number is milliseconds between scrolls 
 })
 ```
@@ -58,7 +58,7 @@ cy.sbvtCapture('lazyloaded capture', {
 To ignore elements on the comparison, add the cssSelector to the array:
 
 ```javascript
-cy.sbvtCapture('ignoreElements-example', {
+cy.sbvtCapture('Home Page', {
     ignoreElements: ['.exampleClass', '.class1 > div > li:nth-child(1)']
 })
 ```
@@ -66,13 +66,13 @@ cy.sbvtCapture('ignoreElements-example', {
 You can also run tests against just certain elements, this will run regression tests against the header.
 
 ```javascript
-cy.get('.container').eq(0).sbvtCapture('Capture of the homepage header')
+cy.get('.container').eq(0).sbvtCapture('Home Page')
 ```
 
 To pass in other [arguments](https://docs.cypress.io/api/commands/screenshot#Arguments) , the syntax would be the same as ```cy.screenshot```
 
 ```javascript
-cy.sbvtCapture('Clipping the homepage viewport', {
+cy.sbvtCapture('Home Page', {
     capture: 'viewport',
     overwrite: true,
     clip: {x: 100, y: 100, width: 1000, height: 1000}
