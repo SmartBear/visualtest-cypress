@@ -38,12 +38,12 @@ For example, this will run regression tests against **Fullpage Home Capture** in
 cy.sbvtCapture('Fullpage Home Capture')
 ```
 
-To have a capture with layout mode
+To override project settings and have a capture with layout mode
 
 ```javascript
 cy.sbvtCapture('layout test', {
-    comparisonMode: 'layout',
-    sensitivity: "low", // 'low', 'medium', or 'high'
+    comparisonMode: 'layout', // if 'layout', then sensitivity is requried, OR 'detailed' with no sensitivity
+    sensitivity: "low" // 'medium', or 'high'
 })
 ```
 
@@ -51,7 +51,7 @@ For lazy-loaded websites use:
 
 ```javascript
 cy.sbvtCapture('lazyloaded capture', {
-    lazyload: 250, //number is milliseconds between scrolls 
+    lazyload: 250 //number is milliseconds between scrolls 
 })
 ```
 
@@ -59,7 +59,7 @@ To ignore elements on the comparison, add the cssSelector to the array:
 
 ```javascript
 cy.sbvtCapture('ignoreElements-example', {
-    ignoreElements: ['.exampleClass', '.class1 > div > li:nth-child(1)'],
+    ignoreElements: ['.exampleClass', '.class1 > div > li:nth-child(1)']
 })
 ```
 
@@ -75,7 +75,7 @@ To pass in other [arguments](https://docs.cypress.io/api/commands/screenshot#Arg
 cy.sbvtCapture('Clipping the homepage viewport', {
     capture: 'viewport',
     overwrite: true,
-    clip: {x: 100, y: 100, width: 1000, height: 1000},
+    clip: {x: 100, y: 100, width: 1000, height: 1000}
 })
 ```
 
