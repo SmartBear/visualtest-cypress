@@ -34,4 +34,18 @@ declare namespace Cypress {
             ignoreElements?: string[];
         }): Chainable<any>;
     }
+
+    interface Chainable<Subject> {
+        /**
+         * Print out the comparison engine response from this test run.
+         * */
+        sbvtPrintReport(): void;
+    }
+
+    interface Chainable<Subject> {
+        /**
+         * Returns the comparison engine response from this test run.
+         **/
+        sbvtGetTestRunResult(): Chainable<any>;
+    }
 }

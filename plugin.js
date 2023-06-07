@@ -346,7 +346,7 @@ function makeGlobalRunHooks() {
             getToolkit() {
                 return domToolKit;
             },
-            async getTestRunResults(timeoutMinutes = 3) {
+            async getTestRunResult(timeoutMinutes = 3) {
                 try {
                     let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`;
                     let comparisonResponse = await axios.get(testRunUrl);
@@ -364,7 +364,7 @@ function makeGlobalRunHooks() {
                     }
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
-                    return comparisonResponse.data.comparisons.aggregate;
+                    return comparisonResponse.data.comparisons;
                 } catch (error) {
                     console.error(error);
                     return error;
@@ -372,13 +372,16 @@ function makeGlobalRunHooks() {
             },
             printReport(comparisonResponse) {
                 try {
-                    process.stdout.write(`View your ${comparisonResponse.failed + comparisonResponse.passed} ${(comparisonResponse.failed + comparisonResponse.passed === 1 ? 'capture' : 'captures')} here: `);
+                    process.stdout.write(`View your ${comparisonResponse.aggregate.failed + comparisonResponse.aggregate.passed} ${(comparisonResponse.aggregate.failed + comparisonResponse.aggregate.passed === 1 ? 'capture' : 'captures')} here: `);
                     console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
 
-                    if (comparisonResponse.failed) console.log(chalk.red(`\t${comparisonResponse.failed} image comparison ${comparisonResponse.failed === 1 ? 'failure' : 'failures'} to review`));
-                    if (comparisonResponse.passed) console.log(chalk.green(`\t${comparisonResponse.passed} image ${comparisonResponse.passed === 1 ? 'comparison' : 'comparisons'} passed`));
+                    if (comparisonResponse.status.new_image) console.log(chalk.yellow(`\t${comparisonResponse.status.new_image} new base ${comparisonResponse.status.new_image === 1 ? 'image' : 'images'}`));
+                    if (comparisonResponse.status.unreviewed) console.log(chalk.red(`\t${comparisonResponse.status.unreviewed} image comparison ${comparisonResponse.status.unreviewed === 1 ? 'failure' : 'failures'} to review`));
+                    if (comparisonResponse.status.passed) console.log(chalk.green(`\t${comparisonResponse.status.passed} image ${comparisonResponse.status.passed === 1 ? 'comparison' : 'comparisons'} passed`));
 
-                    return comparisonResponse;
+                    // return comparisonResponse; // no need to return data on this call
+                    return null;
+
                 } catch (error) {
                     console.error(error);
                     return error;

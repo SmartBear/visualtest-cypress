@@ -433,12 +433,20 @@ let getComparisonMode = (layoutMode, sensitivity) => {
     }
 };
 
-Cypress.Commands.add('sbvtPrintReport', options => {
-    let results;
-    cy.task('getTestRunResults')
+Cypress.Commands.add('sbvtGetTestRunResult', () => {
+    //returns the testRun data aggregate as an object (removes other, sends only passed & failed)
+    return cy.task('getTestRunResult')
+        .then(data => {
+            delete data.aggregate.other
+            return data.aggregate
+        });
+});
+
+
+Cypress.Commands.add('sbvtPrintReport', () => {
+    cy.task('getTestRunResult')
         .then(data => {
             cy.task('printReport', data);
-            results = data;
         });
-    return results;
 });
+

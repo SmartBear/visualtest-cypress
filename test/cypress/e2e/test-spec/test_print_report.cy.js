@@ -31,11 +31,11 @@ describe('print-report-check', () => {
 
 
 
-                        // cy.sbvtPrintReport()
                         cy.sbvtPrintReport()
-                            .then((printReportResponse) => {
-                            cy.task('log', {message: `printReportResponse: ${JSON.stringify(printReportResponse)}`});
-                            reportData = printReportResponse
+                        cy.sbvtGetTestRunResult()
+                            .then((data) => {
+                                cy.task('log', {message: `sbvtGetTestRunResult printed using log task: ${JSON.stringify(data)}`});
+                            reportData = data
                         })
                     });
                 });
