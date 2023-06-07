@@ -38,7 +38,7 @@ For example, this will run regression tests against **Fullpage Home Capture** in
 cy.sbvtCapture('Fullpage Home Capture')
 ```
 
-To override project settings and have a capture with layout mode
+To override project settings — take a capture with layout mode on low sensitivity
 
 ```javascript
 cy.sbvtCapture('layout test', {
