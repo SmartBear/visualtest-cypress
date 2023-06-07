@@ -66,7 +66,7 @@ cy.sbvtCapture('Home Page', {
 You can also run tests against just certain elements, this will run regression tests against the header.
 
 ```javascript
-cy.get('.container').eq(0).sbvtCapture('Home Page')
+cy.get('.container').eq(0).sbvtCapture('Home Page Header')
 ```
 
 To pass in other [arguments](https://docs.cypress.io/api/commands/screenshot#Arguments) , the syntax would be the same as ```cy.screenshot```
