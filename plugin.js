@@ -327,13 +327,14 @@ function makeGlobalRunHooks() {
                 return null;
             },
             async logger({type, message}) { //this task is for printing logs to node console from the custom command
-                type === 'fatal' ? logger.fatal(message) :
-                    type === 'error' ? logger.error(message) :
-                        type === 'warn' ? logger.warn(message) :
-                            type === 'info' ? logger.info(message) :
-                                type === 'debug' ? logger.debug(message) :
-                                    type === 'trace' ? logger.trace(message) :
-                                        logger.warn('error with the logger task');
+                //todo this still isnt waiting to print the logger before returning
+                type === 'fatal' ? await logger.fatal(message) :
+                    type === 'error' ? await logger.error(message) :
+                        type === 'warn' ? await logger.warn(message) :
+                            type === 'info' ? await logger.info(message) :
+                                type === 'debug' ? await logger.debug(message) :
+                                    type === 'trace' ? await logger.trace(message) :
+                                        await logger.warn('error with the logger task');
                 return null;
             },
             async log({message}) {
@@ -366,8 +367,9 @@ function makeGlobalRunHooks() {
 
                     return comparisonResponse.data.comparisons;
                 } catch (error) {
-                    console.error(error);
-                    return error;
+                    logger.info(error.code);
+                    logger.trace(error);
+                    return null;
                 }
             },
             printReport(comparisonResponse) {
@@ -383,8 +385,9 @@ function makeGlobalRunHooks() {
                     return null;
 
                 } catch (error) {
-                    console.error(error);
-                    return error;
+                    logger.info(error.code);
+                    logger.trace(error);
+                    return null;
                 }
             }
         }

@@ -437,8 +437,13 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
     //returns the testRun data aggregate as an object (removes other, sends only passed & failed)
     return cy.task('getTestRunResult')
         .then(data => {
-            delete data.aggregate.other
-            return data.aggregate
+            if (data) {
+                delete data.aggregate.other
+                return data.aggregate
+            } else {
+                cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtGetTestRunResult()`});
+                cy.wait(500) //without this, the logger doesn't get printed
+            }
         });
 });
 
@@ -446,7 +451,12 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
 Cypress.Commands.add('sbvtPrintReport', () => {
     cy.task('getTestRunResult')
         .then(data => {
-            cy.task('printReport', data);
+            if (data) {
+                cy.task('printReport', data);
+            } else {
+                cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtPrintReport()`});
+                cy.wait(500) //without this, the logger doesn't get printed
+            }
         });
 });
 
