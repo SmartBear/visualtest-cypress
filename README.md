@@ -88,7 +88,7 @@ To check that the Visual Test capture comparison have passed use ```cy.sbvtGetTe
     it("The sbvtCapture's should pass", function () {
         cy.sbvtGetTestRunResult()
             .then((response) => {
-                    assert(response.passed === 10, `sbvtCapture has failed: ${JSON.stringify(response)}`);
+                    assert(response.passed === 10, `sbvtGetTestRunResult did not match: ${JSON.stringify(response)}`);
             });
     });
 ```
