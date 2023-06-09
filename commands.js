@@ -436,17 +436,28 @@ let getComparisonMode = (layoutMode, sensitivity) => {
 Cypress.Commands.add('sbvtGetTestRunResult', () => {
     //returns the testRun data aggregate as an object (removes other, sends only passed & failed)
     return cy.task('getTestRunResult')
-        .then(data => {
-            delete data.aggregate.other
-            return data.aggregate
+        .then((response) => {
+            if (response.error) {
+                cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtGetTestRunResult() — ${response.error}`});
+                cy.wait(700) //without this, the logger doesn't get printed
+            } else {
+                delete response.data.aggregate.other
+                return response.data.aggregate
+            }
         });
 });
 
 
 Cypress.Commands.add('sbvtPrintReport', () => {
     cy.task('getTestRunResult')
-        .then(data => {
-            cy.task('printReport', data);
+        .then(response => {
+            if (response.error) {
+                cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtPrintReport() — ${response.error}`});
+                cy.wait(700) //without this, the logger doesn't get printed
+            } else {
+                cy.task('printReport', response.data);
+                cy.wait(700) //without this, the logger doesn't get printed
+            }
         });
 });
 
