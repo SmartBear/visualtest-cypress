@@ -79,7 +79,7 @@ cy.sbvtCapture('Home Page', {
 })
 ```
 
-To print out the test run results ```cy.sbvtPrintReport()```
+To print out the test run results to your command line ```cy.sbvtPrintReport()```
 
 To assert the test run use ```cy.sbvtGetTestRunResult()```, the return value will be ```passed``` and ```failed```
 
