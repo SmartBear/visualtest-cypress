@@ -81,14 +81,15 @@ cy.sbvtCapture('Home Page', {
 
 To print out the test run results ```cy.sbvtPrintReport()```
 
-To check that the Visual Test capture comparison have passed use ```cy.sbvtGetTestRunResult()```, the return value will be passed and failed
+To assert the test run use ```cy.sbvtGetTestRunResult()```, the return value will be ```passed``` and ```failed```
 
 
 ```javascript
     it("The sbvtCapture's should pass", function () {
         cy.sbvtGetTestRunResult()
             .then((response) => {
-                    assert(response.passed === 10, `sbvtGetTestRunResult did not match: ${JSON.stringify(response)}`);
+                assert(response.passed === 10, `response.passed !== 10: ${JSON.stringify(response)}`);
+                assert(response.failed === 0, `There were failures in the test run: ${JSON.stringify(response)}`);
             });
     });
 ```
