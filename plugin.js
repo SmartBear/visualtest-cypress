@@ -348,7 +348,12 @@ function makeGlobalRunHooks() {
                 return domToolKit;
             },
             async getTestRunResult(timeoutMinutes = 3) {
+                const response = {}
                 try {
+                    if (!configFile.url) {
+                        response.error = "Cannot run this without first taking a sbvtCapture()"
+                        return response
+                    }
                     let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`;
                     let comparisonResponse = await axios.get(testRunUrl);
 
@@ -365,7 +370,8 @@ function makeGlobalRunHooks() {
                     }
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
-                    return comparisonResponse.data.comparisons;
+                    response.data = comparisonResponse.data.comparisons
+                    return response;
                 } catch (error) {
                     logger.info(error.code);
                     logger.trace(error);
@@ -385,8 +391,7 @@ function makeGlobalRunHooks() {
                     return null;
 
                 } catch (error) {
-                    logger.info(error.code);
-                    logger.trace(error);
+                    logger.warn(`Issue with printing report: ${error}`)
                     return null;
                 }
             }
