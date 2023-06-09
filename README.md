@@ -79,7 +79,22 @@ cy.sbvtCapture('Home Page', {
 })
 ```
 
-**Callback arguments are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterScreenshot```**
+To print out the test run results ```cy.sbvtPrintReport()```
+
+To check that the Visual Test capture comparison have passed use ```cy.sbvtGetTestRunResult()```, the return value will be passed and failed
+
+
+```javascript
+    it("The sbvtCapture's should pass", function () {
+        cy.sbvtGetTestRunResult()
+            .then((response) => {
+                    assert(response.passed === 10, `sbvtCapture has failed: ${JSON.stringify(response)}`);
+            });
+    });
+```
+
+
+Callback arguments are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterScreenshot```
 
 ## Running
 
