@@ -79,7 +79,29 @@ cy.sbvtCapture('Home Page', {
 })
 ```
 
-**Callback arguments are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterScreenshot```**
+To print out the test run results to the command line ```cy.sbvtPrintReport()```
+
+To assert the testrun passed, call ```cy.sbvtGetTestRunResult()```, which returns an object with total comparisons passed and failed. Example:
+
+```javascript
+{  // example cy.sbvtGetTestRunResult() response
+    passed: 10
+    failed: 0
+}
+```
+
+```javascript
+    it("The sbvtCapture's should pass", function () {
+        cy.sbvtGetTestRunResult()
+            .then((response) => {
+                assert(response.passed === 10, `response.passed !== 10: ${JSON.stringify(response)}`);
+                assert(response.failed === 0, `There were failures in the test run: ${JSON.stringify(response)}`);
+            });
+    });
+```
+
+
+Callback arguments are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterScreenshot```
 
 ## Running
 
