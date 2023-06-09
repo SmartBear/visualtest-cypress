@@ -81,7 +81,7 @@ cy.sbvtCapture('Home Page', {
 
 To print out the test run results to the command line ```cy.sbvtPrintReport()```
 
-To assert the test run use ```cy.sbvtGetTestRunResult()```, the return value will be ```passed``` and ```failed```
+To assert the testrun passed, call ```cy.sbvtGetTestRunResult()```, which returns an object with total comparisons passed and failed. Example:
 
 ```javascript
 {  // example cy.sbvtGetTestRunResult() response
