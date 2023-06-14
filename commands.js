@@ -318,47 +318,26 @@ let sendImageApiJSON = () => {
         devicePixelRatio: imagePostData.devicePixelRatio,
         freezePageResult
     };
-    cy.request({
-        method: "POST",
+    cy.task('apiRequest', {
+        type: 'post',
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
-        headers,
-        failOnStatusCode: false,
         body: imagePostData,
     }).then((res) => {
-        apiRes.imageApiResult = res.body;
-        if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
+            cy.task('logger', {type: 'info', message: `imagePostData: ${res}`});
+        apiRes.imageApiResult = res;
+        if (res.uploadUrl) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
-            console.log(`Error ${res.body.status}: ${res.body.message}`);
-            cy.task('logger', {type: 'error', message: `'${imageName}': Error ${res.body.status} - ${res.body.message}`});
+            cy.task('logger', {type: 'error', message: `'${imageName}': Error posting image`});
+            cy.task('logger', {type: 'info', message: res});
         }
     });
 };
 let uploadToS3 = async (res) => {
-
-    /**
-     in CyV7.4.0 and below you cannot send blobs on cy.request, so leaving for now
-     if (vtConfFile.cypressVersion.split('.')[0] < 7 || (vtConfFile.cypressVersion.split('.')[0] <= 7 && vtConfFile.cypressVersion.split('.')[1] < 4)) {
-        // Cypress version LESS THAN 7.4.0
-        cy.task('logger', {type: 'trace', message: `Starting the axios S3 PUT now`});
-        const axios = require("axios");
-        try {
-            axios.put(res.body.uploadUrl, blobData, { //this put does not need to await
-                headers: {"Content-Type": "application/octet-stream"}
-            })
-            getImageById();
-        } catch (err) {
-            cy.task('logger', {type: 'error', message: `${err.message}`});
-            console.log(err);
-        }
-    } else {
-     **/
-
-    // Cypress version greater than or equal: 7.4.0
     cy.task('logger', {type: 'trace', message: `Starting the cy.request S3 PUT now`});
     cy.request({
         method: "PUT",
-        url: res.body.uploadUrl,
+        url: res.uploadUrl,
         headers: {"Content-Type": "application/octet-stream"},
         failOnStatusCode: false,
         body: blobData

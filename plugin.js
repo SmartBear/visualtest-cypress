@@ -96,11 +96,24 @@ let configFile = (() => {
         console.log(e);
     }
 })();
+const apiRequest = async (type, url, body, headers, origin) => {
+    return await axios({
+        method: type,
+        url: url,
+        headers: headers,
+        data: body
+    }).catch((err) => {
+        logger.warn(`Issue with apiRequest`)
+        logger.info(`Error is: `, err)
+        return err
+    })
+}
+
 
 let getDomCapture = (async () => {
     try {
-        const domCapture = await axios.get(`${configFile.cdnUrl}/dom-capture.min.js`);
-        return domCapture.data;
+        const res = await apiRequest('get', `${configFile.cdnUrl}/dom-capture.min.js`)
+        return res.data
     } catch (error) {
         configFile.fail = true;
         logger.fatal(`Error with grabbing domCapture: %o`, error.message);
@@ -109,8 +122,8 @@ let getDomCapture = (async () => {
 
 let getUserAgent = (async () => {
     try {
-        const userAgent = await axios.get(`${configFile.cdnUrl}/user-agent.min.js`);
-        return userAgent.data;
+        const res = await apiRequest('get', `${configFile.cdnUrl}/user-agent.min.js`)
+        return res.data
     } catch (error) {
         configFile.fail = true;
         logger.fatal(`Error with grabbing userAgent: %o`, error.message);
@@ -119,8 +132,8 @@ let getUserAgent = (async () => {
 
 let getFreezePage = (async () => {
     try {
-        const freezePage = await axios.get(`${configFile.cdnUrl}/freeze-page.min.js`);
-        return freezePage.data;
+        const res = await apiRequest('get', `${configFile.cdnUrl}/freeze-page.min.js`)
+        return res.data
     } catch (error) {
         configFile.fail = true;
         logger.fatal(`Error with grabbing freezePage: %o`, error.message);
@@ -232,7 +245,9 @@ function makeGlobalRunHooks() {
 
                     configFile.cypressVersion = usersCypress.version;
                     try {
-                        const postResponse = await axios.post(`${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
+                        const postResponse = await apiRequest(
+                            'post',
+                            `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
                             testRunName: configFile.testRunName,
                             sdk: 'cypress',
                             sdkVersion: `${package_json.version}/c${usersCypress.version}`
@@ -249,6 +264,10 @@ function makeGlobalRunHooks() {
                     logger.trace('—————————————————Successfully created a testRunId—————————————————');
                 }
                 return configFile;
+            },
+            async apiRequest({type, url, body, headers}) {
+                const res = await apiRequest(type, url, body, headers)
+                return res.data // have to return the res.data or JSON issues
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
@@ -355,7 +374,7 @@ function makeGlobalRunHooks() {
                         return response
                     }
                     let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`;
-                    let comparisonResponse = await axios.get(testRunUrl);
+                    let comparisonResponse = await apiRequest('get', testRunUrl)
 
                     function sleep(ms) {
                         return new Promise(resolve => setTimeout(resolve, ms));
@@ -364,7 +383,7 @@ function makeGlobalRunHooks() {
                     let i = 0;
                     while (comparisonResponse.data.comparisons.pending > 0 && i < (timeoutMinutes * 60) * 4) {
                         //default timeout after 3 minutes
-                        comparisonResponse = await axios.get(testRunUrl);
+                        comparisonResponse = await apiRequest('get', testRunUrl)
                         await sleep(250);
                         i++;
                     }
