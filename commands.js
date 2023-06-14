@@ -46,19 +46,18 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
                 headers.Authorization = `Bearer ${vtConfFile.projectToken}`;
-                cy.request({
-                    method: "POST",
-                    headers,
+                cy.task('apiRequest', {
+                    type: 'post',
                     url: `${vtConfFile.url}/api/v1/device-info`,
-                    failOnStatusCode: false,
                     body: {
                         "userAgentInfo": userAgentData,
                         'driverCapabilities': {
                             platformVersion
                         }
                     }
-                }).then((res) => {
-                    deviceInfoResponse = res.body;
+                })
+                    .then((res) => {
+                    deviceInfoResponse = res;
                 });
                 takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
@@ -373,18 +372,17 @@ let captureDom = (win) => {
     }
 };
 let getImageById = () => {
-    cy.request({
-        method: 'GET',
-        headers,
-        url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`
+    cy.task('apiRequest', {
+        type: 'get',
+        url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
     })
         .then((res) => {
             let responseObj = {};
             responseObj.testRunId = vtConfFile.testRunId;
-            responseObj.imageId = res.body.items[0].imageId;
-            responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
-            console.log('Successfully uploaded:', res.body.items[0].imageName, responseObj);
-            cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
+            responseObj.imageId = res.items[0].imageId;
+            responseObj.imageUrl = res.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
+            console.log('Successfully uploaded:', res.items[0].imageName, responseObj);
+            cy.task('logger', {type: 'info', message: `Finished upload for '${res.items[0].imageName}', the imageId is: ${res.items[0].imageId}`});
         });
 };
 let getComparisonMode = (layoutMode, sensitivity) => {
