@@ -57,8 +57,8 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                     }
                 })
                     .then((res) => {
-                    deviceInfoResponse = res;
-                });
+                        deviceInfoResponse = res;
+                    });
                 takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
                 return apiRes;
@@ -322,7 +322,7 @@ let sendImageApiJSON = () => {
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         body: imagePostData,
     }).then((res) => {
-            cy.task('logger', {type: 'info', message: `imagePostData: ${res}`});
+        cy.task('logger', {type: 'info', message: `imagePostData: ${res}`});
         apiRes.imageApiResult = res;
         if (res.uploadUrl) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
@@ -416,10 +416,10 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
         .then((response) => {
             if (response.error) {
                 cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtGetTestRunResult() — ${response.error}`});
-                cy.wait(700) //without this, the logger doesn't get printed
+                cy.wait(700); //without this, the logger doesn't get printed
             } else {
-                delete response.data.aggregate.other
-                return response.data.aggregate
+                delete response.data.aggregate.other;
+                return response.data.aggregate;
             }
         });
 });
@@ -430,10 +430,10 @@ Cypress.Commands.add('sbvtPrintReport', () => {
         .then(response => {
             if (response.error) {
                 cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtPrintReport() — ${response.error}`});
-                cy.wait(700) //without this, the logger doesn't get printed
+                cy.wait(700); //without this, the logger doesn't get printed
             } else {
                 cy.task('printReport', response.data);
-                cy.wait(700) //without this, the logger doesn't get printed
+                cy.wait(700); //without this, the logger doesn't get printed
             }
         });
 });

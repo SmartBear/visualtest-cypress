@@ -103,17 +103,17 @@ const apiRequest = async (type, url, body, headers, origin) => {
         headers: headers,
         data: body
     }).catch((err) => {
-        logger.warn(`Issue with apiRequest`)
-        logger.info(`Error is: `, err)
-        return err
-    })
-}
+        logger.warn(`Issue with apiRequest`);
+        logger.info(`Error is: `, err);
+        return err;
+    });
+};
 
 
 let getDomCapture = (async () => {
     try {
-        const res = await apiRequest('get', `${configFile.cdnUrl}/dom-capture.min.js`)
-        return res.data
+        const res = await apiRequest('get', `${configFile.cdnUrl}/dom-capture.min.js`);
+        return res.data;
     } catch (error) {
         configFile.fail = true;
         logger.fatal(`Error with grabbing domCapture: %o`, error.message);
@@ -122,8 +122,8 @@ let getDomCapture = (async () => {
 
 let getUserAgent = (async () => {
     try {
-        const res = await apiRequest('get', `${configFile.cdnUrl}/user-agent.min.js`)
-        return res.data
+        const res = await apiRequest('get', `${configFile.cdnUrl}/user-agent.min.js`);
+        return res.data;
     } catch (error) {
         configFile.fail = true;
         logger.fatal(`Error with grabbing userAgent: %o`, error.message);
@@ -132,8 +132,8 @@ let getUserAgent = (async () => {
 
 let getFreezePage = (async () => {
     try {
-        const res = await apiRequest('get', `${configFile.cdnUrl}/freeze-page.min.js`)
-        return res.data
+        const res = await apiRequest('get', `${configFile.cdnUrl}/freeze-page.min.js`);
+        return res.data;
     } catch (error) {
         configFile.fail = true;
         logger.fatal(`Error with grabbing freezePage: %o`, error.message);
@@ -248,10 +248,10 @@ function makeGlobalRunHooks() {
                         const postResponse = await apiRequest(
                             'post',
                             `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
-                            testRunName: configFile.testRunName,
-                            sdk: 'cypress',
-                            sdkVersion: `${package_json.version}/c${usersCypress.version}`
-                        });
+                                testRunName: configFile.testRunName,
+                                sdk: 'cypress',
+                                sdkVersion: `${package_json.version}/c${usersCypress.version}`
+                            });
                         configFile.testRunId = postResponse.data.testRunId;
                         logger.debug('config.testRunId: ' + configFile.testRunId);
                     } catch (error) {
@@ -266,8 +266,8 @@ function makeGlobalRunHooks() {
                 return configFile;
             },
             async apiRequest({type, url, body, headers}) {
-                const res = await apiRequest(type, url, body, headers)
-                return res.data // have to return the res.data or JSON issues
+                const res = await apiRequest(type, url, body, headers);
+                return res.data; // have to return the res.data or JSON issues
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
@@ -367,14 +367,14 @@ function makeGlobalRunHooks() {
                 return domToolKit;
             },
             async getTestRunResult(timeoutMinutes = 3) {
-                const response = {}
+                const response = {};
                 try {
                     if (!configFile.url) {
-                        response.error = "Cannot run this without first taking a sbvtCapture()"
-                        return response
+                        response.error = "Cannot run this without first taking a sbvtCapture()";
+                        return response;
                     }
                     let testRunUrl = `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns/${configFile.testRunId}?expand=comparison-totals`;
-                    let comparisonResponse = await apiRequest('get', testRunUrl)
+                    let comparisonResponse = await apiRequest('get', testRunUrl);
 
                     function sleep(ms) {
                         return new Promise(resolve => setTimeout(resolve, ms));
@@ -383,13 +383,13 @@ function makeGlobalRunHooks() {
                     let i = 0;
                     while (comparisonResponse.data.comparisons.pending > 0 && i < (timeoutMinutes * 60) * 4) {
                         //default timeout after 3 minutes
-                        comparisonResponse = await apiRequest('get', testRunUrl)
+                        comparisonResponse = await apiRequest('get', testRunUrl);
                         await sleep(250);
                         i++;
                     }
                     if (comparisonResponse.data.comparisons.pending) console.log(chalk.magenta('\tComparison results are still in pending state, get up to date results on VisualTest website.'));
 
-                    response.data = comparisonResponse.data.comparisons
+                    response.data = comparisonResponse.data.comparisons;
                     return response;
                 } catch (error) {
                     logger.info(error.code);
@@ -410,7 +410,7 @@ function makeGlobalRunHooks() {
                     return null;
 
                 } catch (error) {
-                    logger.warn(`Issue with printing report: ${error}`)
+                    logger.warn(`Issue with printing report: ${error}`);
                     return null;
                 }
             }
