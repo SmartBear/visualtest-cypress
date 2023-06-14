@@ -1,17 +1,8 @@
-const package_json = require("./package.json");
-
 const func = {
     onAfterScreenshot($el, props) {
         picProps = props;
         picElements = $el;
     }
-};
-
-const headers = {
-    "Authorization": null,
-    "sbvt-client": "sdk",
-    "sbvt-sdk": "cypress",
-    "sbvt-sdk-version": package_json.version
 };
 
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
@@ -45,21 +36,19 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
-                headers.Authorization = `Bearer ${vtConfFile.projectToken}`;
-                cy.request({
-                    method: "POST",
-                    headers,
+                cy.task('apiRequest', {
+                    method: 'post',
                     url: `${vtConfFile.url}/api/v1/device-info`,
-                    failOnStatusCode: false,
                     body: {
                         "userAgentInfo": userAgentData,
                         'driverCapabilities': {
                             platformVersion
                         }
                     }
-                }).then((res) => {
-                    deviceInfoResponse = res.body;
-                });
+                })
+                    .then((res) => {
+                        deviceInfoResponse = res;
+                    });
                 takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
                 return apiRes;
@@ -318,57 +307,29 @@ let sendImageApiJSON = () => {
         devicePixelRatio: imagePostData.devicePixelRatio,
         freezePageResult
     };
-    cy.request({
-        method: "POST",
+    cy.task('apiRequest', {
+        method: 'post',
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
-        headers,
-        failOnStatusCode: false,
         body: imagePostData,
     }).then((res) => {
-        apiRes.imageApiResult = res.body;
-        if (res.status === 201) { //if there was a imageUrl returned we then PUT the blob to it
+        cy.task('logger', {type: 'info', message: `imagePostData: ${res}`});
+        apiRes.imageApiResult = res;
+        if (res.uploadUrl) { //if there was a imageUrl returned we then PUT the blob to it
             uploadToS3(res);
         } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
-            console.log(`Error ${res.body.status}: ${res.body.message}`);
-            cy.task('logger', {type: 'error', message: `'${imageName}': Error ${res.body.status} - ${res.body.message}`});
+            cy.task('logger', {type: 'error', message: `'${imageName}': Error posting image`});
+            cy.task('logger', {type: 'info', message: res});
         }
     });
 };
 let uploadToS3 = async (res) => {
-
-    /**
-     in CyV7.4.0 and below you cannot send blobs on cy.request, so leaving for now
-     if (vtConfFile.cypressVersion.split('.')[0] < 7 || (vtConfFile.cypressVersion.split('.')[0] <= 7 && vtConfFile.cypressVersion.split('.')[1] < 4)) {
-        // Cypress version LESS THAN 7.4.0
-        cy.task('logger', {type: 'trace', message: `Starting the axios S3 PUT now`});
-        const axios = require("axios");
-        try {
-            axios.put(res.body.uploadUrl, blobData, { //this put does not need to await
-                headers: {"Content-Type": "application/octet-stream"}
-            })
-            getImageById();
-        } catch (err) {
-            cy.task('logger', {type: 'error', message: `${err.message}`});
-            console.log(err);
-        }
-    } else {
-     **/
-
-    // Cypress version greater than or equal: 7.4.0
     cy.task('logger', {type: 'trace', message: `Starting the cy.request S3 PUT now`});
     cy.request({
         method: "PUT",
-        url: res.body.uploadUrl,
+        url: res.uploadUrl,
         headers: {"Content-Type": "application/octet-stream"},
         failOnStatusCode: false,
         body: blobData
-    }).then((res) => {
-        if (res.statusText === "OK") {
-            cy.task('logger', {type: 'trace', message: `Successful image PUT: ${res.statusText}`});
-        } else {
-            cy.task('logger', {type: 'error', message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`});
-        }
-        getImageById(); //only necessary for ~debugging, and only works in interactive mode
     });
 };
 let readImageAndBase64ToBlob = () => {
@@ -392,21 +353,6 @@ let captureDom = (win) => {
         cy.task('logger', {type: 'info', message: `dom has been saved to: "./${vtConfFile.debug}/${imageName}.json"`});
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
-};
-let getImageById = () => {
-    cy.request({
-        method: 'GET',
-        headers,
-        url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`
-    })
-        .then((res) => {
-            let responseObj = {};
-            responseObj.testRunId = vtConfFile.testRunId;
-            responseObj.imageId = res.body.items[0].imageId;
-            responseObj.imageUrl = res.body.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
-            console.log('Successfully uploaded:', res.body.items[0].imageName, responseObj);
-            cy.task('logger', {type: 'info', message: `Finished upload for '${res.body.items[0].imageName}', the imageId is: ${res.body.items[0].imageId}`});
-        });
 };
 let getComparisonMode = (layoutMode, sensitivity) => {
     layoutData = {};
@@ -439,10 +385,10 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
         .then((response) => {
             if (response.error) {
                 cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtGetTestRunResult() — ${response.error}`});
-                cy.wait(700) //without this, the logger doesn't get printed
+                cy.wait(700); //without this, the logger doesn't get printed
             } else {
-                delete response.data.aggregate.other
-                return response.data.aggregate
+                delete response.data.aggregate.other;
+                return response.data.aggregate;
             }
         });
 });
@@ -453,10 +399,10 @@ Cypress.Commands.add('sbvtPrintReport', () => {
         .then(response => {
             if (response.error) {
                 cy.task('logger', {type: 'error', message: `There was an issue with cy.sbvtPrintReport() — ${response.error}`});
-                cy.wait(700) //without this, the logger doesn't get printed
+                cy.wait(700); //without this, the logger doesn't get printed
             } else {
                 cy.task('printReport', response.data);
-                cy.wait(700) //without this, the logger doesn't get printed
+                cy.wait(700); //without this, the logger doesn't get printed
             }
         });
 });
