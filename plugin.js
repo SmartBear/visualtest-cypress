@@ -265,8 +265,8 @@ function makeGlobalRunHooks() {
                 }
                 return configFile;
             },
-            async apiRequest({method, url, body, headers}) {
-                const res = await apiRequest(method, url, body, headers);
+            async apiRequest({method, url, body}) {
+                const res = await apiRequest(method, url, body);
                 return res.data; // have to return the res.data or JSON issues
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
