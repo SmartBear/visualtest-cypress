@@ -96,15 +96,15 @@ let configFile = (() => {
         console.log(e);
     }
 })();
-const apiRequest = async (type, url, body, headers, origin) => {
+const apiRequest = async (type, url, body, headers) => {
     return await axios({
         method: type,
         url: url,
         headers: headers,
         data: body
     }).catch((err) => {
-        logger.warn(`Issue with apiRequest`);
-        logger.info(`Error is: `, err);
+        console.warn(`Issue with apiRequest`);
+        console.info(`Error is: `, err);
         return err;
     });
 };

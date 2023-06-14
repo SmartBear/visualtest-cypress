@@ -1,17 +1,8 @@
-const package_json = require("./package.json");
-
 const func = {
     onAfterScreenshot($el, props) {
         picProps = props;
         picElements = $el;
     }
-};
-
-const headers = {
-    "Authorization": null,
-    "sbvt-client": "sdk",
-    "sbvt-sdk": "cypress",
-    "sbvt-sdk-version": package_json.version
 };
 
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
@@ -45,7 +36,6 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
-                headers.Authorization = `Bearer ${vtConfFile.projectToken}`;
                 cy.task('apiRequest', {
                     type: 'post',
                     url: `${vtConfFile.url}/api/v1/device-info`,
@@ -340,13 +330,6 @@ let uploadToS3 = async (res) => {
         headers: {"Content-Type": "application/octet-stream"},
         failOnStatusCode: false,
         body: blobData
-    }).then((res) => {
-        if (res.statusText === "OK") {
-            cy.task('logger', {type: 'trace', message: `Successful image PUT: ${res.statusText}`});
-        } else {
-            cy.task('logger', {type: 'error', message: `Failed image PUT — code: ${res.status} statusText: ${res.statusText}`});
-        }
-        getImageById(); //only necessary for ~debugging, and only works in interactive mode
     });
 };
 let readImageAndBase64ToBlob = () => {
@@ -370,20 +353,6 @@ let captureDom = (win) => {
         cy.task('logger', {type: 'info', message: `dom has been saved to: "./${vtConfFile.debug}/${imageName}.json"`});
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
-};
-let getImageById = () => {
-    cy.task('apiRequest', {
-        type: 'get',
-        url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
-    })
-        .then((res) => {
-            let responseObj = {};
-            responseObj.testRunId = vtConfFile.testRunId;
-            responseObj.imageId = res.items[0].imageId;
-            responseObj.imageUrl = res.items[0].imageUrl;// ,responseObj.imageName = response.body.items[0].imageName
-            console.log('Successfully uploaded:', res.items[0].imageName, responseObj);
-            cy.task('logger', {type: 'info', message: `Finished upload for '${res.items[0].imageName}', the imageId is: ${res.items[0].imageId}`});
-        });
 };
 let getComparisonMode = (layoutMode, sensitivity) => {
     layoutData = {};
