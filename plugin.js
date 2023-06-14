@@ -96,9 +96,9 @@ let configFile = (() => {
         console.log(e);
     }
 })();
-const apiRequest = async (type, url, body, headers) => {
+const apiRequest = async (method, url, body, headers) => {
     return await axios({
-        method: type,
+        method: method,
         url: url,
         headers: headers,
         data: body
@@ -265,8 +265,8 @@ function makeGlobalRunHooks() {
                 }
                 return configFile;
             },
-            async apiRequest({type, url, body, headers}) {
-                const res = await apiRequest(type, url, body, headers);
+            async apiRequest({method, url, body, headers}) {
+                const res = await apiRequest(method, url, body, headers);
                 return res.data; // have to return the res.data or JSON issues
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {

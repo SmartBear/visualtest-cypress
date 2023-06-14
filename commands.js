@@ -37,7 +37,7 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
                 cy.task('apiRequest', {
-                    type: 'post',
+                    method: 'post',
                     url: `${vtConfFile.url}/api/v1/device-info`,
                     body: {
                         "userAgentInfo": userAgentData,
@@ -308,7 +308,7 @@ let sendImageApiJSON = () => {
         freezePageResult
     };
     cy.task('apiRequest', {
-        type: 'post',
+        method: 'post',
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         body: imagePostData,
     }).then((res) => {
