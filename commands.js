@@ -384,7 +384,7 @@ let getComparisonMode = (comparisonMode, sensitivity) => {
             throw new Error(`Since comparisonMode: "layout" on sbvtCapture: "${imageName}", sensitivity must be "low", "medium", or "high"`);
         }
     } else {
-        throw new Error(`comparisonMode: "${comparisonMode}" is invalid — must be either "detailed" or "layout"`);
+        throw new Error(`on sbvtCapture: "${imageName}", comparisonMode: "${comparisonMode}" is invalid — must be either "detailed" or "layout"`);
     }
 };
 
