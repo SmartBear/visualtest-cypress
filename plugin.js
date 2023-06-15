@@ -103,9 +103,8 @@ const apiRequest = async (method, url, body, headers) => {
         headers: headers,
         data: body
     }).catch((err) => {
-        console.warn(`Issue with apiRequest`);
-        console.info(`Error is: `, err);
-        return err;
+        logger.info(`Full error is: %o`, err.response.data);
+        return err.response;
     });
 };
 
@@ -187,20 +186,23 @@ function makeGlobalRunHooks() {
                         configFile.projectToken = process.env.PROJECT_TOKEN;
                     } else {
                         if (!configFile.projectToken) { //check to make sure user added a projectToken
-                            configFile.fail = true;
-                            logger.fatal(`Please add **module.exports = { projectToken: 'PROJECT_TOKEN' }** to your visualTest.config.js file`);
+                            const message = `Please add **module.exports = { projectToken: 'PROJECT_TOKEN' }** to your visualTest.config.js file`
+                            configFile.fail = message;
+                            logger.fatal(message);
                             return configFile;
                         }
 
                         if (configFile.projectToken.includes("PROJECT_TOKEN")) { //check to make sure the user changed it from the default
-                            configFile.fail = true;
-                            logger.fatal(`Please insert your projectToken. If you don't have an account, start a free trial: https://try.smartbear.com/visualtest`);
+                            const message = `Please insert your projectToken. If you don't have an account, start a free trial: https://try.smartbear.com/visualtest`
+                            configFile.fail = message;
+                            logger.fatal(message);
                             return configFile;
                         }
                     }
                     if (!configFile.projectToken.split('/')[1]) { //check to make sure user added the auth part(~second-half) of projectToken
-                        configFile.fail = true;
-                        logger.fatal(`Please add your full projectToken for example -> ** projectToken: 'xxxxxxxx/xxxxxxxxxxxx' **`);
+                        const message = `Please add your full projectToken for example -> ** projectToken: 'xxxxxxxx/xxxxxxxxxxxx' **`
+                        configFile.fail = message;
+                        logger.fatal(message);
                         return configFile;
                     }
 
@@ -255,8 +257,9 @@ function makeGlobalRunHooks() {
                         configFile.testRunId = postResponse.data.testRunId;
                         logger.debug('config.testRunId: ' + configFile.testRunId);
                     } catch (error) {
-                        configFile.fail = true;
-                        logger.fatal(`Error with creating testRun: %o`, error.message);
+                        const message = `Error with creating testRun: %o`
+                        configFile.fail = message + error.message;
+                        logger.fatal(message + error.message);
                         logger.trace(`Full error with creating testRun: %o`, error);
                         return configFile;
                     }
@@ -266,8 +269,16 @@ function makeGlobalRunHooks() {
                 return configFile;
             },
             async apiRequest({method, url, body}) {
-                const res = await apiRequest(method, url, body);
-                return res.data; // have to return the res.data or JSON issues
+                const response = {};
+                try {
+                    const res = await apiRequest(method, url, body);
+                    response.data = res.data;
+                    return response; // have to return the res.data or JSON issues
+                } catch (err) {
+                    response.error = err;
+                    return response;
+                }
+
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));

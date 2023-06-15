@@ -36,6 +36,10 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
+                if (taskData.fail) {
+                    throw new Error(taskData.fail);
+                }
+                cy.task('logger', {type: 'trace', message: `data returned from creating testRun`, taskData});
                 cy.task('apiRequest', {
                     method: 'post',
                     url: `${vtConfFile.url}/api/v1/device-info`,
@@ -45,10 +49,14 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                             platformVersion
                         }
                     }
-                })
-                    .then((res) => {
-                        deviceInfoResponse = res;
-                    });
+                }).then((response) => {
+                    if (response.error) {
+                        cy.task('logger', {type: 'trace', message: response});
+                        throw new Error(`Issue with apiRequest ${response.error}`);
+                    } else {
+                        deviceInfoResponse = response.data;
+                    }
+                });
                 takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
                 return apiRes;
@@ -289,7 +297,7 @@ let sendImageApiJSON = () => {
         dom: JSON.stringify(dom),
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
-        comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
+        comparisonMode: layoutData && layoutData.comparisonMode ? layoutData.comparisonMode : null,
         sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
     };
@@ -311,14 +319,12 @@ let sendImageApiJSON = () => {
         method: 'post',
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         body: imagePostData,
-    }).then((res) => {
-        cy.task('logger', {type: 'info', message: `imagePostData: ${res}`});
-        apiRes.imageApiResult = res;
-        if (res.uploadUrl) { //if there was a imageUrl returned we then PUT the blob to it
-            uploadToS3(res);
-        } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
-            cy.task('logger', {type: 'error', message: `'${imageName}': Error posting image`});
-            cy.task('logger', {type: 'info', message: res});
+    }).then((response) => {
+        if (response.data.status) {
+            throw new Error(`Issue with apiRequest post image — status: ${response.data.status}, message: ${response.data.message}`);
+        } else {
+            apiRes.imageApiResult = response.data;
+            uploadToS3(response.data);
         }
     });
 };
@@ -354,12 +360,13 @@ let captureDom = (win) => {
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
-let getComparisonMode = (layoutMode, sensitivity) => {
+let getComparisonMode = (comparisonMode, sensitivity) => {
+    cy.task('logger', {type: 'fatal', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}"`});
     layoutData = {};
-    if (layoutMode === 'detailed') {
-        layoutData.layoutMode = 'detailed';
-    } else if (layoutMode === 'layout') {
-        layoutData.layoutMode = layoutMode;
+    if (comparisonMode === 'detailed') {
+        layoutData.comparisonMode = 'detailed';
+    } else if (comparisonMode === 'layout') {
+        layoutData.comparisonMode = comparisonMode;
         if (['low', 'medium', 'high'].includes(sensitivity)) {
             // Map sensitivity value to the proper enum value
             switch (sensitivity) {
@@ -376,6 +383,8 @@ let getComparisonMode = (layoutMode, sensitivity) => {
         } else {
             throw new Error(`Since comparisonMode: "layout" on sbvtCapture: "${imageName}", sensitivity must be "low", "medium", or "high"`);
         }
+    } else {
+        throw new Error(`on sbvtCapture: "${imageName}", comparisonMode: "${comparisonMode}" is invalid — must be either "detailed" or "layout"`);
     }
 };
 
@@ -393,7 +402,6 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
         });
 });
 
-
 Cypress.Commands.add('sbvtPrintReport', () => {
     cy.task('getTestRunResult')
         .then(response => {
@@ -406,4 +414,5 @@ Cypress.Commands.add('sbvtPrintReport', () => {
             }
         });
 });
+
 
