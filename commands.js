@@ -297,7 +297,7 @@ let sendImageApiJSON = () => {
         dom: JSON.stringify(dom),
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
-        comparisonMode: layoutData && layoutData.layoutMode ? layoutData.layoutMode : null,
+        comparisonMode: layoutData && layoutData.comparisonMode ? layoutData.comparisonMode : null,
         sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
     };
@@ -360,12 +360,13 @@ let captureDom = (win) => {
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
-let getComparisonMode = (layoutMode, sensitivity) => {
+let getComparisonMode = (comparisonMode, sensitivity) => {
+    cy.task('logger', {type: 'fatal', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}"`});
     layoutData = {};
-    if (layoutMode === 'detailed') {
-        layoutData.layoutMode = 'detailed';
-    } else if (layoutMode === 'layout') {
-        layoutData.layoutMode = layoutMode;
+    if (comparisonMode === 'detailed') {
+        layoutData.comparisonMode = 'detailed';
+    } else if (comparisonMode === 'layout') {
+        layoutData.comparisonMode = comparisonMode;
         if (['low', 'medium', 'high'].includes(sensitivity)) {
             // Map sensitivity value to the proper enum value
             switch (sensitivity) {
@@ -382,6 +383,8 @@ let getComparisonMode = (layoutMode, sensitivity) => {
         } else {
             throw new Error(`Since comparisonMode: "layout" on sbvtCapture: "${imageName}", sensitivity must be "low", "medium", or "high"`);
         }
+    } else {
+        throw new Error(`comparisonMode: "${comparisonMode}" is invalid — must be either "detailed" or "layout"`);
     }
 };
 
