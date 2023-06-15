@@ -36,6 +36,10 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
+                if (taskData.fail) {
+                    throw new Error(taskData.fail);
+                }
+                cy.task('logger', {type: 'trace', message: `data returned from creating testRun`, taskData});
                 cy.task('apiRequest', {
                     method: 'post',
                     url: `${vtConfFile.url}/api/v1/device-info`,
@@ -45,10 +49,14 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                             platformVersion
                         }
                     }
-                })
-                    .then((res) => {
-                        deviceInfoResponse = res;
-                    });
+                }).then((response) => {
+                    if (response.error) {
+                        cy.task('logger', {type: 'trace', message: response});
+                        throw new Error(`Issue with apiRequest ${response.error}`);
+                    } else {
+                        deviceInfoResponse = response.data;
+                    }
+                });
                 takeScreenshot(element, name, modifiedOptions, win);
             }).then(() => {
                 return apiRes;
@@ -311,14 +319,12 @@ let sendImageApiJSON = () => {
         method: 'post',
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
         body: imagePostData,
-    }).then((res) => {
-        cy.task('logger', {type: 'info', message: `imagePostData: ${res}`});
-        apiRes.imageApiResult = res;
-        if (res.uploadUrl) { //if there was a imageUrl returned we then PUT the blob to it
-            uploadToS3(res);
-        } else { //if the create image POST fails we don't want to fail the users whole spec, we just return an error (on the interactive console and to users node console)
-            cy.task('logger', {type: 'error', message: `'${imageName}': Error posting image`});
-            cy.task('logger', {type: 'info', message: res});
+    }).then((response) => {
+        if (response.data.status) {
+            throw new Error(`Issue with apiRequest post image — status: ${response.data.status}, message: ${response.data.message}`);
+        } else {
+            apiRes.imageApiResult = response.data;
+            uploadToS3(response.data);
         }
     });
 };
@@ -393,7 +399,6 @@ Cypress.Commands.add('sbvtGetTestRunResult', () => {
         });
 });
 
-
 Cypress.Commands.add('sbvtPrintReport', () => {
     cy.task('getTestRunResult')
         .then(response => {
@@ -406,4 +411,5 @@ Cypress.Commands.add('sbvtPrintReport', () => {
             }
         });
 });
+
 
