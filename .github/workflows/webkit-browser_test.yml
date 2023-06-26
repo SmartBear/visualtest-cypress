@@ -34,10 +34,6 @@ jobs:
         run: npm install playwright-webkit
         working-directory: ./test/webkit-test
 
-      - name: Install Cypress
-        run: npm install cypress@latest
-        working-directory: ./test/webkit-test
-
       - name: Cypress run
         uses: cypress-io/github-action@v5
         with:
@@ -45,13 +41,9 @@ jobs:
           working-directory: ./test/webkit-test
           spec: cypress/e2e/*
           browser: ${{ matrix.browser }}
-        #          record: true
-        #          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
           DEBUG: TRUE

@@ -4,11 +4,8 @@ on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ${{ matrix.os }}
-    # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
-    # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
-    # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
-      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     steps:
@@ -32,13 +29,9 @@ jobs:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/test_print_report*
-        #          record: true
-        #          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
           DEBUG: TRUE
