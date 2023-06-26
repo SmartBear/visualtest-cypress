@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:../..",
-    "cypress": "^12.12.0",
+    "cypress": "file:..",
     "jest": "^29.5.0",
     "typescript": "^5.0.4"
   }

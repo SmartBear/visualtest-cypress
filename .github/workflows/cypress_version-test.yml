@@ -4,11 +4,8 @@ on: [pull_request]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
-    # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
-    # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
-    # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
-      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
+      fail-fast: false
       matrix:
         cypress-version: [7.4.0, 7.7.0, 8.7.0, 9.7.0, 10.11.0, 11.2.0, 12.13.0, latest, dev]
 
@@ -67,13 +64,9 @@ jobs:
           quiet: true
           working-directory: ./test/version-control-test/above10
           spec: cypress/e2e/*
-        #          record: true
-        #          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
           DEBUG: TRUE
@@ -116,13 +109,9 @@ jobs:
           quiet: true
           working-directory: ./test/version-control-test/below10
           spec: cypress/integration/*
-        #          record: true
-        #          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
           DEBUG: TRUE

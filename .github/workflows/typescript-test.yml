@@ -28,10 +28,6 @@ jobs:
         run: npm install
         working-directory: ./test/typescript-test
 
-      - name: Install Cypress
-        run: npm install cypress@latest
-        working-directory: ./test/typescript-test
-
       - name: Setup visualtest
         run: npx visualtest-setup > visualtest-first-logs.txt
         working-directory: ./test/typescript-test
@@ -50,13 +46,9 @@ jobs:
           quiet: true
           working-directory: ./test/typescript-test
           spec: cypress/e2e/*
-        #          record: true
-        #          parallel: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
           DEBUG: TRUE
