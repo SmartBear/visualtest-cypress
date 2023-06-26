@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
+  "main": "index.js",
   "author": "",
   "license": "ISC",
   "dependencies": {
