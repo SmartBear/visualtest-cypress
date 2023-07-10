@@ -361,7 +361,7 @@ let captureDom = (win) => {
     }
 };
 let getComparisonMode = (comparisonMode, sensitivity) => {
-    cy.task('logger', {type: 'fatal', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}"`});
+    cy.task('logger', {type: 'info', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}`});
     layoutData = {};
     if (comparisonMode === 'detailed') {
         layoutData.comparisonMode = 'detailed';
