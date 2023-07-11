@@ -298,7 +298,7 @@ let sendImageApiJSON = () => {
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
         comparisonMode: layoutData && layoutData.comparisonMode ? layoutData.comparisonMode : null,
-        sensitivity: layoutData && layoutData.sensitivity ? layoutData.sensitivity : null,
+        sensitivity: layoutData && (layoutData.sensitivity || layoutData.sensitivity === 0) ? layoutData.sensitivity : null,
         headless: Cypress.browser.isHeadless
     };
 
