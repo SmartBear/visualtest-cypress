@@ -294,7 +294,7 @@ let sendImageApiJSON = () => {
         devicePixelRatio: picProps.pixelRatio,
         imageExt: "png",
         testUrl: picElements ? picElements[0].baseURI : fullpageData.url,
-        dom: JSON.stringify(dom),
+        sdkDomUpload: true,
         ignoredElements: JSON.stringify(dom.ignoredElementsData),
         userAgentInfo: JSON.stringify(userAgentData),
         comparisonMode: layoutData && layoutData.comparisonMode ? layoutData.comparisonMode : null,
@@ -324,18 +324,43 @@ let sendImageApiJSON = () => {
             throw new Error(`Issue with apiRequest post image — status: ${response.data.status}, message: ${response.data.message}`);
         } else {
             apiRes.imageApiResult = response.data;
-            uploadToS3(response.data);
+            uploadDomToS3(response.data.domUploadUrl, response.data.imageId);
+            uploadImageToS3(response.data.uploadUrl);
         }
     });
 };
-let uploadToS3 = async (res) => {
-    cy.task('logger', {type: 'trace', message: `Starting the cy.request S3 PUT now`});
+let uploadDomToS3 = async (url, imageId) => {
     cy.request({
         method: "PUT",
-        url: res.uploadUrl,
+        url: url,
+        failOnStatusCode: false,
+        body: JSON.stringify(dom)
+
+    }).then((response) => {
+        cy.task('logger', {type: 'info', message: `DOM s3 POST response ${response.status}`})
+        cy.request({
+            method: "PATCH",
+            url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
+            failOnStatusCode: false,
+            headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
+            body: {
+                domCaptured: true
+            }
+        }).then((response) => {
+            cy.task('logger', {type: 'info', message: `after s3 dom upload, image PATCH response ${response.status}`})
+        })
+    });
+};
+let uploadImageToS3 = async (url) => {
+    cy.task('logger', {type: 'trace', message: `Starting the cy.request image S3 PUT now`});
+    cy.request({
+        method: "PUT",
+        url,
         headers: {"Content-Type": "application/octet-stream"},
         failOnStatusCode: false,
         body: blobData
+    }).then((response) => {
+        cy.task('logger', {type: 'info', message: `image S3 POST response ${response.status}`})
     });
 };
 let readImageAndBase64ToBlob = () => {
@@ -346,6 +371,8 @@ let readImageAndBase64ToBlob = () => {
 };
 let captureDom = (win) => {
     dom = JSON.parse(win.eval(toolkitScripts.domCapture));
+    dom.screenshotType = imageType.toLowerCase()
+
     if (Array.isArray(dom.ignoredElementsData) && dom.ignoredElementsData.length) {
         cy.task('logger', {type: "info", message: `returned dom.ignoredElementsData: ${JSON.stringify(dom.ignoredElementsData)}`});
     }
