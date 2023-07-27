@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install test dependencies
-        run: npm install
+        run: npm install cypress
         working-directory: ./test/npm-package-test
 
       - name: Install Visual Test from NPM
