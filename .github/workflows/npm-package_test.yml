@@ -18,12 +18,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install test dependencies
-        run: npm install cypress
-        working-directory: ./test/npm-package-test
-
-      - name: Install Visual Test from NPM
-        run: npm install @smartbear/visualtest-cypress@latest
+      - name: Install Visual Test & Cypress from NPM
+        run: npm install cypress @smartbear/visualtest-cypress@latest
         working-directory: ./test/npm-package-test
 
       - name: Setup Visual Test from NPM
