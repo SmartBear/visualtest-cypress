@@ -361,7 +361,7 @@ let uploadImageToS3 = async (url, imageId) => {
         body: blobData
     }).then((response) => {
         if (response.status < 200 || response.status >= 300) {
-            cy.task('logger', {type: 'error', message: `Failed S3 image PUT status: ${response.status}, PUT url: ${url}`})
+            cy.task('logger', {type: 'error', message: `Failed S3 image PUT status: ${response.status}`})
             cy.task('logger', {type: 'info', message: `Going to PATCH the image at url: ${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`})
             cy.request({
                 method: "PATCH",
@@ -369,7 +369,7 @@ let uploadImageToS3 = async (url, imageId) => {
                 failOnStatusCode: false,
                 headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
                 body: {
-                    errorMessage: `Failed S3 image PUT status: ${response.status}, PUT url: ${url}`
+                    errorMessage: JSON.stringify(response)
                 }
             }).then((response) => {
                 cy.task('logger', {type: 'info', message: `after s3 image upload -> image PATCH response: ${response.status}`})
