@@ -325,7 +325,7 @@ let sendImageApiJSON = () => {
         } else {
             apiRes.imageApiResult = response.data;
             uploadDomToS3(response.data.domUploadUrl, response.data.imageId);
-            uploadImageToS3(response.data.uploadUrl);
+            uploadImageToS3(response.data.uploadUrl, response.data.imageId);
         }
     });
 };
@@ -351,7 +351,7 @@ let uploadDomToS3 = async (url, imageId) => {
         })
     });
 };
-let uploadImageToS3 = async (url) => {
+let uploadImageToS3 = async (url, imageId) => {
     cy.task('logger', {type: 'trace', message: `Starting the cy.request image S3 PUT now`});
     cy.request({
         method: "PUT",
@@ -360,7 +360,24 @@ let uploadImageToS3 = async (url) => {
         failOnStatusCode: false,
         body: blobData
     }).then((response) => {
-        cy.task('logger', {type: 'info', message: `image S3 POST response ${response.status}`})
+        if (response.status < 200 || response.status >= 300) {
+            cy.task('logger', {type: 'error', message: `Failed S3 image PUT status: ${response.status}, PUT url: ${url}`})
+            cy.task('logger', {type: 'info', message: `Going to PATCH the image at url: ${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`})
+            cy.request({
+                method: "PATCH",
+                url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
+                failOnStatusCode: false,
+                headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
+                body: {
+                    errorMessage: `Failed S3 image PUT status: ${response.status}, PUT url: ${url}`
+                }
+            }).then((response) => {
+                cy.task('logger', {type: 'info', message: `after s3 image upload -> image PATCH response: ${response.status}`})
+            })
+
+        } else {
+            cy.task('logger', {type: 'info', message: `image S3 post was successful, response: ${response.status}`})
+        }
     });
 };
 let readImageAndBase64ToBlob = () => {
