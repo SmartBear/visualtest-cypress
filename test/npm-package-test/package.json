@@ -8,8 +8,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cypress": "file:.."
-  }
+  "license": "ISC"
 }
