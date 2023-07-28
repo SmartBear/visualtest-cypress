@@ -335,20 +335,23 @@ let uploadDomToS3 = async (url, imageId) => {
         url: url,
         failOnStatusCode: false,
         body: JSON.stringify(dom)
-
     }).then((response) => {
-        cy.task('logger', {type: 'info', message: `DOM s3 POST response ${response.status}`})
-        cy.request({
-            method: "PATCH",
-            url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
-            failOnStatusCode: false,
-            headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
-            body: {
-                domCaptured: true
-            }
-        }).then((response) => {
-            cy.task('logger', {type: 'info', message: `after s3 dom upload, image PATCH response ${response.status}`})
-        })
+        if (response.status < 200 || response.status >= 300) {
+            s3ErrorPatch(response, imageId)
+        } else {
+            cy.task('logger', {type: 'info', message: `DOM s3 POST response ${response.status}`})
+            cy.request({
+                method: "PATCH",
+                url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
+                failOnStatusCode: false,
+                headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
+                body: {
+                    domCaptured: true
+                }
+            }).then((patchResponse) => {
+                cy.task('logger', {type: 'info', message: `after s3 dom upload, image PATCH response ${patchResponse.status}`})
+            })
+        }
     });
 };
 let uploadImageToS3 = async (url, imageId) => {
@@ -361,25 +364,27 @@ let uploadImageToS3 = async (url, imageId) => {
         body: blobData
     }).then((response) => {
         if (response.status < 200 || response.status >= 300) {
-            cy.task('logger', {type: 'error', message: `Failed S3 image PUT status: ${response.status}`})
-            cy.task('logger', {type: 'info', message: `Going to PATCH the image at url: ${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`})
-            cy.request({
-                method: "PATCH",
-                url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
-                failOnStatusCode: false,
-                headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
-                body: {
-                    errorMessage: JSON.stringify(response)
-                }
-            }).then((response) => {
-                cy.task('logger', {type: 'info', message: `after s3 image upload -> image PATCH response: ${response.status}`})
-            })
-
+            s3ErrorPatch(response, imageId)
         } else {
             cy.task('logger', {type: 'info', message: `image S3 post was successful, response: ${response.status}`})
         }
     });
 };
+const s3ErrorPatch = (response, imageId) => {
+    cy.task('logger', {type: 'error', message: `Failed S3 PUT status: ${response.status}`})
+    cy.task('logger', {type: 'info', message: `Going to PATCH the image at url: ${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`})
+    cy.request({
+        method: "PATCH",
+        url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
+        failOnStatusCode: false,
+        headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
+        body: {
+            errorMessage: JSON.stringify(response)
+        }
+    }).then((response) => {
+        cy.task('logger', {type: 'info', message: `after s3 image upload -> image PATCH response: ${response.status}`})
+    })
+}
 let readImageAndBase64ToBlob = () => {
     cy.readFile(picProps.path, "base64").then((file) => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
