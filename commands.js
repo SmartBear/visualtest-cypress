@@ -340,16 +340,17 @@ let uploadDomToS3 = async (url, imageId) => {
             s3ErrorPatch(response, imageId)
         } else {
             cy.task('logger', {type: 'info', message: `DOM s3 POST response ${response.status}`})
-            cy.request({
-                method: "PATCH",
+            cy.task('apiRequest', {
+                method: 'PATCH',
                 url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images/${imageId}`,
-                failOnStatusCode: false,
-                headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
                 body: {
                     domCaptured: true
-                }
-            }).then((patchResponse) => {
-                cy.task('logger', {type: 'info', message: `after s3 dom upload, image PATCH response ${patchResponse.status}`})
+                },
+                headers: {Authorization : `Bearer ${vtConfFile.projectToken}`},
+            })
+                .then((patchResponse) => {
+                    cy.task('logger', {type: 'info', message: `after s3 dom upload, image PATCH response: `})
+                    cy.task('logger', {type: 'info', message: patchResponse})
             })
         }
     });

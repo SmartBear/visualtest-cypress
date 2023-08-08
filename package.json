@@ -1,6 +1,6 @@
 {
   "name": "@smartbear/visualtest-cypress",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
   "main": "index.js",
   "scripts": {

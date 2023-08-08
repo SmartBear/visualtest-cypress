@@ -268,10 +268,10 @@ function makeGlobalRunHooks() {
                 }
                 return configFile;
             },
-            async apiRequest({method, url, body}) {
+            async apiRequest({method, url, body, headers}) {
                 const response = {};
                 try {
-                    const res = await apiRequest(method, url, body);
+                    const res = await apiRequest(method, url, body, headers);
                     response.data = res.data;
                     return response; // have to return the res.data or JSON issues
                 } catch (err) {
