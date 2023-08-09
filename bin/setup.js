@@ -11,35 +11,34 @@ const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n}`;
 // const jsonData = `"chromeWebSecurity": false`;
 let error = false;
 
-const { packageFile, usersCypress} = (() => {
+const usersCypressVersion = (() => {
     let packageFile, usersCypress;
     try {
         packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
         usersCypress = JSON.parse(packageFile.toString());
     } catch (err) {
-        error = true
+        error = true;
         console.log(chalk.bold.yellow('\nCypress not found, please run: '));
         console.log(chalk.magenta.underline(`npm install cypress\nnpx cypress open`));
         console.log((`Go through the Cypress setup wizard`));
         process.stdout.write(chalk.yellow(`Then, run: `));
         process.stdout.write(chalk.magenta.underline(`npx visualtest-setup`));
         console.log(chalk.yellow(` again.\n`));
-
     }
-    return { packageFile, usersCypress }
+    return usersCypress;
 })();
 
 let cypressVersionAbove10; //boolean true if above version 10
 let checkCypressVersion = () => {
     //checks if the user's version is supported, and if it above or below Cypress version 10 (due to different naming conventions)
-    if (usersCypress.version.split('.')[0] < 7 || usersCypress.version.split('.')[0] <= 7 && usersCypress.version.split('.')[1] < 4) {
+    if (usersCypressVersion.version.split('.')[0] < 7 || usersCypressVersion.version.split('.')[0] <= 7 && usersCypressVersion.version.split('.')[1] < 4) {
         // Note as of now this is not supported because cy.request cannot send blobs in previous versions
-        console.log(chalk.redBright(`Detected Cypress ${usersCypress.version}`));
+        console.log(chalk.redBright(`Detected Cypress ${usersCypressVersion.version}`));
         console.log(chalk.green(`Only Cypress 7.4.0+ is supported`));
         error = true;
     }
-    cypressVersionAbove10 = usersCypress.version.split('.')[0] >= 10;
-    checkForTypeScript(cypressVersionAbove10)
+    cypressVersionAbove10 = usersCypressVersion.version.split('.')[0] >= 10;
+    checkForTypeScript(cypressVersionAbove10);
 
     /**
     if we decide to support older versions commenting out for now
@@ -78,21 +77,21 @@ let fileExtension; // this for either '.js' or '.ts'
 const checkForTypeScript = (version10) => {
     try {
         try {
-            fs.readFileSync(version10 ? `${process.cwd()}/cypress/support/e2e.js` : `${process.cwd()}/cypress/support/index.js`, 'utf-8')
-            fileExtension = ".js"
+            fs.readFileSync(version10 ? `${process.cwd()}/cypress/support/e2e.js` : `${process.cwd()}/cypress/support/index.js`, 'utf-8');
+            fileExtension = ".js";
         } catch (error) {
-            fs.readFileSync(version10 ? `${process.cwd()}/cypress/support/e2e.ts` : `${process.cwd()}/cypress/support/index.ts`, 'utf-8')
-            fileExtension = ".ts"
+            fs.readFileSync(version10 ? `${process.cwd()}/cypress/support/e2e.ts` : `${process.cwd()}/cypress/support/index.ts`, 'utf-8');
+            fileExtension = ".ts";
             console.log(chalk.yellow('TypeScript detected - this currently in beta.'));
         }
     } catch (error) {
         //TODO look into logging later
         // logger.debug('Issue with finding file extension, defaulting to ".js".')
         // logger.debug('Most likely the Cypress project is not set up yet')
-        fileExtension = ".js"
+        fileExtension = ".js";
         // error handled later
     }
-}
+};
 
 let setupVTConf = () => {
     const filePath = `${process.cwd()}/visualTest.config.js`;
@@ -124,7 +123,7 @@ let setupVTConf = () => {
 };
 
 let setupCommands = () => {
-    let aboveVersion10 = usersCypress.version.split('.')[0] >= 10;
+    let aboveVersion10 = usersCypressVersion.version.split('.')[0] >= 10;
     const supportPath = aboveVersion10 ? `${process.cwd()}/cypress/support/e2e` : `${process.cwd()}/cypress/support/index`;
 
     let fileContent;
@@ -149,7 +148,7 @@ let setupCommands = () => {
     }
 };
 let setupPlugin = () => {
-    let aboveVersion10 = usersCypress.version.split('.')[0] >= 10;
+    let aboveVersion10 = usersCypressVersion.version.split('.')[0] >= 10;
     const supportPath = aboveVersion10 ? path.resolve(process.cwd(), 'cypress.config') : `${process.cwd()}/cypress/plugins/index`;
 
     let fileContent;
@@ -180,7 +179,7 @@ const setupTypeScriptIndexFile = () => {
 
     let fileContent;
     try {
-            fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = fs.readFileSync(filePath, 'utf-8');
     } catch (err) {
         // okay if this file was not found
     }
@@ -193,7 +192,7 @@ const setupTypeScriptIndexFile = () => {
         process.stdout.write(chalk.green(`TypeScript import statement added.`));
         console.log(chalk.dim(`\t Filepath: cypress/support/index.d.ts`));
     }
-}
+};
 
 if (!error) checkCypressVersion();
 if (!error) setupCommands();
