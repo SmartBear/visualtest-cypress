@@ -9,10 +9,25 @@ const pluginRequire = `\nrequire('@smartbear/visualtest-cypress')(module)`;
 const commandsImport = `\nimport '@smartbear/visualtest-cypress/commands'`;
 const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n}`;
 // const jsonData = `"chromeWebSecurity": false`;
-//TODO add try catch
-const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
-const usersCypress = JSON.parse(packageFile.toString());
 let error = false;
+
+const { packageFile, usersCypress} = (() => {
+    let packageFile, usersCypress;
+    try {
+        packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
+        usersCypress = JSON.parse(packageFile.toString());
+    } catch (err) {
+        error = true
+        console.log(chalk.bold.yellow('\nCypress not found, please run: '));
+        console.log(chalk.magenta.underline(`npm install cypress\nnpx cypress open`));
+        console.log((`Go through the Cypress setup wizard`));
+        process.stdout.write(chalk.yellow(`Then, run: `));
+        process.stdout.write(chalk.magenta.underline(`npx visualtest-setup`));
+        console.log(chalk.yellow(` again.\n`));
+
+    }
+    return { packageFile, usersCypress }
+})();
 
 let cypressVersionAbove10; //boolean true if above version 10
 let checkCypressVersion = () => {
@@ -180,7 +195,7 @@ const setupTypeScriptIndexFile = () => {
     }
 }
 
-checkCypressVersion();
+if (!error) checkCypressVersion();
 if (!error) setupCommands();
 if (!error) setupPlugin();
 if (!error && fileExtension === '.ts') setupTypeScriptIndexFile();
