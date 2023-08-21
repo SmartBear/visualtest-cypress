@@ -50,9 +50,9 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                         }
                     }
                 }).then((response) => {
-                    if (response.error) {
-                        cy.task('logger', {type: 'trace', message: response});
-                        throw new Error(`Issue with apiRequest ${response.error}`);
+                    if (response.data.status) {
+                        cy.task('logger', {type: 'trace', message: response.data});
+                        throw new Error(`Issue with apiRequest ${response.data.message}`);
                     } else {
                         deviceInfoResponse = response.data;
                     }
