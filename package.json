@@ -4,7 +4,8 @@
   "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Tests shouldn't have any differences unless spec files are altered.\" && cd test && npx cypress run --spec 'cypress/e2e/test-spec' -q --reporter mochawesome && cd .."
+    "test": "scripts/run-tests.sh",
+    "publish-npm-public": "scripts/publish-NPM-public.sh"
   },
   "author": "Trevor Nelms",
   "license": "ISC",
@@ -27,14 +28,11 @@
     "visualtest-setup": "./bin/setup.js"
   },
   "files": [
-    "README.md",
-    "bin/setup.js",
+    "bin",
     "index.js",
     "index.d.ts",
-    "package.json",
     "plugin.js",
     "commands.js",
-    "LICENSE",
     "debug-pino-transport.js"
   ]
 }
