@@ -139,7 +139,7 @@ resolutions.forEach(widthHeight => {
                 })
             })
             it(`dom should have correct data`, () => {
-                assert(dataFromTest.dom, 'DOM is missing');
+                assert(dataFromTest.screenshotResults.dom, 'DOM is missing');
                 assert(dataFromTestscreenshotResults.dom.error === false, 'DOM capture has an error');
                 assert(dataFromTestscreenshotResults.dom.fullpage.width && dataFromTestscreenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
                 assert(dataFromTestscreenshotResults.dom.viewport.width && dataFromTestscreenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');

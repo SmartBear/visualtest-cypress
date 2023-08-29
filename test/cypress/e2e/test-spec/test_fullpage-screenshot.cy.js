@@ -106,7 +106,7 @@ resolutions.forEach(widthHeight => {
                 })
             })
             it(`dom should have correct data`, () => {
-                assert(dataFromTest.dom, 'DOM missing from result')
+                assert(dataFromTest.screenshotResults.dom, 'DOM missing from result')
                 assert(dataFromTestscreenshotResults.dom.error === false, 'DOM capture has an error');
                 assert(dataFromTestscreenshotResults.dom.fullpage.width && dataFromTestscreenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
                 assert(dataFromTestscreenshotResults.dom.viewport.width && dataFromTestscreenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
@@ -115,7 +115,7 @@ resolutions.forEach(widthHeight => {
             })
             if (currentTestCase.options.ignoreElements) {
                 it(`check that the dom has the cssSelectors in the ignoredElements`, () => {
-                    assert(dataFromTest.dom, 'dom missing from result')
+                    assert(dataFromTest.screenshotResults.dom, 'dom missing from result')
                     assert(dataFromTestscreenshotResults.dom.ignoredElementsData, 'ignoredElementsData missing from dom');
                     const ignoredElements = dataFromTestscreenshotResults.dom.ignoredElementsData;
                     assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
