@@ -71,16 +71,16 @@ resolutions.forEach(widthHeight => {
             })
             it(`dom should have correct data`, () => {
                 assert(dataFromTest.screenshotResults.dom, 'DOM is missing');
-                assert(dataFromTestscreenshotResults.dom.error === false, 'DOM capture has an error');
-                assert(dataFromTestscreenshotResults.dom.fullpage.width && dataFromTestscreenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
-                assert(dataFromTestscreenshotResults.dom.viewport.width && dataFromTestscreenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
-                assert(dataFromTestscreenshotResults.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
-                assert(dataFromTestscreenshotResults.dom.dom.length >= 1, 'DOM elements missing');
+                assert(dataFromTest.screenshotResults.dom.error === false, 'DOM capture has an error');
+                assert(dataFromTest.screenshotResults.dom.fullpage.width && dataFromTest.screenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
+                assert(dataFromTest.screenshotResults.dom.viewport.width && dataFromTest.screenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
+                assert(dataFromTest.screenshotResults.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
+                assert(dataFromTest.screenshotResults.dom.dom.length >= 1, 'DOM elements missing');
                 assert(dataFromTest.imageApiResult.imageType === 'viewport', `DOM screenshotType invalid: ${dataFromTest.imageApiResult.imageType}`);
             })
             if (currentTestCase.scrollViewport) {
                 it(`make sure that the scrolled viewport is reported on the dom`, () => {
-                    assert(dataFromTestscreenshotResults.dom.viewport.top === scrolledTo, "viewport.top in DOM capture did not match expected scroll position for viewport")
+                    assert(dataFromTest.screenshotResults.dom.viewport.top === scrolledTo, "viewport.top in DOM capture did not match expected scroll position for viewport")
                 })
             }
         })
