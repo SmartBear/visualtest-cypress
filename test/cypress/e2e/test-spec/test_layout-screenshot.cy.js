@@ -50,11 +50,11 @@ testCases.forEach(currentTestCase => {
         });
         it(`dom should have correct data`, () => {
             assert(dataFromTest.dom, 'DOM is missing');
-            assert(dataFromTest.dom.error === false, 'DOM capture has an error');
-            assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
-            assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
-            assert(dataFromTest.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
-            assert(dataFromTest.dom.dom.length >= 1, 'DOM elements missing');
+            assert(dataFromTestscreenshotResults.dom.error === false, 'DOM capture has an error');
+            assert(dataFromTestscreenshotResults.dom.fullpage.width && dataFromTestscreenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
+            assert(dataFromTestscreenshotResults.dom.viewport.width && dataFromTestscreenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
+            assert(dataFromTestscreenshotResults.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
+            assert(dataFromTestscreenshotResults.dom.dom.length >= 1, 'DOM elements missing');
             assert(dataFromTest.imageApiResult.imageType === 'fullpage', `DOM screenshotType invalid: ${dataFromTest.imageApiResult.imageType}`);
         })
 

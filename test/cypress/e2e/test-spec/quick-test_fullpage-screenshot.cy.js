@@ -103,23 +103,23 @@ testCases.forEach(currentTestCase => {
         })
         it(`dom should have correct data`, () => {
             assert(dataFromTest.dom, 'DOM missing from result')
-            assert(dataFromTest.dom.error === false, 'DOM capture has an error');
-            assert(dataFromTest.dom.fullpage.width && dataFromTest.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
-            assert(dataFromTest.dom.viewport.width && dataFromTest.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
-            assert(dataFromTest.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
-            assert(dataFromTest.dom.dom.length >= 1, 'DOM elements missing');
+            assert(dataFromTestscreenshotResults.dom.error === false, 'DOM capture has an error');
+            assert(dataFromTestscreenshotResults.dom.fullpage.width && dataFromTestscreenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
+            assert(dataFromTestscreenshotResults.dom.viewport.width && dataFromTestscreenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
+            assert(dataFromTestscreenshotResults.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
+            assert(dataFromTestscreenshotResults.dom.dom.length >= 1, 'DOM elements missing');
         })
         if (currentTestCase.options.ignoreElements) {
             it(`check that the dom has the cssSelectors in the ignoredElements`, () => {
                 assert(dataFromTest.dom, 'dom missing from result')
-                assert(dataFromTest.dom.ignoredElementsData, 'ignoredElementsData missing from dom');
-                const ignoredElements = dataFromTest.dom.ignoredElementsData;
+                assert(dataFromTestscreenshotResults.dom.ignoredElementsData, 'ignoredElementsData missing from dom');
+                const ignoredElements = dataFromTestscreenshotResults.dom.ignoredElementsData;
                 assert(Array.isArray(ignoredElements), 'ignoredElements on image API result was not an array');
                 assert(ignoredElements.length > 0, 'ignoredElementsData is an empty array');
                 assert(currentTestCase.options.ignoreElements.every(selector => ignoredElements.some(el => el.cssSelector === selector)), 'ignoreElements cssSelectors requested did not match found ignoredElements cssSelectors');
             })
             it(`filter through the flat dom and make sure there are some cases of ignore: true`, () => {
-                const flatDom = flattenDom(dataFromTest.dom.dom[0])
+                const flatDom = flattenDom(dataFromTestscreenshotResults.dom.dom[0])
                 const elementsToBeIgnored = flatDom.filter(el => el.ignore)
                 assert(elementsToBeIgnored.length >= currentTestCase.options.ignoreElements.length, 'There are less elements ignored than testCase ignoreElements.length');
             })
@@ -133,8 +133,8 @@ testCases.forEach(currentTestCase => {
             })
         } else {
             it(`check that the dom.ignoredElements is empty`, () => {
-                assert(dataFromTest.dom.ignoredElementsData, 'ignoredElementsData missing from dom');
-                const ignoredElements = dataFromTest.dom.ignoredElementsData;
+                assert(dataFromTestscreenshotResults.dom.ignoredElementsData, 'ignoredElementsData missing from dom');
+                const ignoredElements = dataFromTestscreenshotResults.dom.ignoredElementsData;
                 assert(Array.isArray(ignoredElements), 'ignoredElementsData on image API result was not an array');
                 assert(ignoredElements.length === 0, 'ignoredElementsData is not empty');
             })
@@ -148,7 +148,7 @@ testCases.forEach(currentTestCase => {
         }
         if (currentTestCase.validation) {
             it(`dom should prove lazyload is working`, () => {
-                const flatDom = flattenDom(dataFromTest.dom.dom[0])
+                const flatDom = flattenDom(dataFromTestscreenshotResults.dom.dom[0])
                 // go through all the elements in the testCases JSON
                 currentTestCase.validation.elements.forEach(currentElementOnTestcase => {
                     // filter through the flatDom for cssSelectors on it, that match the testcase

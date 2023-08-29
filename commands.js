@@ -306,7 +306,9 @@ let sendImageApiJSON = () => {
 
     imagePostData.browserVersion = Cypress.browser.majorVersion;  // Overwrite because Cypress is more reliable
 
+    //assign to keep the dom
     apiRes.screenshotResult = {
+        ...apiRes.screenshotResult,  // existing properties (includes dom)
         imagePath: picProps.path,
         imageSize: {
             width: imagePostData.imageWidth,
@@ -315,6 +317,7 @@ let sendImageApiJSON = () => {
         devicePixelRatio: imagePostData.devicePixelRatio,
         freezePageResult
     };
+
     cy.task('apiRequest', {
         method: 'post',
         url: `${vtConfFile.url}/api/v1/projects/${vtConfFile.projectId}/testruns/${vtConfFile.testRunId}/images`,
@@ -405,7 +408,9 @@ let captureDom = (win) => {
 
     if (vtConfFile.debug) {
         // Return and write the dom if the "debug: true" flag is thrown
-        apiRes.dom = dom;
+        apiRes.screenshotResult = {};
+        apiRes.screenshotResult.dom = dom;
+        // apiRes.dom = dom;
         cy.task('logger', {type: 'info', message: `dom has been saved to: "./${vtConfFile.debug}/${imageName}.json"`});
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
