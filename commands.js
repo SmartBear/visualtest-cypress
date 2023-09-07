@@ -135,11 +135,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Load this for state issues
         fullpageData = {delay: modifiedOptions.lazyload};
 
-        // Run some JS commands on the user's browser
-        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
-        let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
-        let viewportHeight = win.eval("window.innerHeight");
-        let viewportWidth = win.eval("window.innerWidth");
+        let [numScrolls, offsetHeight, viewportHeight, viewportWidth] = getImageDimension(win)
 
         if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
             // This checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
@@ -195,11 +191,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             }
 
 
-            // Run some JS commands on the user's browser
-            numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
-            offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
-            viewportHeight = win.eval("window.innerHeight");
-            viewportWidth = win.eval("window.innerWidth");
+            [numScrolls, offsetHeight, viewportHeight, viewportWidth] = getImageDimension(win)
 
             // Generate the array needed for a for-loop in Cypress
             scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
@@ -447,6 +439,15 @@ let getComparisonMode = (comparisonMode, sensitivity) => {
         throw new Error(`on sbvtCapture: "${imageName}", comparisonMode: "${comparisonMode}" is invalid — must be either "detailed" or "layout"`);
     }
 };
+
+let getImageDimension = (win)=>{
+        // Run some JS commands on the user's browser
+        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
+        let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
+        let viewportHeight = win.eval("window.innerHeight");
+        let viewportWidth = win.eval("window.innerWidth");
+        return [numScrolls, offsetHeight, viewportHeight, viewportWidth]
+}
 
 Cypress.Commands.add('sbvtGetTestRunResult', () => {
     //returns the testRun data aggregate as an object (removes other, sends only passed & failed)
