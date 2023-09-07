@@ -78,9 +78,10 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         }
 
         // Hide the scroll bar before the sbvtCapture starts & grab the initial state of the webpage to return it back after the capture
-        initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`);
+        initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"bodyOverflow": document.body.style.overflow,"documentOverflow": document.documentElement.style.overflow,"transform": document.body.style.transform}`);
         win.eval(`document.body.style.transform="translateY(0)"`);
         win.eval(`document.body.style.overflow="hidden"`);
+        win.eval(`document.documentElement.style.overflow='hidden'`);
 
         win.eval(`delete window.sbvt`); //clear the window.sbvt so subsequent runs don't have previous ignoredElements
         if (Array.isArray(modifiedOptions.ignoreElements)) { // ignoreElements function
@@ -278,7 +279,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
     }
     if (!vtConfFile.fail) {
         // Return the scroll bar after the sbvtCapture has completed
-        win.eval(`document.body.style.overflow='${initialPageState.overflow}'`);
+        win.eval(`document.body.style.overflow='${initialPageState.bodyOverflow}'`);
+        win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
         cy.task('logger', {type: 'info', message: `After sbvtCapture cy.screenshot('${name}')`});
     }
 };
