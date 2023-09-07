@@ -235,6 +235,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                 };
                                 // Translate to the top of the page and then capture the dom
                                 win.eval(`document.body.style.transform="translateY(0)"`);
+                                win.eval(`inBrowserTransform = document.body.style.transform`).should('equal', 0)
                                 captureDom(win);
 
                                 // Read the new image base64 to blob to be sent to AWS
