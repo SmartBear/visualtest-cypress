@@ -194,6 +194,16 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 }
             }
 
+
+            // Run some JS commands on the user's browser
+            numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
+            offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
+            viewportHeight = win.eval("window.innerHeight");
+            viewportWidth = win.eval("window.innerWidth");
+
+            // Generate the array needed for a for-loop in Cypress
+            scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
+
             // scroll down one viewport at a time and take a viewport screenshot
             cy.wrap(scrollArray).each(index => {
                 cy.task('logger', {type: 'trace', message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`});
