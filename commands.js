@@ -233,9 +233,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                         width: imageData.width
                                     }
                                 };
-                                // Translate to the top of the page and then capture the dom
-                                win.eval(`document.body.style.transform="translateY(0)"`);
-                                win.eval(`inBrowserTransform = document.body.style.transform`).should('equal', 0)
+                                
+                                scrollToTop(win)
                                 captureDom(win);
 
                                 // Read the new image base64 to blob to be sent to AWS
@@ -264,8 +263,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
-            // Translate to the top of the page and then capture the dom
-            win.eval(`document.body.style.transform="translateY(0)"`);
+            
+            scrollToTop(win)
             captureDom(win);
 
             // Read the new image base64 to blob to be sent to AWS
@@ -411,6 +410,22 @@ let captureDom = (win) => {
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
+let scrollToTop = (win) =>{
+    let tries = 0;
+    let scrollOffset = 1;
+    do {
+        // Translate to the top of the page and then capture the dom
+        win.eval(`document.body.style.transform="translateY(0)"`);
+        cy.wait(250);
+        scrollOffset = win.eval(`scrollOffset = document.body.style.transform`);
+        tries += 1;
+    }while (scrollOffset = 0 && tries < 40)
+    if (tries < 40){
+        cy.task('logger', {type: 'info', message: `Scroll offset is 0 after ${tries} tries`});
+    }else{
+        throw new Error(`Couldn't scroll to the top of page`);
+    }
+}
 let getComparisonMode = (comparisonMode, sensitivity) => {
     cy.task('logger', {type: 'info', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}`});
     layoutData = {};
