@@ -240,6 +240,9 @@ function makeGlobalRunHooks() {
                         const browserMajorVersion = fromCommands.userAgentData.browserVersion.split('.');
                         configFile.testRunName = `${osPrettyName} / ${browserPrettyName} ${browserMajorVersion[0]}`;
                     }
+                    if(configFile.testRunName.length > 100){
+                        throw new Error(`The maximum size of testRunName is 100 characters. ${configFile.testRunName.length} characters given.`)
+                    }
                     logger.trace('config.testRunName: ' + configFile.testRunName);
 
                     configFile.url = host;
@@ -279,6 +282,45 @@ function makeGlobalRunHooks() {
                     return response;
                 }
 
+            },
+            async canConnectToApiServer(){
+                let env = configFile.projectToken.split('_')[1].toLowerCase();
+                if (env) {
+                    host = `https://api.${env}.visualtest.io`;
+                } else {
+                    host = "https://api.visualtest.io";
+                };
+                
+                apiRequest('get',host).then((response)=>{
+                    if (response.error) {
+                        logger.trace(response)
+                        throw new Error(`The VisualTest SDK is unable to communicate with our server. This is usually due to one of the following reasons:\n\
+                        1) Firewall is blocking the domain: Solution is to whitelist the domain: "*.visualtest.io"\n\
+                        2) Internet access requires a proxy server: Talk to your network admin\n\
+                        \n\
+                        Error:\n\
+                        ${response.error}`);
+                    }else{
+                        logger.info(`Got initial connection response: ${response.body}`);
+                    }
+                })
+                return null
+            },
+            async isValidProjectToken(){
+                let projectId = configFile.projectToken.split('/')[0];
+                apiRequest( 
+                    'get',
+                    `${host}/api/v1/projects/${projectId}`, 
+                    {Authorization : `Bearer ${configFile.projectToken}`},).then((response)=>{
+                    if (response.error) {
+                        logger.trace(response)
+                        throw new Error(`Error checking projectToken: ${response.error}`);
+                    }else{
+                        logger.info(`ProjectToken is correct.`)
+                    }
+                })
+            
+                return null;
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
