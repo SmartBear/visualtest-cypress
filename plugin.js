@@ -290,31 +290,30 @@ function makeGlobalRunHooks() {
                 } else {
                     host = "https://api.visualtest.io";
                 };
+                const response = await apiRequest('get',host);
+                if (response.error) {
+                    logger.trace(response)
+                    throw new Error(`The VisualTest SDK is unable to communicate with our server. This is usually due to one of the following reasons:\n\
+                    1) Firewall is blocking the domain: Solution is to whitelist the domain: "*.visualtest.io"\n\
+                    2) Internet access requires a proxy server: Talk to your network admin\n\
+                    \n\
+                    Error:\n\
+                    ${response.error}`);
+                }else{
+                    logger.info(`Got initial connection response: ${response.body}`);
+                }
                 
-                apiRequest('get',host).then((response)=>{
-                    if (response.error) {
-                        logger.trace(response)
-                        throw new Error(`The VisualTest SDK is unable to communicate with our server. This is usually due to one of the following reasons:\n\
-                        1) Firewall is blocking the domain: Solution is to whitelist the domain: "*.visualtest.io"\n\
-                        2) Internet access requires a proxy server: Talk to your network admin\n\
-                        \n\
-                        Error:\n\
-                        ${response.error}`);
-                    }else{
-                        logger.info(`Got initial connection response: ${response.body}`);
-                    }
-                })
                 return null
             },
             async isValidProjectToken(){
                 let projectId = configFile.projectToken.split('/')[0];
+                axios.defaults.headers.common['Authorization'] = `Bearer ${configFile.projectToken}`;
                 apiRequest( 
                     'get',
-                    `${host}/api/v1/projects/${projectId}`, 
-                    {Authorization : `Bearer ${configFile.projectToken}`},).then((response)=>{
-                    if (response.error) {
+                    `${host}/api/v1/projects/${projectId}`).then((response)=>{
+                    if (response.data.status) {
                         logger.trace(response)
-                        throw new Error(`Error checking projectToken: ${response.error}`);
+                        throw new Error(`Error checking projectToken: ${response.data.message}`);
                     }else{
                         logger.info(`ProjectToken is correct.`)
                     }
