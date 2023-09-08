@@ -135,7 +135,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Load this for state issues
         fullpageData = {delay: modifiedOptions.lazyload};
 
-        let [numScrolls, offsetHeight, viewportHeight, viewportWidth] = getImageDimension(win)
+        let {numScrolls, offsetHeight, viewportHeight, viewportWidth} = getImageDimension(win)
 
         if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
             // This checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
@@ -151,7 +151,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             });
             return; //do not proceed the lazyload function with bad numbers here
         }
-        cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`});
 
         // Generate the array needed for a for-loop in Cypress
         let scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
@@ -188,10 +187,9 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                     cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
                     freezePageResult = win.eval(toolkitScripts.freezePage);
                 }
+                ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getImageDimension(win))
             }
 
-
-            [numScrolls, offsetHeight, viewportHeight, viewportWidth] = getImageDimension(win)
 
             // Generate the array needed for a for-loop in Cypress
             scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
@@ -446,7 +444,10 @@ let getImageDimension = (win)=>{
         let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
         let viewportHeight = win.eval("window.innerHeight");
         let viewportWidth = win.eval("window.innerWidth");
-        return [numScrolls, offsetHeight, viewportHeight, viewportWidth]
+
+        cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`});
+
+        return {numScrolls, offsetHeight, viewportHeight, viewportWidth}
 }
 
 Cypress.Commands.add('sbvtGetTestRunResult', () => {
