@@ -135,7 +135,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Load this for state issues
         fullpageData = {delay: modifiedOptions.lazyload};
 
-        let {numScrolls, offsetHeight, viewportHeight, viewportWidth} = getImageDimension(win)
+        let {numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win)
 
         if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
             // This checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
@@ -187,12 +187,12 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                     cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
                     freezePageResult = win.eval(toolkitScripts.freezePage);
                 }
-                ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getImageDimension(win))
+                //  Recalculate this in case the webpage changed dimensions during lazy loading
+                ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win))
+                scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
             }
 
 
-            // Generate the array needed for a for-loop in Cypress
-            scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
 
             // scroll down one viewport at a time and take a viewport screenshot
             cy.wrap(scrollArray).each(index => {
@@ -438,8 +438,8 @@ let getComparisonMode = (comparisonMode, sensitivity) => {
     }
 };
 
-let getImageDimension = (win)=>{
-        // Run some JS commands on the user's browser
+let getWebpageDimension = (win)=>{
+        // Run some JS commands on the user's browser to get details about the webpage
         let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
         let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
         let viewportHeight = win.eval("window.innerHeight");
