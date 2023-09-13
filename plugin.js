@@ -241,7 +241,9 @@ function makeGlobalRunHooks() {
                         configFile.testRunName = `${osPrettyName} / ${browserPrettyName} ${browserMajorVersion[0]}`;
                     }
                     logger.trace('config.testRunName: ' + configFile.testRunName);
-
+                    if(configFile.testRunName.length > 100){
+                        throw new Error(`The maximum size of testRunName is 100 characters. ${configFile.testRunName.length} characters given.`)
+                    }
                     configFile.url = host;
                     configFile.websiteUrl = webUrl;
 
@@ -424,6 +426,44 @@ function makeGlobalRunHooks() {
                     logger.warn(`Issue with printing report: ${error}`);
                     return null;
                 }
+            },
+            async canConnectToApiServer(){
+                let env = configFile.projectToken.split('_')[1].toLowerCase();
+                if (env) {
+                    host = `https://api.${env}.visualtest.io`;
+                } else {
+                    host = "https://api.visualtest.io";
+                };
+                const response = await apiRequest('get',host);
+                if (response.error) {
+                    logger.trace(response)
+                    throw new Error(`The VisualTest SDK is unable to communicate with our server. This is usually due to one of the following reasons:\n\
+                    1) Firewall is blocking the domain: Solution is to whitelist the domain: "*.visualtest.io"\n\
+                    2) Internet access requires a proxy server: Talk to your network admin\n\
+                    \n\
+                    Error:\n\
+                    ${response.error}`);
+                }else{
+                    logger.info(`Got initial connection response: ${response.body}`);
+                }
+
+                return null
+            },
+            async isValidProjectToken(){
+                let projectId = configFile.projectToken.split('/')[0];
+                axios.defaults.headers.common['Authorization'] = `Bearer ${configFile.projectToken}`;
+                apiRequest( 
+                    'get',
+                    `${host}/api/v1/projects/${projectId}`).then((response)=>{
+                    if (response.data.status) {
+                        logger.trace(response)
+                        throw new Error(`Error checking projectToken: ${response.data.message}`);
+                    }else{
+                        logger.info(`ProjectToken is correct.`)
+                    }
+                })
+
+                return null;
             }
         }
     };

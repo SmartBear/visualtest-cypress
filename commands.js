@@ -45,6 +45,8 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             };
             return cy.task('postTestRunId', {userAgentData, envFromCypress}).then((taskData) => {
                 vtConfFile = taskData; //grab visualTest.config.js data
+                cy.task('canConnectToApiServer');
+                cy.task('isValidProjectToken');
                 if (taskData.fail) {
                     throw new Error(taskData.fail);
                 }
