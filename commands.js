@@ -419,7 +419,7 @@ let ensureScrolledToTop = (win) =>{
         cy.wait(250);
         scrollOffset = win.eval(`scrollOffset = document.body.style.transform`);
         tries += 1;
-    }while (scrollOffset = 0 && tries < 40)
+    }while (scrollOffset == 0 && tries < 40)
     if (tries < 40){
         cy.task('logger', {type: 'info', message: `Scroll offset is 0 after ${tries} tries`});
     }else{
