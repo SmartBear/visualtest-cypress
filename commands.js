@@ -29,7 +29,7 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
         var semver = require('semver');
         var pjson = require('./package.json');
         if (semver.gt(lastestVersion, pjson.version)){
-            cy.log(`WARNING: A newer version of visualtest-python SDK is available. Your version ${os.release()}. Latest version ${lastestVersion}. Consider upgrading with "npm update -g @smartbear/visualtest-cypress"`)
+            cy.log(`WARNING: A newer version of visualtest-cypress SDK is available. Your version ${os.release()}. Latest version ${lastestVersion}. Consider upgrading with "npm update -g @smartbear/visualtest-cypress"`)
         }
     })
     cy.task('canConnectToApiServer');
