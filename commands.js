@@ -410,7 +410,7 @@ let captureDom = (win) => {
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
-let scrollToTop = (win) =>{
+let ensureScrolledToTop = (win) =>{
     let tries = 0;
     let scrollOffset = 1;
     do {
