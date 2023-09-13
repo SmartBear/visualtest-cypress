@@ -32,8 +32,6 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
             cy.log(`WARNING: A newer version of visualtest-cypress SDK is available. Your version ${os.release()}. Latest version ${lastestVersion}. Consider upgrading with "npm update -g @smartbear/visualtest-cypress"`)
         }
     })
-    cy.task('canConnectToApiServer');
-    cy.task('isValidProjectToken');
     
     cy.task('logger', {type: 'trace', message: `Beginning sbvtCapture('${name}')`});
     if (element) cy.task('logger', {type: 'trace', message: 'This is chained and there is an "element" value'});
@@ -73,6 +71,8 @@ Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, o
                 return apiRes;
             });
         });
+    cy.task('canConnectToApiServer');
+    cy.task('isValidProjectToken');
 });
 let takeScreenshot = (element, name, modifiedOptions, win) => {
     let initialPageState;
