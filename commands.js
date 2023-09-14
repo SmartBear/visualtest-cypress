@@ -413,13 +413,13 @@ let captureDom = (win) => {
 let ensureScrolledToTop = (win) =>{
     let tries = 0;
     let scrollOffset = 1;
+    win.eval(`document.body.style.transform="translateY(0)"`);
     do {
-        // Translate to the top of the page and then capture the dom
-        win.eval(`document.body.style.transform="translateY(0)"`);
+        // Translate to the top of the page and then capture the dom   
         cy.wait(250);
-        scrollOffset = win.eval(`scrollOffset = document.body.style.transform`);
+        scrollOffset = win.eval(`window.scrollY`);
         tries += 1;
-    }while (scrollOffset == 0 && tries < 40)
+    }while (scrollOffset != 0 && tries < 40)
     if (tries < 40){
         cy.task('logger', {type: 'info', message: `Scroll offset is 0 after ${tries} tries`});
     }else{
