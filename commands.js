@@ -419,10 +419,9 @@ let ensureScrolledToTop = (win) =>{
         // Translate to the top of the page and then capture the dom   
         cy.wait(250);
         scrollOffset = win.eval(`window.scrollY`);
-        console.log(scrollOffset)
-        tries += 1;
+        tries = tries + 1;
     }
-    if (tries < 40){
+    if (tries < 40 && scrollOffset == 0){
         cy.task('logger', {type: 'info', message: `Scroll offset is 0 after ${tries} tries`});
     }else{
         throw new Error(`Couldn't scroll to the top of page after ${tries} tries.` );
