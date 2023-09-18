@@ -113,8 +113,9 @@ const apiRequest = async (method, url, body, headers) => {
         return err.response;
     });
 };
-(async () => {
-    let env = configFile.projectToken.split('_')[1].toLowerCase();
+
+const checkConnectionToBackend = (async (projectToken) => {
+    let env = projectToken.split('_')[1].toLowerCase();
     if (env) {
         host = `https://api.${env}.visualtest.io`;
     } else {
@@ -132,7 +133,7 @@ const apiRequest = async (method, url, body, headers) => {
     } else {
         logger.info(`Got initial connection response: ${response.body}`);
     }
-})();
+});
 const isValidProjectToken = (async (projectToken) => {
     const response = await apiRequest('get', `${host}/api/v1/projects/${projectToken.split('/')[0]}`, null, {Authorization: `Bearer ${projectToken}`});
     if (response.data.status) {
@@ -259,6 +260,7 @@ function makeGlobalRunHooks() {
                     }
 
                     await isValidProjectToken(configFile.projectToken);
+                    await checkConnectionToBackend(configFile.projectToken);
 
                     logger.trace('config.projectToken: ' + configFile.projectToken);
                     configFile.projectId = configFile.projectToken.split('/')[0]; //take the first ~half to get the projectId
