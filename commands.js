@@ -234,7 +234,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                     }
                                 };
                                 
-                                ensureScrolledToTop(win)
+                                // ensureScrolledToTop(win)
                                 captureDom(win);
 
                                 // Read the new image base64 to blob to be sent to AWS
@@ -264,7 +264,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             
-            ensureScrolledToTop(win)
+            // ensureScrolledToTop(win)
             captureDom(win);
 
             // Read the new image base64 to blob to be sent to AWS
