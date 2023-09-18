@@ -264,7 +264,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             
-            // ensureScrolledToTop(win)
+            // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
             captureDom(win);
 
             // Read the new image base64 to blob to be sent to AWS
@@ -416,7 +416,8 @@ let ensureScrolledToTop = (win) =>{
     while (scrollOffset !== 0 && tries < 40){
         tries++;
         cy.task('logger', {type: 'warn', message: `Page not scrolled to the top. Scroll offset is: ${scrollOffset}. Trying to scroll to the top again and waiting 250ms. Try #: ${tries}`});
-        cy.scrollTo(0,0)
+        cy.scrollTo(0,0);
+        win.eval(`window.scrollTo(0, 0);`)
         cy.wait(250);
         scrollOffset = win.eval(`window.scrollY`); //check and update the scrolled position again
     }
