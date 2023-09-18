@@ -7,7 +7,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [ firefox, chrome, 'chrome:beta', edge ]
+#        browser: [ firefox, chrome, 'chrome:beta', edge ]
+        browser: [ firefox, chrome, edge ] #chrome beta causing issues
 
     steps:
       - name: Checkout code
