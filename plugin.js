@@ -108,6 +108,7 @@ const apiRequest = async (method, url, body, headers) => {
         headers: headers,
         data: body
     }).catch((err) => {
+        console.log(`Full error is: %o`, err.response.data);
         logger.info(`Full error is: %o`, err.response.data);
         return err.response;
     });
