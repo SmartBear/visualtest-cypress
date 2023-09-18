@@ -140,9 +140,10 @@ const isValidProjectToken = (async (projectToken) => {
     } else {
         logger.info(`ProjectToken is correct.`)
     }
+    return null
 })
 
-(async () => {
+const checkUsersVersion =(async () => {
     const userVersion = package_json.version
     const response = await apiRequest('get', 'https://registry.npmjs.org/@smartbear/visualtest-cypress')
     const {latest: latestVersion} = response.data["dist-tags"]
@@ -150,9 +151,10 @@ const isValidProjectToken = (async (projectToken) => {
     if (semver.eq(userVersion, latestVersion)) {
         // console.log(chalk.blue('The user has the latest version.'));
     } else {
-        console.log(chalk.yellow('Please upgrade to the latest version.'));
+        console.log(chalk.yellow('Please upgrade to the latest VisualTest Cypress Plugin version.'));
         console.log(chalk.blue('npm install @smartbear/visualtest-cypress@latest'));
     }
+    return null
 })();
 let getDomCapture = (async () => {
     try {
