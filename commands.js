@@ -234,8 +234,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                         width: imageData.width
                                     }
                                 };
-                                // Translate to the top of the page and then capture the dom
-                                win.eval(`document.body.style.transform="translateY(0)"`);
+                                
+                                ensureScrolledToTop(win)
                                 captureDom(win);
 
                                 // Read the new image base64 to blob to be sent to AWS
@@ -264,8 +264,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
-            // Translate to the top of the page and then capture the dom
-            win.eval(`document.body.style.transform="translateY(0)"`);
+            
+            // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
             captureDom(win);
 
             // Read the new image base64 to blob to be sent to AWS
@@ -412,6 +412,24 @@ let captureDom = (win) => {
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
+let ensureScrolledToTop = (win) =>{
+    let tries = 0;
+    let scrollOffset = win.eval(`window.scrollY`);
+    while (scrollOffset !== 0 && tries < 40){
+        tries++;
+        cy.task('logger', {type: 'warn', message: `Page not scrolled to the top. Scroll offset is: ${scrollOffset}. Trying to scroll to the top again and waiting 250ms. Try #: ${tries}`});
+        cy.scrollTo(0,0);
+        win.eval(`window.scrollTo(0, 0);`)
+        cy.wait(250);
+        scrollOffset = win.eval(`window.scrollY`); //check and update the scrolled position again
+    }
+    if (tries < 40 && scrollOffset === 0){
+        cy.task('logger', {type: 'info', message: `Scroll offset is: ${scrollOffset}, after ${tries} tries`});
+    }else{
+        cy.task('logger', {type: 'error', message: `Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`});
+        throw new Error(`Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`);
+    }
+}
 let getComparisonMode = (comparisonMode, sensitivity) => {
     cy.task('logger', {type: 'info', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}`});
     layoutData = {};
