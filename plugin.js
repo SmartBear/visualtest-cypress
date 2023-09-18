@@ -9,6 +9,7 @@ require('dotenv').config();
 const Jimp = require("jimp");
 const os = require('os');
 const pino = require('pino');
+const semver = require("semver");
 
 const targetArray = [{target: 'pino-pretty', level: 'warn'}]; //to log below warn uncomment two lines below
 let logger = pino(pino.transport({targets: targetArray}));
@@ -108,6 +109,18 @@ const apiRequest = async (method, url, body, headers) => {
     });
 };
 
+let checkUsersVersion = (async () => {
+    const userVersion = package_json.version
+    const response = await apiRequest('get', 'https://registry.npmjs.org/@smartbear/visualtest-cypress')
+    const {latest: latestVersion} = response.data["dist-tags"]
+
+    if (semver.eq(userVersion, latestVersion)) {
+        // console.log(chalk.blue('The user has the latest version.'));
+    } else {
+        console.log(chalk.yellow('Please upgrade to the latest version.'));
+        console.log(chalk.blue('npm install @smartbear/visualtest-cypress@latest'));
+    }
+})();
 
 let getDomCapture = (async () => {
     try {
