@@ -75,7 +75,11 @@ let configFile = (() => {
                 config.debug = debugFolderPath; //overwrite 'true' to the folder path for passing to commands.js
                 fs.mkdirSync(debugFolderPath, {recursive: true});
 
-                targetArray.push({target: './debug-pino-transport.js', level: 'trace', options: {destination: `${debugFolderPath}/debug.log`}});
+                targetArray.push({
+                    target: './debug-pino-transport.js',
+                    level: 'trace',
+                    options: {destination: `${debugFolderPath}/debug.log`}
+                });
                 logger = pino(pino.transport({targets: targetArray}));
                 logger.level = 'trace'; //required to overwrite default 'info'
                 logger.info('"debug: true" found in visualtest.config.js');
@@ -108,8 +112,37 @@ const apiRequest = async (method, url, body, headers) => {
         return err.response;
     });
 };
+(async () => {
+    let env = configFile.projectToken.split('_')[1].toLowerCase();
+    if (env) {
+        host = `https://api.${env}.visualtest.io`;
+    } else {
+        host = "https://api.visualtest.io";
+    }
+    const response = await apiRequest('get', host);
+    if (response.error) {
+        logger.trace(response)
+        throw new Error(`The VisualTest SDK is unable to communicate with our server. This is usually due to one of the following reasons:\n\
+                    1) Firewall is blocking the domain: Solution is to whitelist the domain: "*.visualtest.io"\n\
+                    2) Internet access requires a proxy server: Talk to your network admin\n\
+                    \n\
+                    Error:\n\
+                    ${response.error}`);
+    } else {
+        logger.info(`Got initial connection response: ${response.body}`);
+    }
+})();
+const isValidProjectToken = (async (projectToken) => {
+    const response = await apiRequest('get', `${host}/api/v1/projects/${projectToken.split('/')[0]}`, null, {Authorization: `Bearer ${projectToken}`});
+    if (response.data.status) {
+        logger.trace(response)
+        throw new Error(`Error checking projectToken: ${response.data.message}`);
+    } else {
+        logger.info(`ProjectToken is correct.`)
+    }
+})
 
-let checkUsersVersion = (async () => {
+(async () => {
     const userVersion = package_json.version
     const response = await apiRequest('get', 'https://registry.npmjs.org/@smartbear/visualtest-cypress')
     const {latest: latestVersion} = response.data["dist-tags"]
@@ -121,7 +154,6 @@ let checkUsersVersion = (async () => {
         console.log(chalk.blue('npm install @smartbear/visualtest-cypress@latest'));
     }
 })();
-
 let getDomCapture = (async () => {
     try {
         const res = await apiRequest('get', `${configFile.cdnUrl}/dom-capture.min.js`);
@@ -183,7 +215,11 @@ function makeGlobalRunHooks() {
                             configFile.debug = debugFolderPath; //overwrite 'true' to the folder path for passing to commands.js
                             fs.mkdirSync(debugFolderPath, {recursive: true});
 
-                            targetArray.push({target: './debug-pino-transport.js', level: 'trace', options: {destination: `${debugFolderPath}/debug.log`}});
+                            targetArray.push({
+                                target: './debug-pino-transport.js',
+                                level: 'trace',
+                                options: {destination: `${debugFolderPath}/debug.log`}
+                            });
                             logger = pino(pino.transport({targets: targetArray}));
                             logger.level = 'trace'; //required to overwrite default 'info'
                         }
@@ -218,6 +254,8 @@ function makeGlobalRunHooks() {
                         logger.fatal(message);
                         return configFile;
                     }
+
+                    await isValidProjectToken(configFile.projectToken);
 
                     logger.trace('config.projectToken: ' + configFile.projectToken);
                     configFile.projectId = configFile.projectToken.split('/')[0]; //take the first ~half to get the projectId
@@ -254,8 +292,8 @@ function makeGlobalRunHooks() {
                         configFile.testRunName = `${osPrettyName} / ${browserPrettyName} ${browserMajorVersion[0]}`;
                     }
                     logger.trace('config.testRunName: ' + configFile.testRunName);
-                    if(configFile.testRunName.length > 100){
-                        throw new Error(`The maximum size of testRunName is 100 characters. ${configFile.testRunName.length} characters given.`)
+                    if (configFile.testRunName.length > 100) {
+                        throw new Error(`The maximum size of testRunName is 100 characters. Received: ${configFile.testRunName.length} characters.`)
                     }
                     configFile.url = host;
                     configFile.websiteUrl = webUrl;
@@ -439,44 +477,6 @@ function makeGlobalRunHooks() {
                     logger.warn(`Issue with printing report: ${error}`);
                     return null;
                 }
-            },
-            async canConnectToApiServer(){
-                let env = configFile.projectToken.split('_')[1].toLowerCase();
-                if (env) {
-                    host = `https://api.${env}.visualtest.io`;
-                } else {
-                    host = "https://api.visualtest.io";
-                };
-                const response = await apiRequest('get',host);
-                if (response.error) {
-                    logger.trace(response)
-                    throw new Error(`The VisualTest SDK is unable to communicate with our server. This is usually due to one of the following reasons:\n\
-                    1) Firewall is blocking the domain: Solution is to whitelist the domain: "*.visualtest.io"\n\
-                    2) Internet access requires a proxy server: Talk to your network admin\n\
-                    \n\
-                    Error:\n\
-                    ${response.error}`);
-                }else{
-                    logger.info(`Got initial connection response: ${response.body}`);
-                }
-
-                return null
-            },
-            async isValidProjectToken(){
-                let projectId = configFile.projectToken.split('/')[0];
-                axios.defaults.headers.common['Authorization'] = `Bearer ${configFile.projectToken}`;
-                apiRequest( 
-                    'get',
-                    `${host}/api/v1/projects/${projectId}`).then((response)=>{
-                    if (response.data.status) {
-                        logger.trace(response)
-                        throw new Error(`Error checking projectToken: ${response.data.message}`);
-                    }else{
-                        logger.info(`ProjectToken is correct.`)
-                    }
-                })
-
-                return null;
             }
         }
     };
