@@ -1,3 +1,4 @@
 module.exports = {
-	// projectToken: "PROJECT_TOKEN",
+	projectToken: "zEvNOYn2/Bk6MdIzzh+0=_dev",
+	debug: true
 }
