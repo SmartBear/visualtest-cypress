@@ -149,7 +149,7 @@ testCases.forEach(currentTestCase => {
         // if (currentTestCase.validation) {
             // todo fix this one day as these tests break on chromium.. the element does not become visible on the dom, removing for now
             // it(`dom should prove lazyload is working`, () => {
-            //     const flatDom = flattenDom(dataFromTest.dom.dom[0])
+            //     const flatDom = flattenDom(dataFromTest.screenshotResult.dom.dom[0])
             //     // go through all the elements in the testCases JSON
             //     currentTestCase.validation.elements.forEach(currentElementOnTestcase => {
             //         // filter through the flatDom for cssSelectors on it, that match the testcase
