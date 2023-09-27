@@ -43,7 +43,7 @@ const testCases = [
         'name': 'Example6-Original',
         'url': 'https://smartbear.github.io/visual-testing-example-website/Example6/Original/index.html',
         'options': {
-            'lazyload': 1000
+            'lazyload': 1500
         },
         'validation': {
             'elements': [
@@ -148,6 +148,8 @@ testCases.forEach(currentTestCase => {
         }
         if (currentTestCase.validation) {
             it(`dom should prove lazyload is working`, () => {
+                cy.task('logger', {type: 'fatal', message: Cypress.browser.version});
+
                 const flatDom = flattenDom(dataFromTest.dom.dom[0])
                 // go through all the elements in the testCases JSON
                 currentTestCase.validation.elements.forEach(currentElementOnTestcase => {
