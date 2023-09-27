@@ -16,6 +16,6 @@ cd test || exit 1
 
 
 echo "${BLUE}Running Cypress tests...${RESET}"
-npx cypress run -q -s 'cypress/e2e/quick.cy.js'
+npx cypress run -q -s 'cypress/e2e/test-spec/quick-test_ele*'
 
 cd ..

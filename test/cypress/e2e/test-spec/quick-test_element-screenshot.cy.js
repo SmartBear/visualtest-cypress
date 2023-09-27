@@ -45,8 +45,8 @@ Cypress.on('uncaught:exception', () => {
 
 const insertCustomFreezeScript = true;
 testCases.forEach(currentTestCase => {
-    let dataFromTest;
     describe(getDescribeTitle(Cypress.spec.name, currentTestCase), () => {
+        let dataFromTest;
         it(`should take sbvtCapture`, () => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}
@@ -71,6 +71,8 @@ testCases.forEach(currentTestCase => {
 
                                 cy.get(currentTestCase.cssSelector).sbvtCapture(currentTestCase.name, currentTestCase.options).then((data) => {
                                     dataFromTest = data;
+                                    // cy.task('log', {message: dataFromTest});
+                                    // cy.wait(500)
                                 })
                             })
                         })
@@ -78,12 +80,14 @@ testCases.forEach(currentTestCase => {
             })
         })
         it(`dom should have correct data`, () => {
-            assert(dataFromTest.screenshotResults.dom, 'DOM is missing');
-            assert(dataFromTest.screenshotResults.dom.error === false, 'DOM capture has an error');
-            assert(dataFromTest.screenshotResults.dom.fullpage.width && dataFromTest.screenshotResults.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
-            assert(dataFromTest.screenshotResults.dom.viewport.width && dataFromTest.screenshotResults.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
-            assert(dataFromTest.screenshotResults.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
-            assert(dataFromTest.screenshotResults.dom.dom.length >= 1, 'DOM elements missing');
+            assert(dataFromTest, 'dataFromTest');
+            assert(dataFromTest.screenshotResult, 'screenshotResult is missing');
+            assert(dataFromTest.screenshotResult.dom, 'DOM is missing');
+            assert(dataFromTest.screenshotResult.dom.error === false, 'DOM capture has an error');
+            assert(dataFromTest.screenshotResult.dom.fullpage.width && dataFromTest.screenshotResult.dom.fullpage.height, 'DOM capture doesnt have fullpage width and height');
+            assert(dataFromTest.screenshotResult.dom.viewport.width && dataFromTest.screenshotResult.dom.viewport.height, 'DOM capture doesnt have viewport width and height');
+            assert(dataFromTest.screenshotResult.dom.devicePixelRatio >= 1, 'DOM capture invalid devicePixelRatio');
+            assert(dataFromTest.screenshotResult.dom.dom.length >= 1, 'DOM elements missing');
             assert(dataFromTest.imageApiResult.imageType === 'element', `DOM screenshotType invalid: ${dataFromTest.imageApiResult.imageType}`);
         })
     })
