@@ -12,6 +12,6 @@
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:../../..",
     "jest": "^29.5.0",
-    "cypress": "file:../.."
+    "cypress": "file:.."
   }
 }

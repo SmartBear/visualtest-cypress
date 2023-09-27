@@ -78,9 +78,10 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         }
 
         // Hide the scroll bar before the sbvtCapture starts & grab the initial state of the webpage to return it back after the capture
-        initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"overflow": document.body.style.overflow,"transform": document.body.style.transform}`);
+        initialPageState = win.eval(`inBrowserInitialPageState = {"scrollX": window.scrollX,"scrollY": window.scrollY,"bodyOverflow": document.body.style.overflow,"documentOverflow": document.documentElement.style.overflow,"transform": document.body.style.transform}`);
         win.eval(`document.body.style.transform="translateY(0)"`);
         win.eval(`document.body.style.overflow="hidden"`);
+        win.eval(`document.documentElement.style.overflow='hidden'`);
 
         win.eval(`delete window.sbvt`); //clear the window.sbvt so subsequent runs don't have previous ignoredElements
         if (Array.isArray(modifiedOptions.ignoreElements)) { // ignoreElements function
@@ -135,11 +136,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Load this for state issues
         fullpageData = {delay: modifiedOptions.lazyload};
 
-        // Run some JS commands on the user's browser
-        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
-        let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
-        let viewportHeight = win.eval("window.innerHeight");
-        let viewportWidth = win.eval("window.innerWidth");
+        let {numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win)
 
         if (numScrolls * viewportHeight < offsetHeight || numScrolls * viewportHeight - viewportHeight > offsetHeight) {
             // This checks if the users website is fully loaded or if there are issues with some of the numbers that will return an issue when we go to stitch or crop the images together
@@ -155,7 +152,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             });
             return; //do not proceed the lazyload function with bad numbers here
         }
-        cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`});
 
         // Generate the array needed for a for-loop in Cypress
         let scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
@@ -192,7 +188,12 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                     cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
                     freezePageResult = win.eval(toolkitScripts.freezePage);
                 }
+                //  Recalculate this in case the webpage changed dimensions during lazy loading
+                ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win))
+                scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
             }
+
+
 
             // scroll down one viewport at a time and take a viewport screenshot
             cy.wrap(scrollArray).each(index => {
@@ -233,8 +234,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                         width: imageData.width
                                     }
                                 };
-                                // Translate to the top of the page and then capture the dom
-                                win.eval(`document.body.style.transform="translateY(0)"`);
+                                
+                                ensureScrolledToTop(win)
                                 captureDom(win);
 
                                 // Read the new image base64 to blob to be sent to AWS
@@ -263,8 +264,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
-            // Translate to the top of the page and then capture the dom
-            win.eval(`document.body.style.transform="translateY(0)"`);
+            
+            // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
             captureDom(win);
 
             // Read the new image base64 to blob to be sent to AWS
@@ -278,7 +279,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
     }
     if (!vtConfFile.fail) {
         // Return the scroll bar after the sbvtCapture has completed
-        win.eval(`document.body.style.overflow='${initialPageState.overflow}'`);
+        win.eval(`document.body.style.overflow='${initialPageState.bodyOverflow}'`);
+        win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
         cy.task('logger', {type: 'info', message: `After sbvtCapture cy.screenshot('${name}')`});
     }
 };
@@ -415,6 +417,24 @@ let captureDom = (win) => {
         cy.writeFile(`./${vtConfFile.debug}/${imageName}-${imageType}/${imageName}.json`, dom);
     }
 };
+let ensureScrolledToTop = (win) =>{
+    let tries = 0;
+    let scrollOffset = win.eval(`window.scrollY`);
+    while (scrollOffset !== 0 && tries < 40){
+        tries++;
+        cy.task('logger', {type: 'warn', message: `Page not scrolled to the top. Scroll offset is: ${scrollOffset}. Trying to scroll to the top again and waiting 250ms. Try #: ${tries}`});
+        cy.scrollTo(0,0);
+        win.eval(`window.scrollTo(0, 0);`)
+        cy.wait(250);
+        scrollOffset = win.eval(`window.scrollY`); //check and update the scrolled position again
+    }
+    if (tries < 40 && scrollOffset === 0){
+        cy.task('logger', {type: 'info', message: `Scroll offset is: ${scrollOffset}, after ${tries} tries`});
+    }else{
+        cy.task('logger', {type: 'error', message: `Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`});
+        throw new Error(`Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`);
+    }
+}
 let getComparisonMode = (comparisonMode, sensitivity) => {
     cy.task('logger', {type: 'info', message: `comparisonMode: ${comparisonMode}, sensitivity: ${sensitivity}`});
     layoutData = {};
@@ -442,6 +462,18 @@ let getComparisonMode = (comparisonMode, sensitivity) => {
         throw new Error(`on sbvtCapture: "${imageName}", comparisonMode: "${comparisonMode}" is invalid — must be either "detailed" or "layout"`);
     }
 };
+
+let getWebpageDimension = (win)=>{
+        // Run some JS commands on the user's browser to get details about the webpage
+        let numScrolls = win.eval("Math.ceil(Math.max(window.document.body.offsetHeight, window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight) / window.innerHeight)");
+        let offsetHeight = win.eval("Math.max(window.document.body.offsetHeight,window.document.body.scrollHeight, window.document.documentElement.offsetHeight, window.document.documentElement.scrollHeight)");
+        let viewportHeight = win.eval("window.innerHeight");
+        let viewportWidth = win.eval("window.innerWidth");
+
+        cy.task('logger', {type: 'info', message: `numScrolls: ${numScrolls}, viewportHeight: ${viewportHeight}, offsetHeight(page height): ${offsetHeight}`});
+
+        return {numScrolls, offsetHeight, viewportHeight, viewportWidth}
+}
 
 Cypress.Commands.add('sbvtGetTestRunResult', () => {
     //returns the testRun data aggregate as an object (removes other, sends only passed & failed)
