@@ -30,7 +30,7 @@ describe('debug folder test', () => {
             .its('stdout')
             .then(directoryName => {
                 directoryPath = `${parentDirectory}/${directoryName}`;
-                // cy.task('logger', {type: 'warn', message: `directoryPath: ${directoryPath} `});
+                cy.task('logger', {type: 'warn', message: `directoryPath: ${directoryPath} `});
             });
     });
 
