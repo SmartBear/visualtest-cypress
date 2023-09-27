@@ -394,8 +394,19 @@ const s3ErrorPatch = (response, imageId) => {
 let readImageAndBase64ToBlob = () => {
     cy.readFile(picProps.path, "base64").then((file) => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
+        checkForChangedDimensions();
         sendImageApiJSON();
     });
+};
+let checkForChangedDimensions = () => {
+    if (picProps.pixelRatio && Cypress.browser.isHeadless && dom.viewport.width * picProps.pixelRatio !== picProps.dimensions.width) {
+        cy.task('logger', {type: "fatal", message: `${dom.viewport.width*picProps.pixelRatio} !== ${picProps.dimensions.width} ----> dom.viewport.width*picProps.pixelRatio !== picProps.dimensions.width`});
+        // cy.task('logger', {type: "fatal", message: `${dom.viewport.width}*${picProps.pixelRatio} !== ${picProps.dimensions.width} ----> dom.viewport.width*picProps.pixelRatio !== picProps.dimensions.width`});
+        cy.task('logger', {type: "warn", message: `It looks like you are trying to change the viewport`});
+        cy.task('logger', {type: "warn", message: `This issue with Cypress makes thee captured image look disproportional`});
+        cy.task('logger', {type: "warn", message: `Check this Cypress documentation for a solution: `});
+        cy.task('logger', {type: "warn", message: `\t\thttps://docs.cypress.io/api/plugins/browser-launch-api#Set-screen-size-when-running-headless`});
+    }
 };
 let captureDom = (win) => {
     dom = JSON.parse(win.eval(toolkitScripts.domCapture));
