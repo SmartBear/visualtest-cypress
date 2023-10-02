@@ -2,7 +2,7 @@
 
 ### Documentation
 
-For more detailed docs, visit: https://support.smartbear.com/visualtest/docs/sdks/cypress.html
+Click [here](https://support.smartbear.com/visualtest/docs/en/software-development-kits--sdks-/cypress-sdk.html) for more detailed docs on SmartBear's website
 
 ## Setup
 
