@@ -6,7 +6,6 @@ this compiles the typescript && then minifies the .js files, then runs a quick l
 ****
 
 ### to publish to NPM **public**
-this compiles the typescript && then minifies the .js files && then pushes to NPM
 
 ```npm run publish-npm-public```
 
