@@ -7,7 +7,7 @@ const cwd = process.cwd();
 
 const pluginRequire = `\nrequire('@smartbear/visualtest-cypress')(module)`;
 const commandsImport = `\nimport '@smartbear/visualtest-cypress/commands'`;
-const vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n}`;
+let vtConfContent = `module.exports = {\n\tprojectToken: 'PROJECT_TOKEN',\n}`;
 // const jsonData = `"chromeWebSecurity": false`;
 let error = false;
 
@@ -94,31 +94,57 @@ const checkForTypeScript = (version10) => {
 };
 
 let setupVTConf = () => {
+    /** logic for grabbing the projectToken**/
+    let projectTokenArg = null;
+    if (process.argv[2]) {
+        projectTokenArg = inputUsersProjectToken();
+        if (projectTokenArg) vtConfContent = `module.exports = {\n\tprojectToken: '${projectTokenArg}',\n}`;
+    }
+
     const filePath = `${process.cwd()}/visualTest.config.js`;
 
     if (fs.existsSync(filePath)) { //file exists
         console.log(chalk.blue(`visualTest.config.js found.`));
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        let fileContent = fs.readFileSync(filePath, 'utf-8');
 
-        if (fileContent.toString().includes('projectToken') && fileContent.toString().includes('module.exports')) { //vtConf boilerplate looks good
-
-            if (fileContent.toString().includes(`projectToken: 'PROJECT_TOKEN'`)) { //user has not entered their own projectToken
-                console.log(chalk.underline.yellow('Please enter your projectToken in visualTest.config.js.'));
-            } else {
-                console.log(chalk.blue(`projectToken found.`));
+        if (projectTokenArg) {
+            if (fileContent.toString().includes('projectToken') && fileContent.toString().includes('module.exports')) { //vtConf boilerplate looks good, but no project token
+                if (fileContent.toString().includes(`projectToken: 'PROJECT_TOKEN'`)) { // boiler plate config file setup
+                    fileContent = fileContent.toString().replace(`projectToken: 'PROJECT_TOKEN',`, `projectToken: '${projectTokenArg}',`);
+                    fs.writeFileSync(filePath, fileContent,'utf-8')
+                    console.log(chalk.green(`"PROJECT_TOKEN" has been replaced with "${projectTokenArg}".`));
+                } else if (fileContent.toString().includes(`projectToken: '${projectTokenArg}'`)){ //everything looks good
+                    console.log(chalk.blue(`Your projectToken was found on visualtest.config.js.`));
+                } else { //neither 'PROJECT_TOKEN' && projectTokenArg found (most likely a different projectToken saved)
+                    logicToCheckForProjectTokenAndReplace(filePath, fileContent, projectTokenArg);
+                }
+            } else { //vtConf boilerplate does NOT look good, shouldn't get here often. It means the file is created, but no 'projectToken' && 'module.exports' hopefully empty file
+                fs.appendFileSync(filePath, vtConfContent);
+                console.log(chalk.green('Your projectToken has been written to visualTest.config.js.'));
             }
-        } else { //vtConf boilerplate does NOT look good
-            fs.appendFileSync(filePath, vtConfContent);
-
-            console.log(chalk.underline.yellow('Please enter your projectToken in visualTest.config.js.'));
+        } else {
+            if (fileContent.toString().includes('projectToken') && fileContent.toString().includes('module.exports')) { //vtConf boilerplate looks good
+                if (fileContent.toString().includes(`projectToken: 'PROJECT_TOKEN'`)) { //user has not entered their own projectToken
+                    console.log(chalk.underline.yellow('Please enter your projectToken in visualTest.config.js.'));
+                } else {
+                    console.log(chalk.blue(`projectToken found.`));
+                }
+            } else { //vtConf boilerplate does NOT look good
+                fs.appendFileSync(filePath, vtConfContent);
+                console.log(chalk.underline.yellow('Please enter your projectToken in visualTest.config.js.'));
+            }
         }
     } else { //file does not exist, so create the file and import boilerplate
         fs.appendFile('visualTest.config.js', vtConfContent, function (err) {
             if (err) throw err;
         });
         console.log(chalk.green('visualTest.config.js has been created.'));
-        process.stdout.write(chalk.yellow('Please enter your projectToken'));
-        console.log(chalk.green(' in visualTest.config.js'));
+        if (!projectTokenArg){
+            process.stdout.write(chalk.yellow('Please enter your projectToken'));
+            console.log(chalk.green(' in visualTest.config.js'));
+        } else {
+            console.log(chalk.green('Your projectToken has been written to visualTest.config.js.'));
+        }
     }
 };
 
@@ -193,6 +219,52 @@ const setupTypeScriptIndexFile = () => {
         console.log(chalk.dim(`\t Filepath: cypress/support/index.d.ts`));
     }
 };
+
+const inputUsersProjectToken = () => {
+    const npxArgument = process.argv[2];
+    if (npxArgument.startsWith("projectToken=") && npxArgument.split("projectToken=")[1]) {
+        return npxArgument.split("projectToken=")[1]; // in case there is another "=" in the projectToken
+    } else {
+        // console.error("Argument passed through is not recognized. Please enter your PROJECT_TOKEN manually."); // probably not needed
+    }
+}
+
+const logicToCheckForProjectTokenAndReplace = (filePath, fileContent, projectTokenArg) => {
+    try {
+        const projectTokenPattern = /^(?!\/\/)\s*projectToken:/m; // Regular expression pattern to match lines that start with "projectToken:" and isn't commented out
+        const lines = fileContent.toString().split('\n');
+        let foundProjectTokenLine = null;
+        for (const line of lines) {
+            if (projectTokenPattern.test(line)) {
+                foundProjectTokenLine = line;
+                break;
+            }
+        }
+
+        if (foundProjectTokenLine) {
+            const readline = require('readline');
+            const rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+            rl.question(`Would you like to replace: ${chalk.blue(foundProjectTokenLine.trim())} with: ${chalk.green(`projectToken: '${projectTokenArg}',`)} (y/n): `, (answer) => {
+                if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
+                    fileContent = fileContent.toString().replace(foundProjectTokenLine, `\tprojectToken: '${projectTokenArg}',`);
+                    fs.writeFileSync(filePath, fileContent, 'utf-8')
+                    console.log(chalk.green('projectToken replaced on visualtest.config.js file.'));
+                } else {
+                    console.log(chalk.yellow('projectToken will not be replaced.'));
+                }
+
+                rl.close();
+            });
+        } else {
+            console.log('Please set up you visualtest.confis.js file manually'); //shouldn't get here
+        }
+    } catch (e) {
+        console.log('Please set up you visualtest.confis.js file manually. Error: ', e); //shouldn't get here
+    }
+}
 
 if (!error) checkCypressVersion();
 if (!error) setupCommands();
