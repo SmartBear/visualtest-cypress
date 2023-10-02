@@ -1,6 +1,6 @@
 {
   "name": "@smartbear/visualtest-cypress",
-  "version": "1.7.9",
+  "version": "1.8.0",
   "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
   "author": "Trevor Nelms",
   "main": "index.js",
@@ -16,7 +16,7 @@
     "dotenv": "^16.3.1",
     "fs-extra": "^11.1.1",
     "jimp": "^0.22.10",
-    "pino": "^8.15.1",
+    "pino": "^8.15.3",
     "pino-pretty": "^10.2.0",
     "semver": "^7.5.4",
     "uuid": "^9.0.1"
@@ -31,5 +31,8 @@
     "plugin.js",
     "commands.js",
     "debug-pino-transport.js"
-  ]
+  ],
+  "devDependencies": {
+    "npm-check-updates": "^16.14.4"
+  }
 }

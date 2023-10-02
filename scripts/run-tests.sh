@@ -9,7 +9,7 @@ BLUE=$(tput setaf 4)
 RESET=$(tput sgr0)
 
 
-#scripts/build.sh
+scripts/utils/check-npm-updates.sh
 
 echo "${BLUE}Navigating to the 'test' directory...${RESET}"
 cd test || exit 1
