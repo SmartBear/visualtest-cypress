@@ -2,13 +2,14 @@
   "name": "@smartbear/visualtest-cypress",
   "version": "1.7.9",
   "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
+  "author": "Trevor Nelms",
   "main": "index.js",
+  "homepage": "https://support.smartbear.com/visualtest/docs/en/software-development-kits--sdks-/cypress-sdk.html",
+  "license": "ISC",
   "scripts": {
     "test": "scripts/run-tests.sh",
     "publish-npm-public": "scripts/publish-NPM-public.sh"
   },
-  "author": "Trevor Nelms",
-  "license": "ISC",
   "dependencies": {
     "axios": "^1.5.1",
     "chalk": "^4.1.2",
@@ -20,11 +21,6 @@
     "semver": "^7.5.4",
     "uuid": "^9.0.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/SmartBear/visualtest-cypress.git"
-  },
-  "homepage": "https://github.com/SmartBear/visualtest-cypress.git",
   "bin": {
     "visualtest-setup": "./bin/setup.js"
   },
