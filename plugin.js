@@ -115,7 +115,7 @@ const apiRequest = async (method, url, body, headers) => {
 };
 
 const checkConnectionToBackend = (async (projectToken) => {
-    let env = projectToken.split('_')[1].toLowerCase();
+    let env = projectToken.includes('_') && projectToken.split('_').length === 2 ? projectToken.split('_')[1].toLowerCase() : null;
     if (env) {
         host = `https://api.${env}.visualtest.io`;
     } else {
