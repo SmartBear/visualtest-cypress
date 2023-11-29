@@ -399,6 +399,10 @@ let readImageAndBase64ToBlob = () => {
     });
 };
 let checkForChangedDimensions = () => {
+    if (!picProps.pixelRatio) { //calculate pixel ratio
+        cy.task('logger', {type: "info", message: `calculated pixel ratio is: ${picProps.dimensions.width / dom.viewport.width}`});
+        picProps.pixelRatio = picProps.dimensions.width / dom.viewport.width
+    }
     if (picProps.pixelRatio && Cypress.browser.isHeadless && dom.viewport.width * picProps.pixelRatio !== picProps.dimensions.width) {
         cy.task('logger', {type: "fatal", message: `${dom.viewport.width*picProps.pixelRatio} !== ${picProps.dimensions.width} ----> dom.viewport.width*picProps.pixelRatio !== picProps.dimensions.width`});
         // cy.task('logger', {type: "fatal", message: `${dom.viewport.width}*${picProps.pixelRatio} !== ${picProps.dimensions.width} ----> dom.viewport.width*picProps.pixelRatio !== picProps.dimensions.width`});
