@@ -339,32 +339,34 @@ function makeGlobalRunHooks() {
                 }
 
             },
-            async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
+            async stitchImages({imageName, imagesPath, pageHeight, viewportWidth}) {
+                //todo need logic to check the new fullpage image height... I think
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
                 let files = fs.readdirSync(folderPath);
                 const firstImage = await Jimp.read(`${folderPath}/0.png`);
+                let imageHeight = firstImage.bitmap.height //sbvt-2180 cypress (viewport) taking different sized screenshots for some reason
                 const pixelRatio = (firstImage.bitmap.width / viewportWidth);
                 logger.debug(`pixelRatio (firstImage.bitmap.width/viewportWidth): ${pixelRatio}, firstImage.bitmap.width: ${firstImage.bitmap.width}, viewportWidth: ${viewportWidth}`);
                 if (pixelRatio !== 1) {
                     pageHeight = pageHeight * pixelRatio;
                     viewportWidth = viewportWidth * pixelRatio;
-                    viewportHeight = viewportHeight * pixelRatio;
+                    // imageHeight = imageHeight * pixelRatio; //todo the height is now taken from using jimp
                 }
-                logger.info(`inside stitchImages()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`);
+                logger.info(`inside stitchImages()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, imageHeight: ${imageHeight}, ${files.length} images.`);
 
                 //create the new blank fullpage image
                 const newImage = new Jimp(viewportWidth, pageHeight);
 
                 //crop the last image
-                const toBeCropped = (files.length * (viewportHeight)) - (pageHeight);
-                if ((viewportHeight) - toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
+                const toBeCropped = (files.length * (imageHeight)) - (pageHeight);
+                if ((imageHeight) - toBeCropped < 0) { //error handling in commands.js should prevent this from ever reaching
                     logger.warn(`imagesPath: ${imagesPath}`);
-                    logger.warn(`pixelRatio: ${pixelRatio}, imageName: ${imageName}, imagesPath: ${imagesPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}`);
-                    logger.warn(`toBeCropped:${toBeCropped}, viewportHeight-toBeCropped:${viewportHeight - toBeCropped}`);
+                    logger.warn(`pixelRatio: ${pixelRatio}, imageName: ${imageName}, imagesPath: ${imagesPath}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, imageHeight: ${imageHeight}`);
+                    logger.warn(`toBeCropped:${toBeCropped}, imageHeight-toBeCropped:${imageHeight - toBeCropped}`);
                     return "error";
                 }
-                logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length * viewportHeight) - pageHeight} ((files.length*viewportHeight)-pageHeight)`);
-                logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight - toBeCropped} (viewportHeight-toBeCropped)`);
+                logger.debug(`files.length:${files.length}, imageHeight:${imageHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length * imageHeight) - pageHeight} ((files.length*imageHeight)-pageHeight)`);
+                logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${imageHeight - toBeCropped} (imageHeight-toBeCropped)`);
                 const bottomImagePath = `${folderPath}/${files.length - 1}.png`;
                 const bottomImage = await Jimp.read(bottomImagePath);
                 logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`);
@@ -375,14 +377,14 @@ function makeGlobalRunHooks() {
                     await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-before-cropped-bottom.png`);
                 }
 
-                if (viewportHeight - toBeCropped !== 0) {
+                if (imageHeight - toBeCropped !== 0) {
                     // cropping last image
-                    bottomImage.crop(0, 0, viewportWidth, viewportHeight - toBeCropped);
+                    bottomImage.crop(0, 0, viewportWidth, imageHeight - toBeCropped);
                     logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`);
                     await bottomImage.writeAsync(`${folderPath}/${files.length - 1}.png`); //overwrite the file
                 } else {
                     //deleting last image
-                    logger.info(`stopped the cropping because: viewportHeight-toBeCropped = 0, removing the image at: ${bottomImagePath}`);
+                    logger.info(`stopped the cropping because: imageHeight-toBeCropped = 0, removing the image at: ${bottomImagePath}`);
                     fs.unlinkSync(bottomImagePath);
                     files = fs.readdirSync(folderPath); //reading this folder again since an image has been deleted
                 }
@@ -391,7 +393,7 @@ function makeGlobalRunHooks() {
                 for (let i = 0; i < files.length; i++) {
                     const image = await Jimp.read(`${folderPath}/${i}.png`);
                     logger.trace(`stitching ${i + 1}/${files.length}`);
-                    newImage.blit(image, 0, viewportHeight * i);
+                    newImage.blit(image, 0, imageHeight * i);
                 }
 
                 // remove the old viewport images

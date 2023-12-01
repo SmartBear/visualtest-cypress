@@ -193,8 +193,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
             }
 
-
-
             // scroll down one viewport at a time and take a viewport screenshot
             cy.wrap(scrollArray).each(index => {
                 cy.task('logger', {type: 'trace', message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`});
@@ -219,8 +217,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                             imageName,
                             imagesPath: fullpageData.tmpPath,
                             pageHeight: offsetHeight,
-                            viewportWidth,
-                            viewportHeight
+                            viewportWidth
                         })
                             .then((imageData) => {
                                 if (imageData === "error") { //should not get here, error should be handled earlier
