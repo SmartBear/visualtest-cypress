@@ -253,7 +253,7 @@ function makeGlobalRunHooks() {
                             return configFile;
                         }
                     }
-                    if (!configFile.projectToken.split('/')[1]) { //check to make sure user added the auth part(~second-half) of projectToken
+                    if (!configFile.projectToken.split(/\/(.*)/s)[1]) { //check to make sure user added the auth part(~second-half) of projectToken
                         const message = `Please add your full projectToken for example -> ** projectToken: 'xxxxxxxx/xxxxxxxxxxxx' **`
                         configFile.fail = message;
                         logger.fatal(message);
