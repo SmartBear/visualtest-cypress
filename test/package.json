@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "npx cypress run --spec 'cypress/e2e/test-spec/test_*' -q --reporter mochawesome --headed",
-    "quick-test": "npx cypress run --spec 'cypress/e2e/test-spec/quick-test_*' -q"
+    "quick-test": "npx cypress run --spec 'cypress/e2e/quick*' -q"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:..",
-    "cypress": "^13.4.0",
+    "cypress": "^13.6.0",
     "mochawesome": "^7.1.3",
     "mochawesome-merge": "^4.3.0"
   }
