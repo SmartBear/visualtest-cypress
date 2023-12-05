@@ -191,6 +191,11 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                 //  Recalculate this in case the webpage changed dimensions during lazy loading
                 ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win))
                 scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
+            } else {
+                if (runFreezePage) {
+                    cy.task('logger', {type: 'debug', message: `running freezePage, no lazyload.`});
+                    freezePageResult = win.eval(toolkitScripts.freezePage);
+                }
             }
 
 
@@ -265,17 +270,17 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
 
-            // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
-            captureDom(win);
-
-            // Read the new image base64 to blob to be sent to AWS
-            readImageAndBase64ToBlob();
-
             // Reset browser to initial state
             win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
             win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+            // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
+            captureDom(win);
+
             win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
-            cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
+            cy.task('logger', {type: 'trace', message: `After default fullpage cy.screenshot('${name}')`});
+
+            // Read the new image base64 to blob to be sent to AWS
+            readImageAndBase64ToBlob();
         });
     }
     if (!vtConfFile.fail) {
