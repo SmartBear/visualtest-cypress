@@ -18,7 +18,9 @@ describe('debug folder test', () => {
                 {
                     scrollMethod: "JS_SCROLL"
                 });
-            cy.get(".ud-login-wrapper").sbvtCapture('debug-element');
+            cy.get(".ud-login-wrapper").sbvtCapture('debug-element', {
+                comparisonMode: 'detailed'
+            });
             cy.sbvtCapture("debug-fullpage");
         });
     });
