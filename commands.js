@@ -235,6 +235,8 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                     }
                                 };
 
+                                // Reset browser to initial state
+                                cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
                                 win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
                                 win.eval(`document.body.style.transform='${initialPageState.transform}'`);
                                 ensureScrolledToTop(win)
@@ -244,8 +246,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                 // Read the new image base64 to blob to be sent to AWS
                                 readImageAndBase64ToBlob();
                             });
-                        // Reset browser to initial state
-                        cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                     }
                 });
             });
