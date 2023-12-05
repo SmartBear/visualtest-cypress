@@ -51,8 +51,7 @@ testCases.forEach(currentTestCase => {
             cy.visit(currentTestCase.url).then(() => {
                 currentTestCase.options ? '' : currentTestCase.options = {}
                 
-                currentTestCase.options.comparisonMode = 'layout'
-                currentTestCase.options.sensitivity = 'low'
+                currentTestCase.options.comparisonMode = 'detailed'
                 cy.wait(1500);
                 if (currentTestCase.actions && currentTestCase.actions.length > 0) {
                     if (currentTestCase.actions[0].action === 'click') {

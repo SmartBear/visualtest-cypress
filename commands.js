@@ -234,17 +234,17 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                                         width: imageData.width
                                     }
                                 };
-                                
+
+                                // Reset browser to initial state
+                                cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
+                                win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+                                win.eval(`document.body.style.transform='${initialPageState.transform}'`);
                                 ensureScrolledToTop(win)
                                 captureDom(win);
+                                win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
 
                                 // Read the new image base64 to blob to be sent to AWS
                                 readImageAndBase64ToBlob();
-
-                                // Reset browser to initial state
-                                win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
-                                win.eval(`document.body.style.transform='${initialPageState.transform}'`);
-                                cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
                             });
                     }
                 });
@@ -264,7 +264,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             modifiedOptions,
         ).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
-            
+
             // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
             captureDom(win);
 
@@ -274,6 +274,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
             // Reset browser to initial state
             win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
             win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+            win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
             cy.task('logger', {type: 'trace', message: `After lazyloaded fullpage cy.screenshot('${name}')`});
         });
     }
