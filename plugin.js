@@ -145,7 +145,7 @@ const isValidProjectToken = (async (projectToken) => {
     return null
 })
 
-(async () => {
+const checkUsersVersion = (async () => {
     const userVersion = package_json.version
     const response = await apiRequest('get', 'https://registry.npmjs.org/@smartbear/visualtest-cypress')
     const {latest: latestVersion} = response.data["dist-tags"]
