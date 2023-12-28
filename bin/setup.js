@@ -31,11 +31,11 @@ const usersCypressVersion = (() => {
 let cypressVersionAbove10; //boolean true if above version 10
 let checkCypressVersion = () => {
     //checks if the user's version is supported, and if it above or below Cypress version 10 (due to different naming conventions)
-    if (usersCypressVersion.version.split('.')[0] < 7 || usersCypressVersion.version.split('.')[0] <= 7 && usersCypressVersion.version.split('.')[1] < 4) {
+    if (usersCypressVersion.version.split('.')[0] < 9 || usersCypressVersion.version.split('.')[0] <= 9 && usersCypressVersion.version.split('.')[1] < 4) {
         // Note as of now this is not supported because cy.request cannot send blobs in previous versions
         console.log(chalk.redBright(`Detected Cypress ${usersCypressVersion.version}`));
-        console.log(chalk.green(`Only Cypress 7.4.0+ is supported`));
-        error = true;
+        console.log(chalk.green(`Only Cypress 9.4.0+ is supported`));
+        // error = true; //todo not throwing an error for now
     }
     cypressVersionAbove10 = usersCypressVersion.version.split('.')[0] >= 10;
     checkForTypeScript(cypressVersionAbove10);

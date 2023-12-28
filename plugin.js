@@ -5,11 +5,11 @@ const package_json = require('./package.json');
 const cwd = process.cwd();
 const path = require("path");
 const chalk = require('chalk');
-require('dotenv').config();
-const Jimp = require("jimp");
+const sharp = require("sharp");
 const os = require('os');
 const pino = require('pino');
 const semver = require("semver");
+require('dotenv').config();
 
 const targetArray = [{target: 'pino-pretty', level: 'warn'}]; //to log below warn uncomment two lines below
 let logger = pino(pino.transport({targets: targetArray}));
@@ -341,19 +341,25 @@ function makeGlobalRunHooks() {
             },
             async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
+                if (configFile.debug) {
+                    // copy all the contents of tmp/folderPath to the configFile.debug folder
+                    await fs.ensureDir(configFile.debug);
+                    await fs.copy(folderPath, (configFile.debug + path.sep + imageName+ "-fullPage" ), {
+                        overwrite: true,
+                    });
+                }
+
                 let files = fs.readdirSync(folderPath);
-                const firstImage = await Jimp.read(`${folderPath}/0.png`);
-                const pixelRatio = (firstImage.bitmap.width / viewportWidth);
-                logger.debug(`pixelRatio (firstImage.bitmap.width/viewportWidth): ${pixelRatio}, firstImage.bitmap.width: ${firstImage.bitmap.width}, viewportWidth: ${viewportWidth}`);
+                const firstImage = await sharp(`${folderPath}/0.png`);
+                const metadata = await getMetaData(firstImage);
+                const pixelRatio = metadata.width / viewportWidth;
+                logger.debug(`pixelRatio (firstImage.metadata().width/viewportWidth): ${pixelRatio}, firstImage.metadata().width: ${metadata.width}, viewportWidth: ${viewportWidth}`);
                 if (pixelRatio !== 1) {
                     pageHeight = pageHeight * pixelRatio;
                     viewportWidth = viewportWidth * pixelRatio;
                     viewportHeight = viewportHeight * pixelRatio;
                 }
                 logger.info(`inside stitchImages()——pixelRatio: ${pixelRatio}, imageName: ${imageName}, pageHeight: ${pageHeight}, viewportWidth: ${viewportWidth}, viewportHeight: ${viewportHeight}, ${files.length} images.`);
-
-                //create the new blank fullpage image
-                const newImage = new Jimp(viewportWidth, pageHeight);
 
                 //crop the last image
                 const toBeCropped = (files.length * (viewportHeight)) - (pageHeight);
@@ -366,48 +372,61 @@ function makeGlobalRunHooks() {
                 logger.debug(`files.length:${files.length}, viewportHeight:${viewportHeight}, pageHeight:${pageHeight}, toBeCropped:${(files.length * viewportHeight) - pageHeight} ((files.length*viewportHeight)-pageHeight)`);
                 logger.debug(`calculations of what last image should be - viewportWidth:${viewportWidth} x height:${viewportHeight - toBeCropped} (viewportHeight-toBeCropped)`);
                 const bottomImagePath = `${folderPath}/${files.length - 1}.png`;
-                const bottomImage = await Jimp.read(bottomImagePath);
-                logger.debug(`raw last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`);
-
-                if (configFile.debug) {
-                    //copy last image before cropping or deletion
-                    const lastImageFileName = path.parse(path.basename(bottomImagePath)).name; //get the last image name without extension
-                    await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-before-cropped-bottom.png`);
-                }
+                const bottomImage = await sharp(bottomImagePath);
 
                 if (viewportHeight - toBeCropped !== 0) {
                     // cropping last image
-                    bottomImage.crop(0, 0, viewportWidth, viewportHeight - toBeCropped);
-                    logger.debug(`cropped last image width:${bottomImage.bitmap.width} x height:${bottomImage.bitmap.height}`);
-                    await bottomImage.writeAsync(`${folderPath}/${files.length - 1}.png`); //overwrite the file
+                    if (configFile.debug) {
+                        //copy last image before cropping or deletion
+                        const lastImageFileName = path.parse(path.basename(bottomImagePath)).name; //get the last image name without extension
+                        await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-before-cropped-bottom.png`);
+                    }
+                    await bottomImage.extract({
+                        top: 0,
+                        left: 0,
+                        width: viewportWidth,
+                        height: viewportHeight - toBeCropped,
+                    })
+
+                    if (configFile.debug) await bottomImage.toFile(`${debugFolderPath}/${imageName}-fullPage/${files.length - 1}.png`);
+                    const bottomImageCroppedMetaData = await getMetaData(bottomImage);
+                    logger.debug(`cropped last image width:${bottomImageCroppedMetaData.width} x height:${bottomImageCroppedMetaData.height}`);
                 } else {
-                    //deleting last image
+                    //deleting last image (it is just a blank white image most likely)
                     logger.info(`stopped the cropping because: viewportHeight-toBeCropped = 0, removing the image at: ${bottomImagePath}`);
                     fs.unlinkSync(bottomImagePath);
                     files = fs.readdirSync(folderPath); //reading this folder again since an image has been deleted
                 }
 
-                //stitch the images all together
+                //create the new blank fullpage image
+                const newImage = await sharp({
+                    create: {
+                        width: metadata.width,
+                        height: pageHeight,
+                        channels: metadata.channels,
+                        background: {r: 0, g: 0, b: 0, alpha: 0}
+                    }
+                })
+
+                const newImageData = [];
                 for (let i = 0; i < files.length; i++) {
-                    const image = await Jimp.read(`${folderPath}/${i}.png`);
-                    logger.trace(`stitching ${i + 1}/${files.length}`);
-                    newImage.blit(image, 0, viewportHeight * i);
+                    // put all the viewports image path & top in an array for the sharp.composite funciton below
+                    logger.trace(`adding ${i + 1}/${files.length} to newImageData`);
+                    newImageData.push({input: `${folderPath}/${i}.png`, top: viewportHeight * i, left: 0});
                 }
 
-                // remove the old viewport images
-                if (configFile.debug) await fs.copy(folderPath, `${debugFolderPath}/${imageName}-fullPage`);
-                const deleteFolder = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
-                fs.rmSync(deleteFolder, {recursive: true, force: true}); // comment this out to check viewports before stitched together, can be sync
-                logger.debug(`removed the folder at: ${deleteFolder}`);
+                const tmpFolderFilePath = `${folderPath.substring(0, folderPath.lastIndexOf(path.sep))}`;
+                const userPath = `${tmpFolderFilePath.substring(0, tmpFolderFilePath.lastIndexOf(path.sep))}${path.sep}${imageName}.png`;
 
-                // write the new image to the users screenshot folder
-                const userPath = `${deleteFolder.substring(0, deleteFolder.lastIndexOf(path.sep))}/${imageName}.png`;
-                await newImage.writeAsync(userPath);
-                if (configFile.debug) fs.copy(userPath, `${debugFolderPath}/${imageName}-fullPage/${imageName}.png`); //copy the final image to debug folder
+                // combine the images and write the new image to the users screenshot folder
+                await newImage.composite(newImageData).toFile(userPath);
                 logger.debug(`new stitched image has been written at: ${userPath}`);
+                if (configFile.debug) await fs.copy(userPath, `${debugFolderPath}/${imageName}-fullPage/${imageName}.png`); //copy the final image to debug folder if debug is true
+                await tmpFileCleanUp(tmpFolderFilePath)
+                const fullPageImageMetaData = await getMetaData(newImage);
                 return {
-                    height: newImage.bitmap.height,
-                    width: newImage.bitmap.width,
+                    height: fullPageImageMetaData.height,
+                    width: fullPageImageMetaData.width,
                     path: userPath
                 };
             },
@@ -528,3 +547,11 @@ function makePluginExport() {
 }
 
 module.exports = makePluginExport({});
+
+const getMetaData = async (image) => {
+    return await image.metadata();
+}
+const tmpFileCleanUp = async (folderPath) => {
+    fs.rmSync(folderPath, {recursive: true, force: true}); // comment this out to check viewports before stitched together, can be sync
+    logger.debug(`tmpFileCleanUp() removed the folder at: ${folderPath}`);
+}
