@@ -59,13 +59,12 @@ module.exports = defineConfig({
 
 require('@smartbear/visualtest-cypress')(module)
 
-// const printResults = (results) => {
-//     if (results.totalFailed) {
-//         process.stdout.write(chalk.bgRedBright(`there was ${results.totalFailed} ${results.totalFailed === 1 ? 'failure' : 'failures'}`));
-//         process.stdout.write(`\t`);
-//     }
-//     if (results.totalPassed) {
-//         console.log(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}\t`));
-//     }
-// }
-
+const printResults = (results) => {
+    if (results.totalFailed) {
+        process.stdout.write(chalk.bgRedBright(`there was ${results.totalFailed} ${results.totalFailed === 1 ? 'failure' : 'failures'}`));
+        process.stdout.write(`\t`);
+    }
+    if (results.totalPassed) {
+        console.log(chalk.green(`there was ${results.totalPassed} passed ${results.totalPassed === 1 ? 'test' : 'tests'}\t`));
+    }
+}
