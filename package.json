@@ -1,6 +1,6 @@
 {
   "name": "@smartbear/visualtest-cypress",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "description": "Cypress Plugin for SmartBear VisualTest via JavaScript",
   "author": "Trevor Nelms",
   "main": "index.js",
