@@ -8,6 +8,7 @@
   "license": "ISC",
   "scripts": {
     "test": "scripts/run-tests.sh",
+    "full-test": "scripts/run-full-tests.sh",
     "publish-npm-public": "scripts/publish-NPM-public.sh"
   },
   "dependencies": {
