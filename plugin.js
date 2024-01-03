@@ -311,7 +311,12 @@ function makeGlobalRunHooks() {
                             `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
                                 testRunName: configFile.testRunName,
                                 sdk: 'cypress',
-                                sdkVersion: `${package_json.version}/c${usersCypress.version}`
+                                sdkVersion: `${package_json.version}/c${usersCypress.version}`,
+                                ...(!!process.env.SBVT_TEST_GROUP_ID
+                                    ? {testGroupId: process.env.SBVT_TEST_GROUP_ID}
+                                    : !!configFile.testGroupName
+                                        ? {testGroupId: await getCreateTestGroupId(getUsersTestGroupName(configFile.testGroupName), configFile.projectToken)}
+                                        : {}),
                             });
                         configFile.testRunId = postResponse.data.testRunId;
                         logger.debug('config.testRunId: ' + configFile.testRunId);
@@ -554,4 +559,31 @@ const getMetaData = async (image) => {
 const tmpFileCleanUp = async (folderPath) => {
     fs.rmSync(folderPath, {recursive: true, force: true}); // comment this out to check viewports before stitched together, can be sync
     logger.debug(`tmpFileCleanUp() removed the folder at: ${folderPath}`);
+}
+
+const getCreateTestGroupId = async (testGroupName, projectToken) => {
+    const projectId = projectToken?.split('/')[0];
+    const testGroupResponse = await apiRequest(
+        'post',
+        `${host}/api/v1/projects/${projectId}/testgroups`,
+        {
+            testGroupName,
+        },
+    );
+    return testGroupResponse.data.testGroupId
+}
+
+const getUsersTestGroupName = (configFileTestGroupName) => {
+    const testGroupName =
+        configFileTestGroupName ?
+            configFileTestGroupName :
+            !!process.env.SBVT_TEST_GROUP_NAME ?
+                process.env.SBVT_TEST_GROUP_NAME : null
+
+    if (!testGroupName) return null
+    else {
+        if (typeof testGroupName !== 'string') throw new Error('testGroupName must be a string')
+        if (testGroupName.length > 100) throw new Error(`The maximum size of testGroupName is 100 characters. ${testGroupName.length} characters given.`)
+        return testGroupName
+    }
 }
