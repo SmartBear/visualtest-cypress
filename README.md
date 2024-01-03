@@ -28,6 +28,12 @@ Enter your projectToken in visualTest.config.js:
 module.exports = {projectToken: 'PROJECT_TOKEN'}
 ```
 
+## Requirements
+
+Node 18.17.0+
+
+Cypress 9.7.0+
+
 ## Implementation
 
 Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
