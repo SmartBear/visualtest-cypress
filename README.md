@@ -28,12 +28,6 @@ Enter your projectToken in visualTest.config.js:
 module.exports = {projectToken: 'PROJECT_TOKEN'}
 ```
 
-## Requirements
-
-Node 18.17.0+
-
-Cypress 9.7.0+
-
 ## Implementation
 
 Simply change all instances of ```cy.screenshot``` with ```cy.sbvtCapture```.
@@ -116,7 +110,21 @@ Callback arguments are not allowed, i.e. ```onBeforeScreenshot``` & ```onAfterSc
 
 ## Requirements
 
-- Cypress v7.4.0+ (Recommend v10.10.0+)
+Cypress 9.7.0+ (Recommend v10.10.0+)
+
+Node 18.17.0+
+
+## Assigning captures to a test group name
+
+```javascript   
+//visualtest.config.js
+module.exports = {
+    projectToken: 'PROJECT_TOKEN',
+    testGroupName: 'test group name'
+}
+// OR save on the environment variable 
+// SBVT_TEST_GROUP_NAME = 'test group name'
+```
 
 ## Manual Setup
 
