@@ -1,4 +1,5 @@
 .idea
+.DS_Store
 .env
 /node_modules
 sessionId.txt
