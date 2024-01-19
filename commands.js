@@ -495,8 +495,6 @@ let ensureScrolledToTop = (win) => {
     let scrollOffset = win.eval(`window.scrollY`);
     while (scrollOffset !== 0 && tries < 40) {
         tries++;
-        cy.task('logger', {type: 'warn', message: `Page not scrolled to the top. Scroll offset is: ${scrollOffset}. Trying to scroll to the top again and waiting 250ms. Try #: ${tries}`});
-        cy.scrollTo(0,0);
         cy.task('logger', {
             type: 'warn',
             message: `Page not scrolled to the top. Scroll offset is: ${scrollOffset}. Trying to scroll to the top again and waiting 250ms. Try #: ${tries}`
