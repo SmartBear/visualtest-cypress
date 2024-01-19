@@ -439,6 +439,13 @@ function makeGlobalRunHooks() {
                 if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`); //copy the final image to debug folder
                 return null;
             },
+            async deleteImage({path}) {
+                if (configFile.debug) {
+                    logger.info(`deleting: ${path}`);
+                }
+                fs.unlinkSync(path);
+                return null;
+            },
             async logger({type, message}) { //this task is for printing logs to node console from the custom command
                 //todo this still isnt waiting to print the logger before returning
                 type === 'fatal' ? await logger.fatal(message) :

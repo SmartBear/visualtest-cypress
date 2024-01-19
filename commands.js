@@ -173,6 +173,7 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
                         testScreenshotProps = props;
                     }},
             ).then(() => {
+                cy.task('deleteImage', {path: testScreenshotProps.path})
                 if (testScreenshotProps.dimensions.height !== viewportHeight) {
                     // throw new Error(('this will be bad stitching'))
                     cy.task('logger', {type: 'info', message: `starting cypress's default full-page screenshot chrome because of the mismatch`});
