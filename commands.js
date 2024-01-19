@@ -111,7 +111,6 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
     if (vtConfFile.fail) {
         console.log('The sbvtScreenshot() has failed');
         cy.task('logger', {type: 'trace', message: `sbvtCapture() has failed`}); //I dont think this should be printed out each screenshot
-
     } else if (element) {
         // Begin Cypress element capture method
         cy.task('logger', {type: 'debug', message: `Beginning element cy.screenshot('${name}')`});
@@ -165,157 +164,304 @@ let takeScreenshot = (element, name, modifiedOptions, win) => {
         // Generate the array needed for a for-loop in Cypress
         let scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
 
-        if (numScrolls <= 1) {
-            // Check if the webpage is not scrollable
-            if (modifiedOptions.lazyload) {
-                // Warn if the webpage is not scrollable, and user is trying to lazyload
-                cy.task('logger', {
-                    type: `warn`,
-                    message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`
-                });
-            } else {
-                // No need to throw warning if not lazyload
-                cy.task('logger', {
-                    type: `info`,
-                    message: `the webpage is not scrollable for image: "${imageName}", taking regular screenshot`
-                });
-            }
-        } else if (modifiedOptions.scrollMethod === "JS_SCROLL") {
-            // If the user wants to use the old JS_SCROLL method
-            cy.task('logger', {
-                type: 'info',
-                message: `Passed in 'scrollMethod= "JS_SCROLL"' taking regular screenshot`
+        if (numScrolls !== 1 && Cypress.browser.name === 'chrome' && modifiedOptions.scrollMethod !== "JS_SCROLL") {
+            let testScreenshotProps
+            cy.screenshot(
+                name,
+                {capture: 'viewport',
+                    onAfterScreenshot($el, props) {
+                        testScreenshotProps = props;
+                    }},
+            ).then(() => {
+                if (testScreenshotProps.dimensions.height !== viewportHeight) {
+                    // throw new Error(('this will be bad stitching'))
+                    cy.task('logger', {type: 'info', message: `starting cypress's default full-page screenshot chrome because of the mismatch`});
+                    if (runFreezePage) {
+                        // freezePageResult = win.eval(toolkitScripts.freezePage)
+                        win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
+                        cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
+                    }
+
+                    // Old/default Cypress screenshot / JS_SCROLL screenshot
+                    cy.screenshot(
+                        name,
+                        modifiedOptions,
+                    ).then(() => {
+                        if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
+
+                        // Reset browser to initial state
+                        win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+                        win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+                        // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
+                        captureDom(win);
+
+                        win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
+                        cy.task('logger', {type: 'trace', message: `After default fullpage cy.screenshot('${name}')`});
+
+                        // Read the new image base64 to blob to be sent to AWS
+                        readImageAndBase64ToBlob();
+                    });
+                } else {
+                    // throw new Error(('this will be fine')) //todo remove the error thrown
+                    // No errors so far
+                    if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))) {
+                        // User gave us a bad wait time
+                        cy.task('logger', {
+                            type: 'warn',
+                            message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`
+                        });
+                        throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds");
+                    } else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
+                        // Begin the lazyload method - no errors
+                        cy.task('logger', {
+                            type: 'debug',
+                            message: `starting lazy load script with wait time: ${modifiedOptions.lazyload / 1000} seconds per scroll`
+                        });
+                        cy.wrap(scrollArray).each(index => {
+                            cy.task('logger', {
+                                type: 'trace',
+                                message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll`
+                            });
+                            cy.scrollTo(0, viewportHeight * index);
+                            cy.wait(modifiedOptions.lazyload);
+                        });
+                        cy.scrollTo(0, 0);
+                        cy.wait(1000);
+                        if (runFreezePage) {
+                            cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
+                            freezePageResult = win.eval(toolkitScripts.freezePage);
+                        }
+                        //  Recalculate this in case the webpage changed dimensions during lazy loading
+                        ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win))
+                        scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
+                    } else {
+                        if (runFreezePage) {
+                            cy.task('logger', {type: 'debug', message: `running freezePage, no lazyload.`});
+                            freezePageResult = win.eval(toolkitScripts.freezePage);
+                        }
+                    }
+
+
+                    // scroll down one viewport at a time and take a viewport screenshot
+                    cy.wrap(scrollArray).each(index => {
+                        cy.task('logger', {
+                            type: 'trace',
+                            message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`
+                        });
+                        cy.screenshot(`tmp/${imageName}/${index - 1}`, {
+                            capture: "viewport",
+                            overwrite: true,
+                            onAfterScreenshot($el, props) {
+                                fullpageData = {
+                                    tmpPath: props.path,
+                                    url: $el[0].baseURI
+                                };
+                            }
+                        }).then(() => {
+                            win.eval(`document.body.style.transform="translateY(${(index) * -100}vh)"`);
+
+                            if (numScrolls === index) {
+                                // This if checks if the for-loop is done...
+                                cy.task('logger', {
+                                    type: 'debug',
+                                    message: `finished taking viewports, now going to the stitchImages task`
+                                });
+                                // Jump into stitchImages task/method to stitch all the viewports together
+                                cy.task('stitchImages', {
+                                    imageName,
+                                    imagesPath: fullpageData.tmpPath,
+                                    pageHeight: offsetHeight,
+                                    viewportWidth,
+                                    viewportHeight
+                                })
+                                    .then((imageData) => {
+                                        if (imageData === "error") { //should not get here, error should be handled earlier
+                                            cy.task('logger', {
+                                                type: 'error',
+                                                message: `Error with lazyload on ${imageName}, no screenshot taken`
+                                            });
+                                            return;
+                                        }
+                                        picProps = {
+                                            path: imageData.path,
+                                            dimensions: {
+                                                height: imageData.height,
+                                                width: imageData.width
+                                            }
+                                        };
+
+                                        // Reset browser to initial state
+                                        cy.task('logger', {
+                                            type: 'trace',
+                                            message: `After fullpage cy.screenshot('${name}')`
+                                        });
+                                        win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+                                        win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+                                        ensureScrolledToTop(win)
+                                        captureDom(win);
+                                        win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
+
+                                        // Read the new image base64 to blob to be sent to AWS
+                                        readImageAndBase64ToBlob();
+                                    });
+                            }
+                        });
+                    });
+                    return;
+                }
             });
         } else {
-            // No errors so far
-            if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))) {
-                // User gave us a bad wait time
+            if (numScrolls <= 1) {
+                // Check if the webpage is not scrollable
+                if (modifiedOptions.lazyload) {
+                    // Warn if the webpage is not scrollable, and user is trying to lazyload
+                    cy.task('logger', {
+                        type: `warn`,
+                        message: `the webpage is not scrollable, not able to lazyload "${imageName}", taking regular screenshot`
+                    });
+                } else {
+                    // No need to throw warning if not lazyload
+                    cy.task('logger', {
+                        type: `info`,
+                        message: `the webpage is not scrollable for image: "${imageName}", taking regular screenshot`
+                    });
+                }
+            } else if (modifiedOptions.scrollMethod === "JS_SCROLL") {
+                // If the user wants to use the old JS_SCROLL method
                 cy.task('logger', {
-                    type: 'warn',
-                    message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`
+                    type: 'info',
+                    message: `Passed in 'scrollMethod= "JS_SCROLL"' taking regular screenshot`
                 });
-                throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds");
-            } else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
-                // Begin the lazyload method - no errors
-                cy.task('logger', {
-                    type: 'debug',
-                    message: `starting lazy load script with wait time: ${modifiedOptions.lazyload / 1000} seconds per scroll`
-                });
+            } else {
+                // No errors so far
+                if ((modifiedOptions.lazyload !== undefined) && (modifiedOptions.lazyload > 10000 || modifiedOptions.lazyload < 0 || isNaN(modifiedOptions.lazyload))) {
+                    // User gave us a bad wait time
+                    cy.task('logger', {
+                        type: 'warn',
+                        message: `invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds`
+                    });
+                    throw new Error("invalid wait time value for lazyload, must be a number & between 0 - 10,000 milliseconds");
+                } else if (typeof modifiedOptions.lazyload === 'number') { // make sure lazyload is not given
+                    // Begin the lazyload method - no errors
+                    cy.task('logger', {
+                        type: 'debug',
+                        message: `starting lazy load script with wait time: ${modifiedOptions.lazyload / 1000} seconds per scroll`
+                    });
+                    cy.wrap(scrollArray).each(index => {
+                        cy.task('logger', {
+                            type: 'trace',
+                            message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll`
+                        });
+                        cy.scrollTo(0, viewportHeight * index);
+                        cy.wait(modifiedOptions.lazyload);
+                    });
+                    cy.scrollTo(0, 0);
+                    cy.wait(1000);
+                    if (runFreezePage) {
+                        cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
+                        freezePageResult = win.eval(toolkitScripts.freezePage);
+                    }
+                    //  Recalculate this in case the webpage changed dimensions during lazy loading
+                    ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win))
+                    scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
+                } else {
+                    if (runFreezePage) {
+                        cy.task('logger', {type: 'debug', message: `running freezePage, no lazyload.`});
+                        freezePageResult = win.eval(toolkitScripts.freezePage);
+                    }
+                }
+                // scroll down one viewport at a time and take a viewport screenshot
                 cy.wrap(scrollArray).each(index => {
                     cy.task('logger', {
                         type: 'trace',
-                        message: `scrolling ${index}/${numScrolls}, waiting: ${modifiedOptions.lazyload / 1000} seconds per scroll`
+                        message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`
                     });
-                    cy.scrollTo(0, viewportHeight * index);
-                    cy.wait(modifiedOptions.lazyload);
+                    cy.screenshot(`tmp/${imageName}/${index - 1}`, {
+                        capture: "viewport",
+                        overwrite: true,
+                        onAfterScreenshot($el, props) {
+                            fullpageData = {
+                                tmpPath: props.path,
+                                url: $el[0].baseURI
+                            };
+                        }
+                    }).then(() => {
+                        win.eval(`document.body.style.transform="translateY(${(index) * -100}vh)"`);
+                        if (numScrolls === index) {
+                            // This if checks if the for-loop is done...
+                            cy.task('logger', {
+                                type: 'debug',
+                                message: `finished taking viewports, now going to the stitchImages task`
+                            });
+                            // Jump into stitchImages task/method to stitch all the viewports together
+                            cy.task('stitchImages', {
+                                imageName,
+                                imagesPath: fullpageData.tmpPath,
+                                pageHeight: offsetHeight,
+                                viewportWidth,
+                                viewportHeight
+                            })
+                                .then((imageData) => {
+                                    if (imageData === "error") { //should not get here, error should be handled earlier
+                                        cy.task('logger', {
+                                            type: 'error',
+                                            message: `Error with lazyload on ${imageName}, no screenshot taken`
+                                        });
+                                        return;
+                                    }
+                                    picProps = {
+                                        path: imageData.path,
+                                        dimensions: {
+                                            height: imageData.height,
+                                            width: imageData.width
+                                        }
+                                    };
+                                    // Reset browser to initial state
+                                    cy.task('logger', {
+                                        type: 'trace',
+                                        message: `After fullpage cy.screenshot('${name}')`
+                                    });
+                                    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+                                    win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+                                    ensureScrolledToTop(win)
+                                    captureDom(win);
+                                    win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
+
+                                    // Read the new image base64 to blob to be sent to AWS
+                                    readImageAndBase64ToBlob();
+                                });
+                        }
+                    });
                 });
-                cy.scrollTo(0, 0);
-                cy.wait(1000);
-                if (runFreezePage) {
-                    cy.task('logger', {type: 'debug', message: `running freezePage in the lazyload function.`});
-                    freezePageResult = win.eval(toolkitScripts.freezePage);
-                }
-                //  Recalculate this in case the webpage changed dimensions during lazy loading
-                ({numScrolls, offsetHeight, viewportHeight, viewportWidth} = getWebpageDimension(win))
-                scrollArray = Array.from({length: numScrolls}, (v, k) => k + 1);
-            } else {
-                if (runFreezePage) {
-                    cy.task('logger', {type: 'debug', message: `running freezePage, no lazyload.`});
-                    freezePageResult = win.eval(toolkitScripts.freezePage);
-                }
+                return;
+            }
+            cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`});
+            if (runFreezePage) {
+                // freezePageResult = win.eval(toolkitScripts.freezePage)
+                win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
+                cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
             }
 
+            // Old/default Cypress screenshot / JS_SCROLL screenshot
+            cy.screenshot(
+                name,
+                modifiedOptions,
+            ).then(() => {
+                if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
 
-            // scroll down one viewport at a time and take a viewport screenshot
-            cy.wrap(scrollArray).each(index => {
-                cy.task('logger', {
-                    type: 'trace',
-                    message: `capturing ${index}/${numScrolls} viewport for the fullpage capture`
-                });
-                cy.screenshot(`tmp/${imageName}/${index - 1}`, {
-                    capture: "viewport",
-                    overwrite: true,
-                    onAfterScreenshot($el, props) {
-                        fullpageData = {
-                            tmpPath: props.path,
-                            url: $el[0].baseURI
-                        };
-                    }
-                }).then(() => {
-                    win.eval(`document.body.style.transform="translateY(${(index) * -100}vh)"`);
+                // Reset browser to initial state
+                win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+                win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+                // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
+                captureDom(win);
 
-                    if (numScrolls === index) {
-                        // This if checks if the for-loop is done...
-                        cy.task('logger', {
-                            type: 'debug',
-                            message: `finished taking viewports, now going to the stitchImages task`
-                        });
-                        // Jump into stitchImages task/method to stitch all the viewports together
-                        cy.task('stitchImages', {
-                            imageName,
-                            imagesPath: fullpageData.tmpPath,
-                            pageHeight: offsetHeight,
-                            viewportWidth,
-                            viewportHeight
-                        })
-                            .then((imageData) => {
-                                if (imageData === "error") { //should not get here, error should be handled earlier
-                                    cy.task('logger', {
-                                        type: 'error',
-                                        message: `Error with lazyload on ${imageName}, no screenshot taken`
-                                    });
-                                    return;
-                                }
-                                picProps = {
-                                    path: imageData.path,
-                                    dimensions: {
-                                        height: imageData.height,
-                                        width: imageData.width
-                                    }
-                                };
+                win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
+                cy.task('logger', {type: 'trace', message: `After default fullpage cy.screenshot('${name}')`});
 
-                                // Reset browser to initial state
-                                cy.task('logger', {type: 'trace', message: `After fullpage cy.screenshot('${name}')`});
-                                win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
-                                win.eval(`document.body.style.transform='${initialPageState.transform}'`);
-                                ensureScrolledToTop(win)
-                                captureDom(win);
-                                win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
-
-                                // Read the new image base64 to blob to be sent to AWS
-                                readImageAndBase64ToBlob();
-                            });
-                    }
-                });
+                // Read the new image base64 to blob to be sent to AWS
+                readImageAndBase64ToBlob();
             });
-            return;
         }
-        cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`});
-        if (runFreezePage) {
-            // freezePageResult = win.eval(toolkitScripts.freezePage)
-            win.eval(toolkitScripts.freezePage); // don't overwrite for now. in freeze page test #1 it defaults to here because it is a single page webpage, maybe allow the other method to take single page screenshots
-            cy.task('logger', {type: 'debug', message: `running freezePage in the default fullpage.`});
-        }
-
-        // Old/default Cypress screenshot / JS_SCROLL screenshot
-        cy.screenshot(
-            name,
-            modifiedOptions,
-        ).then(() => {
-            if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
-
-            // Reset browser to initial state
-            win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
-            win.eval(`document.body.style.transform='${initialPageState.transform}'`);
-            // ensureScrolledToTop(win) //this creates issues, but this is the JS_SCROLL method
-            captureDom(win);
-
-            win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
-            cy.task('logger', {type: 'trace', message: `After default fullpage cy.screenshot('${name}')`});
-
-            // Read the new image base64 to blob to be sent to AWS
-            readImageAndBase64ToBlob();
-        });
     }
     if (!vtConfFile.fail) {
         // Return the scroll bar after the sbvtCapture has completed
