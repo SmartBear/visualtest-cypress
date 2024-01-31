@@ -436,20 +436,22 @@ function makeGlobalRunHooks() {
                 };
             },
             async lowerImageResolution({image, viewportWidth, tmpPath}) {
-                const folderPath = tmpPath.substring(0, tmpPath.lastIndexOf(path.sep));
+                const imageToBeReducedPath = tmpPath.substring(0, tmpPath.lastIndexOf(path.sep));
+                const tmpFolderPath = path.dirname(imageToBeReducedPath)
                 logger.info(`lowerImageResolution() viewportWidth: ${viewportWidth}, imagePath: ${image}`);
                 const sharp = require('sharp');
                 try {
                     const buffer = await sharp(image)
                         .resize(viewportWidth)
                         .toBuffer();
-                    await fs.ensureDir(folderPath)
-                    const newFilePath = folderPath +'-final-reduced.png'
+                    await fs.ensureDir(imageToBeReducedPath)
+                    const newFilePath = imageToBeReducedPath +'-final-reduced.png'
                     await sharp(image)
                         .resize(viewportWidth)
                         .toFile(newFilePath);
                     const metaData = await getMetaData(sharp(buffer));
                     return {
+                        deletePath: tmpFolderPath,
                         path: newFilePath,
                         height: metaData.height,
                         width: metaData.width,
@@ -468,6 +470,10 @@ function makeGlobalRunHooks() {
                     logger.info(`deleting: ${path}`);
                 }
                 fs.unlinkSync(path);
+                return null;
+            },
+            async deleteTmpFolder(path) {
+                await tmpFileCleanUp(path)
                 return null;
             },
             async logger({type, message}) { //this task is for printing logs to node console from the custom command

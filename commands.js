@@ -377,12 +377,13 @@ const s3ErrorPatch = (response, imageId) => {
         cy.task('logger', {type: 'info', message: `after s3 image upload -> image PATCH response: ${response.status}`});
     })
 }
-const readImageAndBase64ToBlob = () => {
+const readImageAndBase64ToBlob = (deleteFolderPath) => {
     cy.readFile(picProps.path, "base64").then((file) => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
         checkForChangedDimensions();
         sendImageApiJSON();
     });
+    if (deleteFolderPath) cy.task('deleteTmpFolder', deleteFolderPath);
 };
 const checkForChangedDimensions = () => {
     if (!picProps.pixelRatio) { //calculate pixel ratio
@@ -547,7 +548,7 @@ const takeAllTheViewportScreenshots = (win, scrollArray, numScrolls, viewportHei
                                 imageData.width = newImageData.width
                                 imageData.height = newImageData.height
 
-                                takeTheStitchImage(imageData, win, initialPageState)
+                                takeTheStitchImage(imageData, win, initialPageState, newImageData.deletePath)
                             })
                         } else {
                             takeTheStitchImage(imageData, win, initialPageState)
@@ -558,7 +559,7 @@ const takeAllTheViewportScreenshots = (win, scrollArray, numScrolls, viewportHei
     });
 }
 
-const takeTheStitchImage = (imageData, win, initialPageState) => {
+const takeTheStitchImage = (imageData, win, initialPageState, deletePath = null) => {
     picProps = {
         path: imageData.path,
         dimensions: {
@@ -574,7 +575,7 @@ const takeTheStitchImage = (imageData, win, initialPageState) => {
     win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
 
     // Read the new image base64 to blob to be sent to AWS
-    readImageAndBase64ToBlob();
+    readImageAndBase64ToBlob(deletePath);
 }
 const runLazyload = (waitTime, scrollArray, numScrolls, viewportHeight) => {
     cy.task('logger', {
