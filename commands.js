@@ -167,15 +167,20 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
             let testScreenshotProps;
             cy.screenshot(
                 name,
-                {capture: 'viewport',
+                {
+                    capture: 'viewport',
                     onAfterScreenshot($el, props) {
                         testScreenshotProps = props;
-                    }},
+                    }
+                },
             ).then(() => {
                 cy.task('deleteImage', {path: testScreenshotProps.path});
                 if (testScreenshotProps.dimensions.height !== viewportHeight) {
                     // This is due to an ongoing issue where Chrome Cypress viewport screenshots are not capturing the whole viewport and then when going to stitch it together it has issues, so default back to Cypress's default
-                    cy.task('logger', {type: 'info', message: `starting cypress's default full-page screenshot chrome because of the mismatch`});
+                    cy.task('logger', {
+                        type: 'info',
+                        message: `starting cypress's default full-page screenshot chrome because of the mismatch`
+                    });
                     if (modifiedOptions.freezePage) freezePageResult = runFreezePage(win, toolkitScripts.freezePage);
                     takeDefaultFullpageScreenshot(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
                 } else {
@@ -372,12 +377,13 @@ const s3ErrorPatch = (response, imageId) => {
         cy.task('logger', {type: 'info', message: `after s3 image upload -> image PATCH response: ${response.status}`});
     })
 }
-const readImageAndBase64ToBlob = () => {
+const readImageAndBase64ToBlob = (deleteFolderPath) => {
     cy.readFile(picProps.path, "base64").then((file) => {
         blobData = Cypress.Blob.base64StringToBlob(file, 'image/png');
         checkForChangedDimensions();
         sendImageApiJSON();
     });
+    if (deleteFolderPath) cy.task('deleteTmpFolder', deleteFolderPath);
 };
 const checkForChangedDimensions = () => {
     if (!picProps.pixelRatio) { //calculate pixel ratio
@@ -532,30 +538,44 @@ const takeAllTheViewportScreenshots = (win, scrollArray, numScrolls, viewportHei
                             });
                             return;
                         }
-                        picProps = {
-                            path: imageData.path,
-                            dimensions: {
-                                height: imageData.height,
-                                width: imageData.width
-                            }
-                        };
-                        // Reset browser to initial state
-                        cy.task('logger', {
-                            type: 'trace',
-                            message: `After fullpage cy.screenshot('${name}')`
-                        });
-                        win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
-                        win.eval(`document.body.style.transform='${initialPageState.transform}'`);
-                        ensureScrolledToTop(win);
-                        captureDom(win);
-                        win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
+                        if (viewportWidth !== imageData.width) {
+                            cy.task('lowerImageResolution', {
+                                image: imageData.path,
+                                viewportWidth: viewportWidth,
+                                tmpPath: fullpageData.tmpPath
+                            }).then((newImageData) => {
+                                imageData.path = newImageData.path
+                                imageData.width = newImageData.width
+                                imageData.height = newImageData.height
 
-                        // Read the new image base64 to blob to be sent to AWS
-                        readImageAndBase64ToBlob();
+                                takeTheStitchImage(imageData, win, initialPageState, newImageData.deletePath)
+                            })
+                        } else {
+                            takeTheStitchImage(imageData, win, initialPageState)
+                        }
                     });
             }
         });
     });
+}
+
+const takeTheStitchImage = (imageData, win, initialPageState, deletePath = null) => {
+    picProps = {
+        path: imageData.path,
+        dimensions: {
+            height: imageData.height,
+            width: imageData.width
+        }
+    };
+    // Reset browser to initial state
+    win.eval(`window.scrollTo(${initialPageState.scrollX}, ${initialPageState.scrollY})`);
+    win.eval(`document.body.style.transform='${initialPageState.transform}'`);
+    ensureScrolledToTop(win);
+    captureDom(win);
+    win.eval(`document.documentElement.style.overflow='${initialPageState.documentOverflow}'`);
+
+    // Read the new image base64 to blob to be sent to AWS
+    readImageAndBase64ToBlob(deletePath);
 }
 const runLazyload = (waitTime, scrollArray, numScrolls, viewportHeight) => {
     cy.task('logger', {

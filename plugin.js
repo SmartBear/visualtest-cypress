@@ -349,7 +349,7 @@ function makeGlobalRunHooks() {
                 if (configFile.debug) {
                     // copy all the contents of tmp/folderPath to the configFile.debug folder
                     await fs.ensureDir(configFile.debug);
-                    await fs.copy(folderPath, (configFile.debug + path.sep + imageName+ "-fullPage" ), {
+                    await fs.copy(folderPath, (configFile.debug + path.sep + imageName + "-fullPage"), {
                         overwrite: true,
                     });
                 }
@@ -435,6 +435,32 @@ function makeGlobalRunHooks() {
                     path: userPath
                 };
             },
+            async lowerImageResolution({image, viewportWidth, tmpPath}) {
+                const imageToBeReducedPath = tmpPath.substring(0, tmpPath.lastIndexOf(path.sep));
+                const tmpFolderPath = path.dirname(imageToBeReducedPath)
+                logger.info(`lowerImageResolution() viewportWidth: ${viewportWidth}, imagePath: ${image}`);
+                const sharp = require('sharp');
+                try {
+                    const buffer = await sharp(image)
+                        .resize(viewportWidth)
+                        .toBuffer();
+                    await fs.ensureDir(imageToBeReducedPath)
+                    const newFilePath = imageToBeReducedPath +'-final-reduced.png'
+                    await sharp(image)
+                        .resize(viewportWidth)
+                        .toFile(newFilePath);
+                    const metaData = await getMetaData(sharp(buffer));
+                    return {
+                        deletePath: tmpFolderPath,
+                        path: newFilePath,
+                        height: metaData.height,
+                        width: metaData.width,
+                    };
+                } catch (error) {
+                    console.error(error);
+                    throw new Error(`Error with lowering image resolution: ${error}`);
+                }
+            },
             async copy({path, imageName, imageType}) {
                 if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`); //copy the final image to debug folder
                 return null;
@@ -444,6 +470,10 @@ function makeGlobalRunHooks() {
                     logger.info(`deleting: ${path}`);
                 }
                 fs.unlinkSync(path);
+                return null;
+            },
+            async deleteTmpFolder(path) {
+                await tmpFileCleanUp(path)
                 return null;
             },
             async logger({type, message}) { //this task is for printing logs to node console from the custom command
