@@ -349,7 +349,7 @@ function makeGlobalRunHooks() {
                 if (configFile.debug) {
                     // copy all the contents of tmp/folderPath to the configFile.debug folder
                     await fs.ensureDir(configFile.debug);
-                    await fs.copy(folderPath, (configFile.debug + path.sep + imageName+ "-fullPage" ), {
+                    await fs.copy(folderPath, (configFile.debug + path.sep + imageName + "-fullPage"), {
                         overwrite: true,
                     });
                 }
@@ -434,6 +434,30 @@ function makeGlobalRunHooks() {
                     width: fullPageImageMetaData.width,
                     path: userPath
                 };
+            },
+            async lowerImageResolution({image, viewportWidth, tmpPath}) {
+                const folderPath = tmpPath.substring(0, tmpPath.lastIndexOf(path.sep));
+                logger.info(`lowerImageResolution() viewportWidth: ${viewportWidth}, imagePath: ${image}`);
+                const sharp = require('sharp');
+                try {
+                    const buffer = await sharp(image)
+                        .resize(viewportWidth)
+                        .toBuffer();
+                    await fs.ensureDir(folderPath)
+                    const newFilePath = folderPath +'-final-reduced.png'
+                    await sharp(image)
+                        .resize(viewportWidth)
+                        .toFile(newFilePath);
+                    const metaData = await getMetaData(sharp(buffer));
+                    return {
+                        path: newFilePath,
+                        height: metaData.height,
+                        width: metaData.width,
+                    };
+                } catch (error) {
+                    console.error(error);
+                    throw new Error(`Error with lowering image resolution: ${error}`);
+                }
             },
             async copy({path, imageName, imageType}) {
                 if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`); //copy the final image to debug folder
