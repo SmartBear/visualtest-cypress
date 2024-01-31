@@ -461,8 +461,8 @@ function makeGlobalRunHooks() {
                     throw new Error(`Error with lowering image resolution: ${error}`);
                 }
             },
-            async copy({path, imageName, imageType}) {
-                if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${imageName}.png`); //copy the final image to debug folder
+            async copy({path, imageName, imageType, reduced = false}) {
+                if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${reduced ? `${imageName}-reduced` : imageName}.png`); //copy the final image to debug folder
                 return null;
             },
             async deleteImage({path}) {
