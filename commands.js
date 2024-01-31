@@ -548,6 +548,8 @@ const takeAllTheViewportScreenshots = (win, scrollArray, numScrolls, viewportHei
                                 imageData.width = newImageData.width
                                 imageData.height = newImageData.height
 
+                                if (vtConfFile.debug) cy.task('copy', {path: imageData.path, imageName: imageName, imageType, reduced: true});
+
                                 takeTheStitchImage(imageData, win, initialPageState, newImageData.deletePath)
                             })
                         } else {
