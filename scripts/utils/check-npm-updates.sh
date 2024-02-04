@@ -7,6 +7,8 @@ YELLOW=$(tput setaf 3)
 BLUE=$(tput setaf 4)
 RESET=$(tput sgr0)
 
+npm i
+
 # Check for package updates, excluding chalk
 echo "${BLUE}Checking for package updates (excluding chalk)${RESET}..."
 
