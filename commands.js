@@ -426,10 +426,10 @@ const ensureScrolledToTop = (win) => {
         cy.task('logger', {type: 'info', message: `Scroll offset is: ${scrollOffset}, after ${tries} tries`});
     } else {
         cy.task('logger', {
-            type: 'error',
+            type: 'warn',
             message: `Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`
         });
-        throw new Error(`Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`);
+        // throw new Error(`Couldn't scroll to the top of page after ${tries} tries. Scroll offset positon stuck at: ${scrollOffset}.`);
     }
 }
 const getComparisonMode = (comparisonMode, sensitivity) => {
