@@ -103,10 +103,7 @@ let configFile = (() => {
 })();
 const apiRequest = async (method, url, body, headers) => {
     return await axios({
-        method: method,
-        url: url,
-        headers: headers,
-        data: body
+        method: method, url: url, headers: headers, data: body
     }).catch((err) => {
         console.log(`Full error is: %o`, err.response.data);
         logger.info(`Full error is: %o`, err.response.data);
@@ -306,18 +303,11 @@ function makeGlobalRunHooks() {
 
                     configFile.cypressVersion = usersCypress.version;
                     try {
-                        const postResponse = await apiRequest(
-                            'post',
-                            `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
-                                testRunName: configFile.testRunName,
-                                sdk: 'cypress',
-                                sdkVersion: `${package_json.version}/c${usersCypress.version}`,
-                                ...(!!process.env.SBVT_TEST_GROUP_ID
-                                    ? {testGroupId: process.env.SBVT_TEST_GROUP_ID}
-                                    : !!configFile.testGroupName
-                                        ? {testGroupId: await getCreateTestGroupId(getUsersTestGroupName(configFile.testGroupName), configFile.projectToken)}
-                                        : {}),
-                            });
+                        const postResponse = await apiRequest('post', `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
+                            testRunName: configFile.testRunName,
+                            sdk: 'cypress',
+                            sdkVersion: `${package_json.version}/c${usersCypress.version}`, ...(!!process.env.SBVT_TEST_GROUP_ID ? {testGroupId: process.env.SBVT_TEST_GROUP_ID} : !!configFile.testGroupName ? {testGroupId: await getCreateTestGroupId(getUsersTestGroupName(configFile.testGroupName), configFile.projectToken)} : {}),
+                        });
                         configFile.testRunId = postResponse.data.testRunId;
                         logger.debug('config.testRunId: ' + configFile.testRunId);
                     } catch (error) {
@@ -331,8 +321,7 @@ function makeGlobalRunHooks() {
                     logger.trace('—————————————————Successfully created a testRunId—————————————————');
                 }
                 return configFile;
-            },
-            async apiRequest({method, url, body, headers}) {
+            }, async apiRequest({method, url, body, headers}) {
                 const response = {};
                 try {
                     const res = await apiRequest(method, url, body, headers);
@@ -343,8 +332,7 @@ function makeGlobalRunHooks() {
                     return response;
                 }
 
-            },
-            async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
+            }, async stitchImages({imageName, imagesPath, pageHeight, viewportWidth, viewportHeight}) {
                 const folderPath = imagesPath.substring(0, imagesPath.lastIndexOf(path.sep));
                 if (configFile.debug) {
                     // copy all the contents of tmp/folderPath to the configFile.debug folder
@@ -387,10 +375,7 @@ function makeGlobalRunHooks() {
                         await fs.copy(bottomImagePath, `${debugFolderPath}/${imageName}-fullPage/${lastImageFileName}-before-cropped-bottom.png`);
                     }
                     await bottomImage.extract({
-                        top: 0,
-                        left: 0,
-                        width: viewportWidth,
-                        height: viewportHeight - toBeCropped,
+                        top: 0, left: 0, width: viewportWidth, height: viewportHeight - toBeCropped,
                     })
 
                     if (configFile.debug) await bottomImage.toFile(`${debugFolderPath}/${imageName}-fullPage/${files.length - 1}.png`);
@@ -430,12 +415,9 @@ function makeGlobalRunHooks() {
                 await tmpFileCleanUp(tmpFolderFilePath)
                 const fullPageImageMetaData = await getMetaData(newImage);
                 return {
-                    height: fullPageImageMetaData.height,
-                    width: fullPageImageMetaData.width,
-                    path: userPath
+                    height: fullPageImageMetaData.height, width: fullPageImageMetaData.width, path: userPath
                 };
-            },
-            async lowerImageResolution({image, viewportWidth, tmpPath}) {
+            }, async lowerImageResolution({image, viewportWidth, tmpPath}) {
                 const imageToBeReducedPath = tmpPath.substring(0, tmpPath.lastIndexOf(path.sep));
                 const tmpFolderPath = path.dirname(imageToBeReducedPath)
                 logger.info(`lowerImageResolution() viewportWidth: ${viewportWidth}, imagePath: ${image}`);
@@ -445,59 +427,42 @@ function makeGlobalRunHooks() {
                         .resize(viewportWidth)
                         .toBuffer();
                     await fs.ensureDir(imageToBeReducedPath)
-                    const newFilePath = imageToBeReducedPath +'-final-reduced.png'
+                    const newFilePath = imageToBeReducedPath + '-final-reduced.png'
                     await sharp(image)
                         .resize(viewportWidth)
                         .toFile(newFilePath);
                     const metaData = await getMetaData(sharp(buffer));
                     return {
-                        deletePath: tmpFolderPath,
-                        path: newFilePath,
-                        height: metaData.height,
-                        width: metaData.width,
+                        deletePath: tmpFolderPath, path: newFilePath, height: metaData.height, width: metaData.width,
                     };
                 } catch (error) {
                     console.error(error);
                     throw new Error(`Error with lowering image resolution: ${error}`);
                 }
-            },
-            async copy({path, imageName, imageType, reduced = false}) {
+            }, async copy({path, imageName, imageType, reduced = false}) {
                 if (configFile.debug) await fs.copy(path, `${debugFolderPath}/${imageName}-${imageType}/${reduced ? `${imageName}-reduced` : imageName}.png`); //copy the final image to debug folder
                 return null;
-            },
-            async deleteImage({path}) {
+            }, async deleteImage({path}) {
                 if (configFile.debug) {
                     logger.info(`deleting: ${path}`);
                 }
                 fs.unlinkSync(path);
                 return null;
-            },
-            async deleteTmpFolder(path) {
+            }, async deleteTmpFolder(path) {
                 await tmpFileCleanUp(path)
                 return null;
-            },
-            async logger({type, message}) { //this task is for printing logs to node console from the custom command
+            }, async logger({type, message}) { //this task is for printing logs to node console from the custom command
                 //todo this still isnt waiting to print the logger before returning
-                type === 'fatal' ? await logger.fatal(message) :
-                    type === 'error' ? await logger.error(message) :
-                        type === 'warn' ? await logger.warn(message) :
-                            type === 'info' ? await logger.info(message) :
-                                type === 'debug' ? await logger.debug(message) :
-                                    type === 'trace' ? await logger.trace(message) :
-                                        await logger.warn('error with the logger task');
+                type === 'fatal' ? await logger.fatal(message) : type === 'error' ? await logger.error(message) : type === 'warn' ? await logger.warn(message) : type === 'info' ? await logger.info(message) : type === 'debug' ? await logger.debug(message) : type === 'trace' ? await logger.trace(message) : await logger.warn('error with the logger task');
                 return null;
-            },
-            async log({message}) {
+            }, async log({message}) {
                 console.log(message);
                 return null;
-            },
-            async getOsVersion() {
+            }, async getOsVersion() {
                 return os.release();
-            },
-            getToolkit() {
+            }, getToolkit() {
                 return domToolKit;
-            },
-            async getTestRunResult(timeoutMinutes = 3) {
+            }, async getTestRunResult(timeoutMinutes = 3) {
                 const response = {};
                 try {
                     if (!configFile.url) {
@@ -527,8 +492,7 @@ function makeGlobalRunHooks() {
                     logger.trace(error);
                     return null;
                 }
-            },
-            printReport(comparisonResponse) {
+            }, printReport(comparisonResponse) {
                 try {
                     process.stdout.write(`View your ${comparisonResponse.aggregate.failed + comparisonResponse.aggregate.passed} ${(comparisonResponse.aggregate.failed + comparisonResponse.aggregate.passed === 1 ? 'capture' : 'captures')} here: `);
                     console.log(chalk.blue(`${configFile.websiteUrl}/projects/${configFile.projectId}/testruns/${configFile.testRunId}/comparisons`));
@@ -556,9 +520,7 @@ function makePluginExport() {
             setupNodeEventState = true; //for not throwing an error if the user doesn't have setupNodeEvents SBVT-335
 
         }
-        const pluginModuleExports = pluginModule.exports.e2e
-            ? pluginModule.exports.e2e.setupNodeEvents
-            : pluginModule.exports;
+        const pluginModuleExports = pluginModule.exports.e2e ? pluginModule.exports.e2e.setupNodeEvents : pluginModule.exports;
         const setupNodeEvents = async function (...args) {
             const globalHooks = makeGlobalRunHooks();
             const [origOn] = args;
@@ -600,25 +562,16 @@ const tmpFileCleanUp = async (folderPath) => {
 
 const getCreateTestGroupId = async (testGroupName, projectToken) => {
     const projectId = projectToken?.split('/')[0];
-    const testGroupResponse = await apiRequest(
-        'post',
-        `${host}/api/v1/projects/${projectId}/testgroups`,
-        {
-            testGroupName,
-        },
-    );
+    const testGroupResponse = await apiRequest('post', `${host}/api/v1/projects/${projectId}/testgroups`, {
+        testGroupName,
+    },);
     return testGroupResponse.data.testGroupId
 }
 
 const getUsersTestGroupName = (configFileTestGroupName) => {
-    const testGroupName =
-        configFileTestGroupName ?
-            configFileTestGroupName :
-            !!process.env.SBVT_TEST_GROUP_NAME ?
-                process.env.SBVT_TEST_GROUP_NAME : null
+    const testGroupName = configFileTestGroupName ? configFileTestGroupName : !!process.env.SBVT_TEST_GROUP_NAME ? process.env.SBVT_TEST_GROUP_NAME : null
 
-    if (!testGroupName) return null
-    else {
+    if (!testGroupName) return null; else {
         if (typeof testGroupName !== 'string') throw new Error('testGroupName must be a string')
         if (testGroupName.length > 100) throw new Error(`The maximum size of testGroupName is 100 characters. ${testGroupName.length} characters given.`)
         return testGroupName
