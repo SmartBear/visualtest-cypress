@@ -1,3 +1,5 @@
+import 'cypress-axe'
+
 const func = {
     onAfterScreenshot($el, props) {
         picProps = props;
@@ -6,8 +8,7 @@ const func = {
 };
 
 let picProps, blobData, userAgentData, picElements, imageName, vtConfFile, dom, toolkitScripts, deviceInfoResponse,
-    fullpageData, imageType, platformVersion, freezePageResult, apiRes, layoutData;
-
+    fullpageData, imageType, platformVersion, freezePageResult, apiRes, layoutData, violationRules;
 Cypress.Commands.add('sbvtCapture', {prevSubject: 'optional'}, (element, name, options) => {
     imageType = "fullPage"; //default to fullpage each time a user runs sbvtCapture
     apiRes = {};
@@ -110,6 +111,7 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
         cy.get(element).screenshot(name, modifiedOptions, imageType = 'element').then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             captureDom(win);
+            runAxeCheck()
             readImageAndBase64ToBlob();
         });
 
@@ -120,6 +122,7 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
         cy.screenshot(name, modifiedOptions,).then(() => {
             if (vtConfFile.debug) cy.task('copy', {path: picProps.path, imageName, imageType});
             captureDom(win);
+            runAxeCheck()
             readImageAndBase64ToBlob();
         });
     } else {
@@ -235,6 +238,7 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
                 }
 
                 takeAllTheViewportScreenshots(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
+                runAxeCheck()
                 return;
             }
             cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`});
@@ -242,6 +246,7 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
                 freezePageResult = runFreezePage(win, toolkitScripts.freezePage);
             }
             takeDefaultFullpageScreenshot(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
+            runAxeCheck()
         }
     }
     if (!vtConfFile.fail) {
@@ -268,7 +273,8 @@ const sendImageApiJSON = () => {
         userAgentInfo: JSON.stringify(userAgentData),
         comparisonMode: layoutData && layoutData.comparisonMode ? layoutData.comparisonMode : null,
         sensitivity: layoutData && (layoutData.sensitivity || layoutData.sensitivity === 0) ? layoutData.sensitivity : null,
-        headless: Cypress.browser.isHeadless
+        headless: Cypress.browser.isHeadless,
+        violations: JSON.stringify(violationRules)
     };
 
     Object.assign(imagePostData, deviceInfoResponse);
@@ -608,3 +614,45 @@ Cypress.Commands.add('sbvtPrintReport', () => {
             }
         });
 });
+
+export const runAxeCheck = () => {
+    cy.injectAxe()
+    cy.checkA11y(null, null, (violations) => {
+        return checkForViolations(violations);
+    }, true);
+
+    const checkForViolations = (violations) => {
+        if (violations?.length > 0) {
+            violationRules = [];
+            for (const violation of violations) {
+                for (const node of violation.nodes) {
+                    const getRectangle = ($el) => $el[0].getBoundingClientRect();
+                    cy.get(node.target[0])
+                        .then($el => {
+                            const rect = getRectangle($el);
+                            const final = {
+                                description: violation.description,
+                                help: violation.help,
+                                helpUrl: violation.helpUrl,
+                                id: violation.id,
+                                impact: violation.impact,
+                                boundingBox: {
+                                    x: rect.x,
+                                    y: rect.y,
+                                    width: rect.width,
+                                    height: rect.height,
+                                    target: node.target[0],
+                                    html: $el[0].outerHTML
+                                },
+                            };
+                            violationRules.push(final);
+                        });
+                }
+            }
+            // cy.task('log', {message: violationRules})
+            return violationRules;
+        } else {
+            return null;
+        }
+    }
+}
