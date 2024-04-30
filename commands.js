@@ -237,16 +237,16 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
                     freezePageResult = runFreezePage(win, toolkitScripts.freezePage);
                 }
 
-                takeAllTheViewportScreenshots(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
                 runAxeCheck()
+                takeAllTheViewportScreenshots(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
                 return;
             }
             cy.task('logger', {type: 'info', message: `starting cypress's default fullpage screenshot`});
             if (modifiedOptions.freezePage) {
                 freezePageResult = runFreezePage(win, toolkitScripts.freezePage);
             }
-            takeDefaultFullpageScreenshot(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
             runAxeCheck()
+            takeDefaultFullpageScreenshot(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
         }
     }
     if (!vtConfFile.fail) {
@@ -377,17 +377,17 @@ const checkForChangedDimensions = () => {
     }
     if (picProps.pixelRatio && Cypress.browser.isHeadless && dom.viewport.width * picProps.pixelRatio !== picProps.dimensions.width) {
         cy.task('logger', {
-            type: "fatal",
+            type: "info",
             message: `${dom.viewport.width * picProps.pixelRatio} !== ${picProps.dimensions.width} ----> dom.viewport.width*picProps.pixelRatio !== picProps.dimensions.width`
         });
         // cy.task('logger', {type: "fatal", message: `${dom.viewport.width}*${picProps.pixelRatio} !== ${picProps.dimensions.width} ----> dom.viewport.width*picProps.pixelRatio !== picProps.dimensions.width`});
-        cy.task('logger', {type: "warn", message: `It looks like you are trying to change the viewport`});
+        cy.task('logger', {type: "info", message: `It looks like you are trying to change the viewport`});
         cy.task('logger', {
-            type: "warn", message: `This issue with Cypress makes thee captured image look disproportional`
+            type: "info", message: `This issue with Cypress makes thee captured image look disproportional`
         });
-        cy.task('logger', {type: "warn", message: `Check this Cypress documentation for a solution: `});
+        cy.task('logger', {type: "info", message: `Check this Cypress documentation for a solution: `});
         cy.task('logger', {
-            type: "warn",
+            type: "info",
             message: `\t\thttps://docs.cypress.io/api/plugins/browser-launch-api#Set-screen-size-when-running-headless`
         });
     }
@@ -576,7 +576,14 @@ const takeDefaultFullpageScreenshot = (win, scrollArray, numScrolls, viewportHei
         cy.task('logger', {type: 'trace', message: `After default fullpage cy.screenshot('${name}')`});
 
         // Read the new image base64 to blob to be sent to AWS
-        readImageAndBase64ToBlob();
+        cy.task('lowerImageResolution', {
+            image: picProps.path, viewportWidth: viewportWidth, tmpPath: picProps.path
+        }).then((newImageData) => {
+            picProps.path = newImageData.path
+            picProps.dimensions.width = newImageData.width
+            picProps.dimensions.height = newImageData.height
+            readImageAndBase64ToBlob();
+        })
     });
 }
 const runFreezePage = (win, script) => {
