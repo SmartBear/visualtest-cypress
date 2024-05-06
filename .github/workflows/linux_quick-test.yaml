@@ -3,9 +3,7 @@ on: [push]
 #on: [pull_request]
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
