@@ -125,6 +125,13 @@ module.exports = {
 // OR save on the environment variable 
 // SBVT_TEST_GROUP_NAME = 'test group name'
 ```
+## Assigning SCM data to a test run
+
+Save Source Control Manager data on the environment variable
+```bash
+SBVT_SCM_BRANCH=branch-name 
+SBVT_SCM_COMMIT_ID=commit-hash
+```
 
 ## Manual Setup
 
