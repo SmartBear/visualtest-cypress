@@ -37,4 +37,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
           TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
+          SBVT_SCM_BRANCH: ${{ github.head_ref || github.ref_name }}
+          SBVT_SCM_COMMIT_ID: ${{ github.sha }}
           DEBUG: TRUE

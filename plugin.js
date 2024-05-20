@@ -306,7 +306,10 @@ function makeGlobalRunHooks() {
                         const postResponse = await apiRequest('post', `${configFile.url}/api/v1/projects/${configFile.projectId}/testruns`, {
                             testRunName: configFile.testRunName,
                             sdk: 'cypress',
-                            sdkVersion: `${package_json.version}/c${usersCypress.version}`, ...(!!process.env.SBVT_TEST_GROUP_ID ? {testGroupId: process.env.SBVT_TEST_GROUP_ID} : !!configFile.testGroupName ? {testGroupId: await getCreateTestGroupId(getUsersTestGroupName(configFile.testGroupName), configFile.projectToken)} : {}),
+                            sdkVersion: `${package_json.version}/c${usersCypress.version}`,
+                            ...(!!process.env.SBVT_TEST_GROUP_ID ? {testGroupId: process.env.SBVT_TEST_GROUP_ID} : !!configFile.testGroupName ? {testGroupId: await getCreateTestGroupId(getUsersTestGroupName(configFile.testGroupName), configFile.projectToken)} : {}),
+                            ...(!!process.env.SBVT_SCM_COMMIT_ID ? {scmCommitId: process.env.SBVT_SCM_COMMIT_ID} : {}),
+                            ...(!!process.env.SBVT_SCM_BRANCH ? {scmBranch: process.env.SBVT_SCM_BRANCH} : {}),
                         });
                         configFile.testRunId = postResponse.data.testRunId;
                         logger.debug('config.testRunId: ' + configFile.testRunId);
