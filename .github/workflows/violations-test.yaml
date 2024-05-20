@@ -1,12 +1,19 @@
-name: print-report-check
+name: violations-check
 #on: [push]
 on: [pull_request]
 jobs:
   cypress-run:
     runs-on: self-hosted
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Extract Branch Name and Set Test Run Name
+        id: set-test-run-name
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
+          echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME"
 
       - name: Install root dependencies
         run: npm install
@@ -15,23 +22,17 @@ jobs:
         run: npm install
         working-directory: ./test
 
-      - name: Install Cypress
-        run: npm install cypress@latest
-        working-directory: ./test
-
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           quiet: true
           working-directory: ./test
-          spec: cypress/e2e/test-spec/test_print_report*
+          spec: cypress/e2e/test-spec/test_axe*
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
-          TEST_RUN_NAME: "${{ github.workflow }}—${{ runner.os }}—${{ github.ref }}"
-          SBVT_SCM_BRANCH: ${{ github.head_ref || github.ref_name }}
-          SBVT_SCM_COMMIT_ID: ${{ github.sha }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
           DEBUG: TRUE
 
 

@@ -4,8 +4,6 @@ on: [push]
 jobs:
   cypress-run:
     runs-on: self-hosted
-    strategy:
-      fail-fast: true
 
     steps:
       - name: Checkout
@@ -25,7 +23,7 @@ jobs:
         working-directory: ./test
 
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           quiet: true
           working-directory: ./test
