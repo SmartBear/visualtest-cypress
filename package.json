@@ -9,19 +9,21 @@
   "scripts": {
     "test": "scripts/run-tests.sh",
     "full-test": "scripts/run-full-tests.sh",
-    "publish-npm-public": "scripts/publish-NPM-public.sh"
+    "publish-npm-public": "scripts/publish-NPM-public.sh",
+    "check-npm-packages": "scripts/utils/check-npm-updates.sh"
+
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.7",
     "chalk": "^4.1.2",
     "cypress-axe": "^1.5.0",
     "dotenv": "^16.4.5",
     "fs-extra": "^11.2.0",
-    "pino": "^9.1.0",
-    "pino-pretty": "^11.1.0",
-    "semver": "^7.6.2",
-    "sharp": "^0.33.4",
-    "uuid": "^9.0.1"
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.2",
+    "semver": "^7.6.3",
+    "sharp": "^0.33.5",
+    "uuid": "^10.0.0"
   },
   "bin": {
     "visualtest-setup": "./bin/setup.js"
@@ -36,7 +38,7 @@
   ],
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/uuid": "^9.0.8",
-    "npm-check-updates": "^16.14.20"
+    "@types/uuid": "^10.0.0",
+    "npm-check-updates": "^17.1.1"
   }
 }
