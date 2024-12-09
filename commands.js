@@ -170,6 +170,7 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
                         message: `starting cypress's default full-page screenshot chrome because of the mismatch`
                     });
                     if (modifiedOptions.freezePage) freezePageResult = runFreezePage(win, toolkitScripts.freezePage);
+                    runAxeCheck()
                     takeDefaultFullpageScreenshot(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
                 } else {
                     // No errors so far
@@ -189,7 +190,7 @@ const takeScreenshot = (element, name, modifiedOptions, win) => {
                     } else if (modifiedOptions.freezePage) {
                         freezePageResult = runFreezePage(win, toolkitScripts.freezePage);
                     }
-
+                    runAxeCheck()
                     takeAllTheViewportScreenshots(win, scrollArray, numScrolls, viewportHeight, offsetHeight, viewportWidth, imageName, initialPageState, modifiedOptions);
                     return null;
                 }
