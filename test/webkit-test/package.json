@@ -12,5 +12,8 @@
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:../..",
     "cypress": "13.2.0"
+  },
+  "overrides": {
+    "cross-spawn": "7.0.6"
   }
 }
