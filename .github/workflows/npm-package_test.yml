@@ -7,11 +7,10 @@ on:
 
 jobs:
   cypress-run:
-    runs-on: ${{ matrix.os }}
+    runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, macos-latest ]
         browser: [ firefox, chrome ]
 
     steps:

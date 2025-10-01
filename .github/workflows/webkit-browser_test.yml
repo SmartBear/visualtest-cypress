@@ -3,7 +3,7 @@ name: webkit-browser-check
 on: [pull_request]
 jobs:
   cypress-run:
-    runs-on: macos-latest
+    runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
