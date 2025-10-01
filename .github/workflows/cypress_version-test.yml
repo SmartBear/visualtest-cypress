@@ -57,6 +57,9 @@ jobs:
         run: npx jest
 
 
+      - name: Install linux sharp
+        run: npm install --include=optional sharp
+
       - name: Cypress run
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') || startsWith(matrix.cypress-version, 'dev') || startsWith(matrix.cypress-version, 'latest') }}
         uses: cypress-io/github-action@v5
