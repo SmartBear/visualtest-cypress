@@ -11,7 +11,6 @@
     "full-test": "scripts/run-full-tests.sh",
     "publish-npm-public": "scripts/publish-NPM-public.sh",
     "check-npm-packages": "scripts/utils/check-npm-updates.sh"
-
   },
   "dependencies": {
     "axios": "^1.7.9",
