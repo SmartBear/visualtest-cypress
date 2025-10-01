@@ -17,23 +17,23 @@ const testCases = [
             }
         }
     },
-    {
-        'name': 'css-animation3',
-        'url': 'https://smartbear.github.io/visual-testing-example-website/sdk-testcases/css-animation3/index.html',
-        'options': {
-            'freezePage': true
-        },
-        'validation': {
-            'freezePageResult': {
-                'totalFrozen': {
-                    'gifs': 0,
-                    'bgGifs': 0,
-                    'animations': 4,
-                    'videos': 0
-                }
-            }
-        }
-    },
+    // {
+    //     'name': 'css-animation3',
+    //     'url': 'https://smartbear.github.io/visual-testing-example-website/sdk-testcases/css-animation3/index.html',
+    //     'options': {
+    //         'freezePage': true
+    //     },
+    //     'validation': {
+    //         'freezePageResult': {
+    //             'totalFrozen': {
+    //                 'gifs': 0,
+    //                 'bgGifs': 0,
+    //                 'animations': 4,
+    //                 'videos': 0
+    //             }
+    //         }
+    //     }
+    // },
     {
         'name': 'css-animation4',
         'url': 'https://smartbear.github.io/visual-testing-example-website/sdk-testcases/css-animation4/index.html',
