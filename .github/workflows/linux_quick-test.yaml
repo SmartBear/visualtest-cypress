@@ -23,7 +23,7 @@ jobs:
         working-directory: ./test
 
       - name: Install linux sharp
-        run: npm install --include=optional sharp
+        run: npm install --os=linux --cpu=x64 sharp
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
