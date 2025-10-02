@@ -13,6 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install node version 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
         run: |

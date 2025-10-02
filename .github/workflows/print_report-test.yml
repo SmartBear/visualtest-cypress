@@ -8,6 +8,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install node version 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Install root dependencies
         run: npm install
 
