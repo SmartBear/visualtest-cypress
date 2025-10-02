@@ -16,7 +16,7 @@ jobs:
           echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME"
 
       - name: Install linux sharp
-        run: npm install --os=linux --cpu=x64 sharp
+        run: npm install --force @img/sharp-linux-x64
 
       - name: Install root dependencies
         run: npm install
