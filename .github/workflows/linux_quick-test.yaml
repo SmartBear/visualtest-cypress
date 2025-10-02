@@ -29,8 +29,7 @@ jobs:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/quick-test_*
-          with: 
-            install-command: npm install --os=linux --cpu=x64 sharp
+          install-command: npm install --os=linux --cpu=x64 sharp
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
