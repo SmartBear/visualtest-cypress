@@ -17,10 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install node version 16
+      - name: Install node version 24
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '24'
 
       - name: Install Visual Test & Cypress from NPM
         run: npm install cypress @smartbear/visualtest-cypress@latest

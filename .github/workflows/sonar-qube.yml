@@ -12,10 +12,10 @@ jobs:
     name: Build
     runs-on: self-hosted
     steps:
-      - name: Install node version 16
+      - name: Install node version 24
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '24'
 
       - uses: actions/checkout@v4
         with:

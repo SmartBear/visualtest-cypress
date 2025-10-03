@@ -27,16 +27,19 @@ jobs:
       - name: Setup Chrome
         if: ${{ startsWith(matrix.browser, 'chrome') }}
         uses: browser-actions/setup-chrome@v2
+        with:
+          install-chromedriver: true
+          install-dependencies: true
 
       - name: Setup Firefox
         if: ${{ startsWith(matrix.browser, 'firefox') }}
         uses: browser-actions/setup-firefox@v1
 
 
-      - name: Install node version 16
+      - name: Install node version 24
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '24'
 
       - name: Install root dependencies
         run: npm install
