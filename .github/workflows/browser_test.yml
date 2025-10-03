@@ -20,6 +20,19 @@ jobs:
           BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
           echo "::set-output name=TEST_RUN_NAME::${{ matrix.browser }}-${{ github.workflow }}—$BRANCH_NAME"
 
+      - name: Setup Edge
+        if: ${{ startsWith(matrix.browser, 'edge') }}
+        uses: browser-actions/setup-edge@v1
+
+      - name: Setup Chrome
+        if: ${{ startsWith(matrix.browser, 'chrome') }}
+        uses: browser-actions/setup-chrome@v2
+
+      - name: Setup Firefox
+        if: ${{ startsWith(matrix.browser, 'firefox') }}
+        uses: browser-actions/setup-firefox@v1
+
+
       - name: Install node version 16
         uses: actions/setup-node@v3
         with:
