@@ -65,7 +65,7 @@ jobs:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/quick-test_*
-          browser: ${{ matrix.browser }}
+          browser: ${{ steps.setup-edge.outputs.edge-path }}
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
