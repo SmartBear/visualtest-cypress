@@ -14,7 +14,9 @@ let error = false;
 const usersCypressVersion = (() => {
     let packageFile, usersCypress;
     try {
-        packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
+        let file = path.dirname(require.resolve('cypress', {paths: [cwd]}))
+        if (file.endsWith("dist")) file = path.resolve(file, '..'); // in cypress 15+ resolve paths to dist folder
+        packageFile = fs.readFileSync(path.resolve(file, 'package.json'));
         usersCypress = JSON.parse(packageFile.toString());
     } catch (err) {
         error = true;
