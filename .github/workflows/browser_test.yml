@@ -28,13 +28,11 @@ jobs:
         if: ${{ startsWith(matrix.browser, 'chrome') }}
         uses: browser-actions/setup-chrome@v2
         with:
-          install-chromedriver: true
           install-dependencies: true
 
       - name: Setup Firefox
         if: ${{ startsWith(matrix.browser, 'firefox') }}
         uses: browser-actions/setup-firefox@v1
-
 
       - name: Install node version 24
         uses: actions/setup-node@v3
@@ -47,9 +45,6 @@ jobs:
       - name: Install test dependencies
         run: npm install
         working-directory: ./test
-
-      - name: Install linux sharp
-        run: npm install --include=optional sharp
 
       # - name: Install Chrome Beta
       #   if: ${{ startsWith(matrix.browser, 'chrome') }}
