@@ -21,7 +21,7 @@ jobs:
         working-directory: ./test
 
       - name: Install Cypress
-        run: npm install cypress@latest
+        run: npm install cypress
         working-directory: ./test
 
       - name: Cypress run
