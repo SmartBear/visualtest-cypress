@@ -22,7 +22,12 @@ jobs:
 
       - name: Setup Edge
         if: ${{ startsWith(matrix.browser, 'edge') }}
+        id: setup-edge
         uses: browser-actions/setup-edge@v1
+
+      - name: Print Edge location
+        if: ${{ startsWith(matrix.browser, 'edge') }}
+        run: cat ${{ steps.setup-edge.outputs.edge-path }}
 
       - name: Setup Chrome
         if: ${{ startsWith(matrix.browser, 'chrome') }}
