@@ -59,7 +59,25 @@ jobs:
       #     sudo apt-get update
       #     sudo apt-get install google-chrome-beta
 
-      - name: Cypress run
+      - name: Cypress run chrome or firefox
+        if: ${{ matrix.browser == 'chrome-for-testing' || startsWith(matrix.browser, 'firefox') }}
+        uses: cypress-io/github-action@v6
+        with:
+          quiet: true
+          working-directory: ./test
+          spec: cypress/e2e/test-spec/quick-test_*
+          browser: ${{ matrix.browser }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
+          SBVT_SCM_BRANCH: ${{ github.head_ref || github.ref_name }}
+          SBVT_SCM_COMMIT_ID: ${{ github.sha }}
+          DEBUG: TRUE
+
+      - name: Cypress run edge
+        if: ${{ startsWith(matrix.browser, 'edge') }}
         uses: cypress-io/github-action@v6
         with:
           quiet: true
