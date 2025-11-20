@@ -13,6 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install node version 24
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
         run: |
@@ -55,7 +60,6 @@ jobs:
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') || startsWith(matrix.cypress-version, 'dev') || startsWith(matrix.cypress-version, 'latest') }}
         working-directory: ./test/version-control-test/above10
         run: npx jest
-
 
       - name: Cypress run
         if: ${{ startsWith(matrix.cypress-version, '10') || startsWith(matrix.cypress-version, '11') || startsWith(matrix.cypress-version, '12') || startsWith(matrix.cypress-version, 'dev') || startsWith(matrix.cypress-version, 'latest') }}

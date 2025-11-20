@@ -7,8 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [ firefox, chrome, 'chrome:beta', edge ]
-#        browser: [ firefox, chrome, edge ] #chrome beta causing issues
+        browser: [ firefox, chrome-for-testing, edge ] #chrome beta causing issues
 
     steps:
       - name: Checkout code
@@ -20,6 +19,30 @@ jobs:
           BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
           echo "::set-output name=TEST_RUN_NAME::${{ matrix.browser }}-${{ github.workflow }}—$BRANCH_NAME"
 
+      - name: Setup Edge
+        if: ${{ startsWith(matrix.browser, 'edge') }}
+        id: setup-edge
+        uses: browser-actions/setup-edge@v1
+
+      - name: Print Edge location
+        if: ${{ startsWith(matrix.browser, 'edge') }}
+        run: cat ${{ steps.setup-edge.outputs.edge-path }}
+
+      - name: Setup Chrome
+        if: ${{ startsWith(matrix.browser, 'chrome') }}
+        uses: browser-actions/setup-chrome@v2
+        with:
+          install-dependencies: true
+
+      - name: Setup Firefox
+        if: ${{ startsWith(matrix.browser, 'firefox') }}
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Install node version 24
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+
       - name: Install root dependencies
         run: npm install
 
@@ -27,21 +50,31 @@ jobs:
         run: npm install
         working-directory: ./test
 
-      - name: Install Chrome Beta
-        if: ${{ startsWith(matrix.browser, 'chrome') }}
-        run: |
-          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
-          sudo apt-get update
-          sudo apt-get install google-chrome-beta
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v5
+      - name: Cypress run chrome or firefox
+        if: ${{ matrix.browser == 'chrome-for-testing' || startsWith(matrix.browser, 'firefox') }}
+        uses: cypress-io/github-action@v6
         with:
           quiet: true
           working-directory: ./test
           spec: cypress/e2e/test-spec/quick-test_*
           browser: ${{ matrix.browser }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.DEV_EXAMPLE_7 }}
+          TEST_RUN_NAME: ${{ steps.set-test-run-name.outputs.TEST_RUN_NAME }}
+          SBVT_SCM_BRANCH: ${{ github.head_ref || github.ref_name }}
+          SBVT_SCM_COMMIT_ID: ${{ github.sha }}
+          DEBUG: TRUE
+
+      - name: Cypress run edge
+        if: ${{ startsWith(matrix.browser, 'edge') }}
+        uses: cypress-io/github-action@v6
+        with:
+          quiet: true
+          working-directory: ./test
+          spec: cypress/e2e/test-spec/quick-test_*
+          browser: ${{ steps.setup-edge.outputs.edge-path }}
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
