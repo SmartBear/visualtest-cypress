@@ -7,8 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # browser: [ firefox, chrome, 'chrome:beta', edge ]
-       browser: [ firefox, chrome-for-testing, edge ] #chrome beta causing issues
+        browser: [ firefox, chrome-for-testing, edge ] #chrome beta causing issues
 
     steps:
       - name: Checkout code
@@ -50,14 +49,6 @@ jobs:
       - name: Install test dependencies
         run: npm install
         working-directory: ./test
-
-      - name: Install Chrome Beta
-        if: ${{ startsWith(matrix.browser, 'chrome:beta') }}
-        run: |
-          curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome-beta.list
-          sudo apt-get update
-          sudo apt-get install google-chrome-beta
 
       - name: Cypress run chrome or firefox
         if: ${{ matrix.browser == 'chrome-for-testing' || startsWith(matrix.browser, 'firefox') }}
