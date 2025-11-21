@@ -21,12 +21,20 @@ jobs:
           BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}')
           echo "::set-output name=TEST_RUN_NAME::${{ github.workflow }}—$BRANCH_NAME" 
 
+      - name: Install node version 24
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+
       - name: Install root dependencies
         run: npm install
 
       - name: Install typescript-test dependencies
         run: npm install
         working-directory: ./test/typescript-test
+
+      - name: Install linux sharp
+        run: npm install --include=optional sharp
 
       - name: Setup visualtest
         run: npx visualtest-setup > visualtest-first-logs.txt

@@ -9,6 +9,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install node version 24
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+
       - name: Extract Branch Name and Set Test Run Name
         id: set-test-run-name
         run: |
@@ -21,6 +26,9 @@ jobs:
       - name: Install test dependencies
         run: npm install
         working-directory: ./test
+
+      - name: Install linux sharp
+        run: npm install --include=optional sharp
 
       - name: Cypress run
         uses: cypress-io/github-action@v6

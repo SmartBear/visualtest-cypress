@@ -19,7 +19,9 @@ let usersCypress, env, host, webUrl, cdnUrl, debugFolderPath;
 const sessionId = uuidv4();
 
 try {
-    const packageFile = fs.readFileSync(path.resolve(path.dirname(require.resolve('cypress', {paths: [cwd]})), 'package.json'));
+    let file = path.dirname(require.resolve('cypress', {paths: [cwd]}))
+    if (file.endsWith("dist")) file = path.resolve(file, '..'); // in cypress 15+ resolve paths to dist folder
+    packageFile = fs.readFileSync(path.resolve(file, 'package.json'));
     usersCypress = JSON.parse(packageFile.toString());
     if (!usersCypress.version) {
         usersCypress.version = "10.0.0.failure";

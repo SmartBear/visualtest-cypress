@@ -3,7 +3,7 @@ name: webkit-browser-check
 on: [pull_request]
 jobs:
   cypress-run:
-    runs-on: macos-latest
+    runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
@@ -13,8 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install node version 24
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+
       - name: Install root dependencies
         run: npm install
+
+      - name: Install playwright dependencies
+        run: npx playwright install-deps
 
       - name: Install test dependencies
         run: npm install
