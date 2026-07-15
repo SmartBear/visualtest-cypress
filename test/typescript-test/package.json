@@ -11,11 +11,12 @@
   "license": "ISC",
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:../..",
-    "cypress": "15.7.0",
-    "jest": "^30.2.0",
-    "typescript": "^5.8.3"
+    "cypress": "15.18.1",
+    "jest": "^30.4.2",
+    "typescript": "^5.9.3"
   },
   "overrides": {
-    "cross-spawn": "7.0.6"
+    "cross-spawn": "7.0.6",
+    "tmp": "0.2.7"
   }
 }
