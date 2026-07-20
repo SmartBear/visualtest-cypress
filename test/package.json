@@ -12,9 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:..",
-    "cypress": "^15.7.0",
+    "cypress": "^15.18.1",
     "mochawesome": "^7.1.4",
-    "mochawesome-merge": "^4.3.0",
+    "mochawesome-merge": "^5.1.1",
     "picomatch": "^2.3.2"
   }
 }
