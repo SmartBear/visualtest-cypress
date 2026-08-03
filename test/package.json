@@ -13,7 +13,7 @@
   "dependencies": {
     "@smartbear/visualtest-cypress": "file:..",
     "cypress": "^15.18.1",
-    "mochawesome": "^7.1.4",
+    "mochawesome": "^8.0.1",
     "mochawesome-merge": "^5.1.1",
     "picomatch": "^2.3.2"
   }
